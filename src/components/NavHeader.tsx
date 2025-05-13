@@ -1,5 +1,6 @@
 "use client";
 
+import { classNames } from "@/lib/utils";
 import {
   Dialog,
   DialogPanel,
@@ -12,84 +13,76 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import {
-  ChartPieIcon,
   ChevronDownIcon,
-  Fingerprint,
-  Grid2X2CheckIcon,
+  Eye,
   MenuIcon,
-  Phone,
-  PlayCircle,
-  RefreshCwIcon,
-  TextCursorIcon,
+  Paintbrush,
+  Palette,
   XIcon,
+  LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
-import { classNames } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
-const products = [
+const products: {
+  name: string;
+  description: string;
+  href: string;
+  icon: LucideIcon;
+  aiBadge?: boolean;
+}[] = [
   {
-    name: "Analytics",
-    description: "Get a better understanding of your traffic",
-    href: "#",
-    icon: ChartPieIcon,
+    name: "Studio",
+    description: "Playground for designing custom app themes",
+    href: "/studio",
+    icon: Palette,
   },
   {
-    name: "Engagement",
-    description: "Speak directly to your customers",
-    href: "#",
-    icon: TextCursorIcon,
+    name: "Preview",
+    description: "Preview your theme in real-time",
+    href: "/preview",
+    icon: Eye,
   },
   {
-    name: "Security",
-    description: "Your customers' data will be safe and secure",
-    href: "#",
-    icon: Fingerprint,
-  },
-  {
-    name: "Integrations",
-    description: "Connect with third-party tools",
-    href: "#",
-    icon: Grid2X2CheckIcon,
-  },
-  {
-    name: "Automations",
-    description: "Build strategic funnels that will convert",
-    href: "#",
-    icon: RefreshCwIcon,
+    name: "Generate",
+    description: "Generate a color palette for your app",
+    href: "/generate",
+    icon: Paintbrush,
+    aiBadge: true,
   },
 ];
-const callsToAction = [
-  { name: "Watch demo", href: "#", icon: PlayCircle },
-  { name: "Contact sales", href: "#", icon: Phone },
-];
-const company = [
-  { name: "About us", href: "#" },
-  { name: "Careers", href: "#" },
-  { name: "Support", href: "#" },
-  { name: "Press", href: "#" },
-  { name: "Blog", href: "#" },
-];
+// const callsToAction = [
+//   { name: "Watch demo", href: "#", icon: PlayCircle },
+//   { name: "Contact sales", href: "#", icon: Phone },
+// ];
+// const company = [
+//   { name: "About us", href: "#" },
+//   { name: "Careers", href: "#" },
+//   { name: "Support", href: "#" },
+//   { name: "Press", href: "#" },
+//   { name: "Blog", href: "#" },
+// ];
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-background border-b border-border">
+    <header className="bg-background border-b border-border z-1000">
       <nav
         aria-label="Global"
         className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
+          <Link href="/" className="-m-1.5 p-1.5">
+            <span className="sr-only">Theme Gen</span>
             <Image
               src="/logos/logo.svg"
               alt="Your Company"
               width={40}
               height={40}
             />
-          </a>
+          </Link>
         </div>
         <div className="flex lg:hidden">
           <button
@@ -104,10 +97,10 @@ export default function Example() {
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           <Popover className="relative">
             <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-text">
-              Product
+              Create
               <ChevronDownIcon
                 aria-hidden="true"
-                className="size-5 flex-none text-secondary"
+                className="size-5 flex-none text-text"
               />
             </PopoverButton>
 
@@ -119,81 +112,61 @@ export default function Example() {
                 {products.map((item) => (
                   <div
                     key={item.name}
-                    className="group relative flex gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-muted"
+                    className="group relative flex gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-onSurface/5"
                   >
-                    <div className="mt-1 flex size-11 flex-none items-center justify-center rounded-lg bg-muted group-hover:bg-background">
+                    <div className="mt-1 flex size-11 flex-none items-center justify-center rounded-lg bg-onSurface/5 group-hover:bg-background">
                       <item.icon
                         aria-hidden="true"
-                        className="size-6 text-secondary group-hover:text-primary"
+                        className="size-6 text-muted group-hover:text-primary"
                       />
                     </div>
                     <div className="flex-auto">
-                      <a
+                      <Link
                         href={item.href}
                         className="block font-semibold text-text"
                       >
                         {item.name}
+                        {item.aiBadge && (
+                          <span className="inline-flex ms-2 items-center rounded-md px-1.5 py-0.5 text-xs font-medium ai-badge">
+                            AI
+                          </span>
+                        )}
                         <span className="absolute inset-0" />
-                      </a>
-                      <p className="mt-1 text-secondary">{item.description}</p>
+                      </Link>
+                      <p className="mt-1 text-muted">{item.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 divide-x divide-border bg-muted">
+              {/* <div className="grid grid-cols-2 divide-x divide-onSurface/15 bg-onSurface/5">
                 {callsToAction.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
                     className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-text hover:bg-hover"
                   >
                     <item.icon
                       aria-hidden="true"
-                      className="size-5 flex-none text-secondary"
+                      className="size-5 flex-none text-muted"
                     />
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
-              </div>
+              </div> */}
             </PopoverPanel>
           </Popover>
 
-          <a href="#" className="text-sm/6 font-semibold text-text">
-            Features
-          </a>
-          <a href="#" className="text-sm/6 font-semibold text-text">
-            Marketplace
-          </a>
-
-          <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-text">
-              Company
-              <ChevronDownIcon
-                aria-hidden="true"
-                className="size-5 flex-none text-secondary"
-              />
-            </PopoverButton>
-
-            <PopoverPanel
-              transition
-              className="absolute top-full -left-8 z-10 mt-3 w-56 rounded-xl bg-background p-2 shadow-lg ring-1 ring-border transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-            >
-              {company.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="block rounded-lg px-3 py-2 text-sm/6 font-semibold text-text hover:bg-muted"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </PopoverPanel>
-          </Popover>
+          <Link href="/colors" className="text-sm/6 font-semibold text-text">
+            Colors
+          </Link>
+          <Link href="/gallery" className="text-sm/6 font-semibold text-text">
+            Gallery
+          </Link>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-sm/6 font-semibold text-text">
+          <Link href="/login" className="text-sm/6 font-semibold text-text">
             Log in <span aria-hidden="true">&rarr;</span>
-          </a>
+          </Link>
         </div>
       </nav>
       <Dialog
@@ -204,14 +177,15 @@ export default function Example() {
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-background px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-border">
           <div className="flex items-center justify-between">
-            <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                alt=""
+            <Link href="/" className="-m-1.5 p-1.5">
+              <span className="sr-only">Theme Gen</span>
+              <Image
+                src="/logos/logo.svg"
+                alt="Your Company"
+                width={32}
+                height={32}
               />
-            </a>
+            </Link>
             <button
               type="button"
               className="-m-2.5 rounded-md p-2.5 text-text"
@@ -228,7 +202,7 @@ export default function Example() {
                   {({ open }) => (
                     <>
                       <DisclosureButton className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base font-semibold text-text">
-                        Product
+                        Create
                         <ChevronDownIcon
                           className={classNames(
                             open ? "rotate-180" : "",
@@ -238,68 +212,45 @@ export default function Example() {
                         />
                       </DisclosureButton>
                       <DisclosurePanel className="mt-2 space-y-2">
-                        {[...products, ...callsToAction].map((item) => (
+                        {[...products].map((item) => (
                           <DisclosureButton
                             key={item.name}
-                            as="a"
+                            as={Link}
                             href={item.href}
-                            className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold text-text hover:bg-muted"
+                            className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold text-text hover:bg-onSurface/5"
                           >
                             {item.name}
+                            {item.aiBadge && (
+                              <span className="ml-2 rounded-md px-2 py-1 text-xs font-medium ai-badge">
+                                AI
+                              </span>
+                            )}
                           </DisclosureButton>
                         ))}
                       </DisclosurePanel>
                     </>
                   )}
                 </Disclosure>
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-muted"
+                <Link
+                  href="/colors"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-onSurface/5"
                 >
-                  Features
-                </a>
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-muted"
+                  Colors
+                </Link>
+                <Link
+                  href="/gallery"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-onSurface/5"
                 >
-                  Marketplace
-                </a>
-                <Disclosure as="div" className="-mx-3">
-                  {({ open }) => (
-                    <>
-                      <DisclosureButton className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base font-semibold text-text">
-                        Company
-                        <ChevronDownIcon
-                          className={classNames(
-                            open ? "rotate-180" : "",
-                            "size-5 flex-none"
-                          )}
-                          aria-hidden="true"
-                        />
-                      </DisclosureButton>
-                      <DisclosurePanel className="mt-2 space-y-2">
-                        {company.map((item) => (
-                          <DisclosureButton
-                            key={item.name}
-                            as="a"
-                            href={item.href}
-                            className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold text-text hover:bg-muted"
-                          >
-                            {item.name}
-                          </DisclosureButton>
-                        ))}
-                      </DisclosurePanel>
-                    </>
-                  )}
-                </Disclosure>
+                  Gallery
+                </Link>
               </div>
               <div className="py-6">
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-text hover:bg-muted"
+                <Link
+                  href="/login"
+                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-text hover:bg-onSurface/5"
                 >
                   Log in
-                </a>
+                </Link>
               </div>
             </div>
           </div>

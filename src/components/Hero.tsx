@@ -26,7 +26,7 @@ const Hero = () => {
               <h1 className="mt-10 text-5xl font-semibold tracking-tight text-pretty text-text sm:text-7xl">
                 Theme Gen
               </h1>
-              <p className="mt-8 text-lg font-medium text-pretty text-secondary sm:text-xl/8">
+              <p className="mt-8 text-lg font-medium text-pretty text-onSurface/60 sm:text-xl/8">
                 Create and preview themes in real time. Export to CSS, Tailwind,
                 and more with just a click.
               </p>
@@ -37,7 +37,7 @@ const Hero = () => {
                 >
                   Create Theme
                 </a>
-                <a href="#" className="text-sm/6 font-semibold text-text">
+                <a href="https://github.com/SchroederNathan/theme-gen.git" className="text-sm/6 font-semibold text-text">
                   View on GitHub <span aria-hidden="true">→</span>
                 </a>
               </div>
@@ -46,7 +46,7 @@ const Hero = () => {
         </div>
         <div className="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 lg:w-screen">
           <div
-            className="absolute inset-y-0 right-1/2 -z-10 -mr-10 w-[200%] skew-x-[-30deg] bg-background shadow-xl ring-1 shadow-primary/10 ring-primary/50 md:-mr-20 lg:-mr-36"
+            className="absolute inset-y-0 right-1/2 -z-10 -mr-10 w-[200%] skew-x-[-30deg] bg-background shadow-xl ring-1 shadow-primary/10 ring-primary/5 md:-mr-20 lg:-mr-36"
             aria-hidden="true"
           />
           <div className="shadow-lg md:rounded-3xl">
@@ -71,14 +71,14 @@ const Hero = () => {
                   className="pointer-events-none absolute inset-0 ring-1 ring-border/10 ring-inset md:rounded-3xl"
                   aria-hidden="true"
                 />
+                
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-background sm:h-32" />
-
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-background sm:h-32" />
+      <div className="absolute inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-background to-transparent sm:h-32" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-background to-transparent sm:h-40" />
     </div>
     
   );

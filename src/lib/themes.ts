@@ -1,37 +1,26 @@
 export type Theme = {
   name: string;
   colors: {
+    // Core colors
     primary: string;
+    onPrimary: string;
     secondary: string;
+    onSecondary: string;
+    
+    // Background and surface colors
     background: string;
-    text: string;
-    accent: string;
-    muted: string;
+    onBackground: string;
+    surface: string;
+    onSurface: string;
+    
+    // State colors
+    success: string;
+    error: string;
+    warning: string;
+    
+    // Utility colors
     border: string;
-    ring: string;
-    hover: string;
-  };
-  typography?: {
-    fontFamily: string;
-    fontSize: {
-      base: string;
-      sm: string;
-      lg: string;
-      xl: string;
-      "2xl": string;
-    };
-  };
-  spacing?: {
-    base: string;
-    sm: string;
-    md: string;
-    lg: string;
-  };
-  borderRadius?: {
-    sm: string;
-    md: string;
-    lg: string;
-    full: string;
+    muted: string;
   };
 };
 
@@ -39,76 +28,53 @@ export const themes: Record<string, Theme> = {
   light: {
     name: "Light",
     colors: {
-      primary: "#3b82f6",
-      secondary: "#64748b",
-      background: "#ffffff",
-      text: "#1e293b",
-      accent: "#f59e0b",
-      muted: "#f1f5f9",
-      border: "#e2e8f0",
-      ring: "#94a3b8",
-      hover: "#f8fafc",
+      // Core colors
+      primary: "#4F46E5",       // Indigo 600
+      onPrimary: "#FFFFFF",     // White
+      secondary: "#0EA5E9",     // Sky 500
+      onSecondary: "#FFFFFF",   // White
+      
+      // Background and surface colors
+      background: "#F9FAFB",    // Gray 50
+      onBackground: "#111827",  // Gray 900
+      surface: "#FFFFFF",       // White
+      onSurface: "#111827",     // Gray 900
+      
+      // State colors
+      success: "#059669",       // Emerald 600
+      error: "#DC2626",         // Red 600
+      warning: "#D97706",       // Amber 600
+      
+      // Utility colors
+      border: "#E5E7EB",        // Gray 200
+      muted: "#6B7280",         // Gray 500
     },
-    // typography: {
-    //   fontFamily: 'var(--font-geist-sans)',
-    //   fontSize: {
-    //     base: '1rem',
-    //     sm: '0.875rem',
-    //     lg: '1.125rem',
-    //     xl: '1.25rem',
-    //     '2xl': '1.5rem',
-    //   },
-    // },
-    // spacing: {
-    //   base: '1rem',
-    //   sm: '0.5rem',
-    //   md: '1.5rem',
-    //   lg: '2rem',
-    // },
-    // borderRadius: {
-    //   sm: '0.25rem',
-    //   md: '0.5rem',
-    //   lg: '1rem',
-    //   full: '9999px',
-    // },
   },
   dark: {
     name: "Dark",
     colors: {
-      primary: "#60a5fa",
-      secondary: "#94a3b8",
-      background: "#0f172a",
-      text: "#f1f5f9",
-      accent: "#fbbf24",
-      muted: "#1e293b",
-      border: "#334155",
-      ring: "#475569",
-      hover: "#1e293b",
+      // Core colors
+      primary: "#6366F1",       // Indigo 500
+      onPrimary: "#FFFFFF",     // White
+      secondary: "#38BDF8",     // Sky 400
+      onSecondary: "#FFFFFF",   // White
+      
+      // Background and surface colors
+      background: "#111827",    // Gray 900
+      onBackground: "#F9FAFB",  // Gray 50
+      surface: "#1F2937",       // Gray 800
+      onSurface: "#F9FAFB",     // Gray 50
+      
+      // State colors
+      success: "#10B981",       // Emerald 500
+      error: "#EF4444",         // Red 500
+      warning: "#F59E0B",       // Amber 500
+      
+      // Utility colors
+      border: "#374151",        // Gray 700
+      muted: "#9CA3AF",         // Gray 400
     },
-    // typography: {
-    //   fontFamily: 'var(--font-geist-sans)',
-    //   fontSize: {
-    //     base: '1rem',
-    //     sm: '0.875rem',
-    //     lg: '1.125rem',
-    //     xl: '1.25rem',
-    //     '2xl': '1.5rem',
-    //   },
-    // },
-    // spacing: {
-    //   base: '1rem',
-    //   sm: '0.5rem',
-    //   md: '1.5rem',
-    //   lg: '2rem',
-    // },
-    // borderRadius: {
-    //   sm: '0.25rem',
-    //   md: '0.5rem',
-    //   lg: '1rem',
-    //   full: '9999px',
-    // },
   },
-  // Add more themes as needed
 };
 
 export const defaultTheme = "light";
