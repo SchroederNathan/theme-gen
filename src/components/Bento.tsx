@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Bento() {
   return (
     <div className="bg-background py-24 sm:py-32">
@@ -12,9 +14,11 @@ export default function Bento() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-px rounded-lg bg-background max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-              <img
+              <Image
                 alt="Color palette customization"
                 src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-performance.png"
+                width={800}
+                height={320}
                 className="h-80 object-cover object-left"
               />
               <div className="p-10 pt-4">
@@ -35,9 +39,11 @@ export default function Bento() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-px rounded-lg bg-background lg:rounded-tr-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-              <img
+              <Image
                 alt="Real-time theme preview"
                 src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-releases.png"
+                width={800}
+                height={320}
                 className="h-80 object-cover object-left lg:object-right"
               />
               <div className="p-10 pt-4">
@@ -58,9 +64,11 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-background lg:rounded-bl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-              <img
+              <Image
                 alt="Dark and light mode support"
                 src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-speed.png"
+                width={800}
+                height={320}
                 className="h-80 object-cover object-left"
               />
               <div className="p-10 pt-4">
@@ -80,9 +88,11 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-background" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-              <img
+              <Image
                 alt="Code export options"
                 src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-integrations.png"
+                width={800}
+                height={320}
                 className="h-80 object-cover"
               />
               <div className="p-10 pt-4">
@@ -102,9 +112,11 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-background max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
-              <img
+              <Image
                 alt="Theme gallery and sharing"
                 src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-network.png"
+                width={800}
+                height={320}
                 className="h-80 object-cover"
               />
               <div className="p-10 pt-4">

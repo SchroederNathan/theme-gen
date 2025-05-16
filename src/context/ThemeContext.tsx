@@ -12,6 +12,10 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+type NestedTheme = {
+  [key: string]: string | NestedTheme;
+};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeName, setThemeName] = useState(defaultTheme);
   const [theme, setTheme] = useState<Theme>(themes[defaultTheme]);
@@ -63,11 +67,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const updateThemeProperty = (path: string[], value: string) => {
     const newTheme = { ...theme };
-    let current: any = newTheme;
+    let current: NestedTheme = newTheme;
 
     // Navigate to the nested property
     for (let i = 0; i < path.length - 1; i++) {
-      current = current[path[i]];
+      current = current[path[i]] as NestedTheme;
     }
 
     // Update the value

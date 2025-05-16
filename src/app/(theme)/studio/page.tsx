@@ -1,5 +1,3 @@
-import Hero from "@/components/studio/hero";
-import Pricing from "@/components/studio/pricing";
 
 const Studio = () => {
   return (

@@ -13,14 +13,15 @@ export default function Hero() {
               Super Cool Website
             </h2>
             <p className="mt-6 text-xl/8 text-muted">
-              Create color themes that won't make your users run screaming. Explore
-              combinations that actually match, preview in real-time, and export code
-              that won't make other developers point and laugh.
+              Create color themes that won&apos;t make your users run screaming.
+              Explore combinations that actually match, preview in real-time,
+              and export code that won&apos;t make other developers point and laugh.
             </p>
             <p className="mt-6 text-base/7 text-muted">
-              Whether you're designing a corporate snooze-fest, a "please buy our stuff" store,
-              or a portfolio to prove you're not just a cat walking on keyboards, Theme Studio
-              helps you look like you know what colors are.
+              Whether you&apos;re designing a corporate snooze-fest, a &quot;please buy
+              our stuff&quot; store, or a portfolio to prove you&apos;re not just a cat
+              walking on keyboards, Theme Studio helps you look like you know
+              what colors are.
             </p>
             <div className="mt-10 flex">
               <a
