@@ -6,12 +6,14 @@
   --color-onPrimary: #FFFFFF;
   --color-secondary: #0EA5E9;
   --color-onSecondary: #FFFFFF;
+  --color-accent: #0EA5E9;
+  --color-onAccent: #FFFFFF;
   
   /* Background and surface colors */
   --color-background: #F9FAFB;
   --color-onBackground: #111827;
-  --color-surface: #FFFFFF;
-  --color-onSurface: #111827;
+  --color-container: #FFFFFF;
+  --color-onContainer: #111827;
   
   /* State colors */
   --color-success: #059669;
@@ -90,6 +92,18 @@ body {
   color: var(--color-onSecondary);
 }
 
+.bg-accent {
+  background-color: var(--color-accent);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+.text-onAccent {
+  color: var(--color-onAccent);
+}
+
 /* Background and surface utility classes */
 .bg-background {
   background-color: var(--color-background);
@@ -99,12 +113,12 @@ body {
   color: var(--color-onBackground);
 }
 
-.bg-surface {
-  background-color: var(--color-surface);
+.bg-container {
+  background-color: var(--color-container);
 }
 
-.text-onSurface {
-  color: var(--color-onSurface);
+.text-onContainer {
+  color: var(--color-onContainer);
 }
 
 /* State utility classes */

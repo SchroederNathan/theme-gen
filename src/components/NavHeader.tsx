@@ -126,11 +126,11 @@ export default function Example() {
                         className="block font-semibold text-text"
                       >
                         {item.name}
-                        {item.aiBadge && (
+                        {/* {item.aiBadge && (
                           <span className="inline-flex ms-2 items-center rounded-md px-1.5 py-0.5 text-xs font-medium ai-badge">
                             AI
                           </span>
-                        )}
+                        )} */}
                         <span className="absolute inset-0" />
                       </Link>
                       <p className="mt-1 text-muted">{item.description}</p>

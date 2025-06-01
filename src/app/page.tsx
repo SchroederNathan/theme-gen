@@ -5,7 +5,7 @@ import Hero from "../components/Hero";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-text">
+    <div className="min-h-screen bg-background text-text pb-[120rem]">
       <Hero />
       <Bento />
     </div>
