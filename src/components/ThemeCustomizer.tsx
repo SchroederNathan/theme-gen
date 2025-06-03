@@ -2,17 +2,9 @@
 
 import { useTheme } from "@/context/ThemeContext";
 import { generateColorPalette, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
-import { Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X, Copy, Check } from "lucide-react";
+import { Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-  Label,
-} from "@headlessui/react";
-import { ChevronDown } from "lucide-react";
 
 interface ColorButtonProps {
   color: string;
@@ -83,7 +75,7 @@ export function ThemeCustomizer() {
   const [showSchemeMenu, setShowSchemeMenu] = useState(false);
   const schemeMenuRef = useRef<HTMLDivElement>(null);
   const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
-  
+
   // Export modal state
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState<'css' | 'tailwind' | 'scss'>('css');
@@ -181,7 +173,7 @@ export function ThemeCustomizer() {
       randomColor,
       themeName === "dark",
       lockedColorValues,
-      selectedScheme.id as any // ColorScheme type
+      selectedScheme.id as "Monochromatic" | "Analogous" | "Complementary" | "Split Complementary" | "Triadic" | "Tetradic"
     );
 
     // Update all unlocked colors with the new palette
@@ -325,7 +317,7 @@ export function ThemeCustomizer() {
   const generateExportCode = () => {
     const colors = theme.colors;
     const formattedColors: Record<string, string> = {};
-    
+
     Object.entries(colors).forEach(([key, value]) => {
       formattedColors[key] = formatColor(value, colorFormat);
     });
@@ -396,35 +388,33 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
     <>
       {/* Export Modal - moved outside to cover entire screen */}
       {showExportModal && (
-        <div 
-          className="relative z-10" 
-          role="dialog" 
+        <div
+          className="relative z-10"
+          role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
         >
           {/* Background backdrop with fade animation */}
-          <div 
-            className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${
-              isModalClosing 
-                ? 'opacity-0 ease-in duration-200' 
-                : isModalEntering
+          <div
+            className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${isModalClosing
+              ? 'opacity-0 ease-in duration-200'
+              : isModalEntering
                 ? 'opacity-100'
                 : 'opacity-0'
-            }`}
+              }`}
             aria-hidden="true"
           ></div>
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
               {/* Modal panel with scale/translate animation */}
-              <div 
-                className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${
-                  isModalClosing
-                    ? 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200'
-                    : isModalEntering
+              <div
+                className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${isModalClosing
+                  ? 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200'
+                  : isModalEntering
                     ? 'opacity-100 translate-y-0 sm:scale-100'
                     : 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between p-6 border-b border-neutral-200">
                   <h2 id="modal-title" className="text-lg font-semibold text-neutral-900">Export Theme</h2>
@@ -435,7 +425,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     <X size={20} className="text-neutral-500" />
                   </button>
                 </div>
-                
+
                 <div className="p-6">
                   {/* Format Tabs */}
                   <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
@@ -443,11 +433,10 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                       <button
                         key={format}
                         onClick={() => setExportFormat(format)}
-                        className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                          exportFormat === format
-                            ? 'bg-white text-neutral-900 shadow-sm'
-                            : 'text-neutral-600 hover:text-neutral-900'
-                        }`}
+                        className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${exportFormat === format
+                          ? 'bg-white text-neutral-900 shadow-sm'
+                          : 'text-neutral-600 hover:text-neutral-900'
+                          }`}
                       >
                         {format === 'css' ? 'CSS' : format === 'tailwind' ? 'TailwindCSS' : 'SCSS'}
                       </button>
@@ -539,11 +528,10 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                   {colorSchemes.map((scheme) => (
                     <button
                       key={scheme.id}
-                      className={`group relative w-full text-left cursor-pointer py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-primary hover:text-onPrimary ${
-                        selectedScheme.id === scheme.id
-                          ? "font-semibold"
-                          : "font-normal"
-                      }`}
+                      className={`group relative w-full text-left cursor-pointer py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-primary hover:text-onPrimary ${selectedScheme.id === scheme.id
+                        ? "font-semibold"
+                        : "font-normal"
+                        }`}
                       onClick={() => {
                         setSelectedScheme(scheme);
                         setShowSchemeMenu(false);
