@@ -287,9 +287,7 @@ function pickAccessibleTextColor(background: string, targetContrast: number = 4.
     return whiteContrast >= blackContrast ? "#FFFFFF" : "#111827";
   }
 
-  return chroma.contrast("#FFFFFF", background) > chroma.contrast("#111827", background)
-    ? "#FFFFFF"
-    : "#111827";
+  return whiteContrast >= blackContrast ? "#FFFFFF" : "#111827";
 }
 
 function nudgeForContrast(color: string, against: string, minimumRatio: number): string {
@@ -297,7 +295,7 @@ function nudgeForContrast(color: string, against: string, minimumRatio: number):
   const againstLuminance = chroma(against).luminance();
 
   for (let index = 0; index < 18; index += 1) {
-    if (chroma.contrast(candidate, against) >= minimumRatio) {
+    if (getContrastRatio(candidate.hex(), against) >= minimumRatio) {
       return candidate.hex();
     }
 
