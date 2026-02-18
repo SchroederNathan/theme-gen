@@ -28,15 +28,15 @@ function ColorButton({
   return (
     <div className="relative group h-full">
       <div
-        className="absolute top-1 left-1 z-10 rounded-full p-0.5 bg-neutral-50/90 border border-neutral-200"
+        className="absolute top-1 left-1 z-10 rounded-full p-[2px] bg-neutral-50/60 border border-neutral-200"
         title={contrastResult.aaNormal
           ? `WCAG AA normal text pass (${contrastResult.ratio}:1)`
           : `WCAG AA normal text fail (${contrastResult.ratio}:1)`}
       >
         {contrastResult.aaNormal ? (
-          <Check size={12} className="text-emerald-600" />
+          <Check size={10} className="text-emerald-600" />
         ) : (
-          <AlertTriangle size={12} className="text-amber-600" />
+          <AlertTriangle size={10} className="text-amber-600" />
         )}
       </div>
       <button
