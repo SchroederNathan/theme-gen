@@ -14,7 +14,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.509.0",
     "nearest-color": "^0.4.4",
-    "next": "15.3.2",
+    "next": "15.3.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.2.0"
