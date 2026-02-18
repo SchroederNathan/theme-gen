@@ -1,8 +1,8 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
-import { Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import { generateColorPalette, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
+import { AlertTriangle, Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
 
@@ -13,6 +13,7 @@ interface ColorButtonProps {
   onClick: (color: string, property: string, button: HTMLButtonElement) => void;
   isLocked: boolean;
   onLockToggle: (property: string) => void;
+  contrastResult: WCAGContrastResult;
 }
 
 function ColorButton({
@@ -22,9 +23,22 @@ function ColorButton({
   onClick,
   isLocked,
   onLockToggle,
+  contrastResult,
 }: ColorButtonProps) {
   return (
     <div className="relative group h-full">
+      <div
+        className="absolute top-1 left-1 z-10 rounded-full p-0.5 bg-neutral-50/90 border border-neutral-200"
+        title={contrastResult.aaNormal
+          ? `WCAG AA normal text pass (${contrastResult.ratio}:1)`
+          : `WCAG AA normal text fail (${contrastResult.ratio}:1)`}
+      >
+        {contrastResult.aaNormal ? (
+          <Check size={12} className="text-emerald-600" />
+        ) : (
+          <AlertTriangle size={12} className="text-amber-600" />
+        )}
+      </div>
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
         className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
@@ -276,21 +290,37 @@ export function ThemeCustomizer() {
       color: theme.colors.background,
       label: "Background",
       property: "background",
+      onColor: theme.colors.onBackground,
     },
 
-    { color: theme.colors.primary, label: "Primary", property: "primary" },
+    {
+      color: theme.colors.primary,
+      label: "Primary",
+      property: "primary",
+      onColor: theme.colors.onPrimary,
+    },
 
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
+      onColor: theme.colors.onAccent,
     },
     {
       color: theme.colors.container,
       label: "Container",
       property: "container",
+      onColor: theme.colors.onContainer,
     },
   ];
+
+  const wcagByProperty = colorButtons.reduce<Record<string, WCAGContrastResult>>(
+    (acc, button) => {
+      acc[button.property] = getWCAGContrastResult(button.onColor, button.color);
+      return acc;
+    },
+    {}
+  );
 
   const handleExportClick = () => {
     if (showExportModal) {
@@ -514,6 +544,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               onClick={handleColorClick}
               isLocked={lockedColors.has(property)}
               onLockToggle={handleLockToggle}
+              contrastResult={wcagByProperty[property]}
             />
           ))}
           <div className="relative flex items-center h-full">
@@ -648,6 +679,21 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           >
             <div className="relative">
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
+              {selectedProperty && wcagByProperty[selectedProperty] && (
+                <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-neutral-800">WCAG Contrast Check</p>
+                    <p className="font-semibold">
+                      {wcagByProperty[selectedProperty].ratio}:1
+                    </p>
+                  </div>
+                  <ul className="mt-2 space-y-1">
+                    <li>• AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</li>
+                    <li>• AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</li>
+                    <li>• AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</li>
+                  </ul>
+                </div>
+              )}
               <ColorPicker
                 color={selectedColor}
                 onChange={handleColorChange}
