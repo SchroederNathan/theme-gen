@@ -1,8 +1,8 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
-import { Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import { generateColorPalette, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
+import { AlertTriangle, Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
 
@@ -13,6 +13,7 @@ interface ColorButtonProps {
   onClick: (color: string, property: string, button: HTMLButtonElement) => void;
   isLocked: boolean;
   onLockToggle: (property: string) => void;
+  contrastResult: WCAGContrastResult;
 }
 
 function ColorButton({
@@ -22,9 +23,33 @@ function ColorButton({
   onClick,
   isLocked,
   onLockToggle,
+  contrastResult,
 }: ColorButtonProps) {
   return (
     <div className="relative group h-full">
+      {(() => {
+        const badgeStage = getWCAGBadgeStage(contrastResult);
+        return (
+          <div
+            className="absolute -top-2 -left-2 z-10 p-1 rounded-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 shadow-sm flex items-center justify-center"
+            title={
+              badgeStage === "success"
+                ? `WCAG AAA normal text pass (${contrastResult.ratio}:1)`
+                : badgeStage === "warning"
+                  ? `WCAG AA normal text pass, AAA normal fail (${contrastResult.ratio}:1)`
+                  : `WCAG AA normal text fail (${contrastResult.ratio}:1)`
+            }
+          >
+            {badgeStage === "success" ? (
+              <Check size={9} strokeWidth={3.25} className="text-current" />
+            ) : badgeStage === "warning" ? (
+              <AlertTriangle size={9} strokeWidth={3.25} className="text-current" />
+            ) : (
+              <X size={9} strokeWidth={3.25} className="text-current" />
+            )}
+          </div>
+        );
+      })()}
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
         className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
@@ -39,10 +64,10 @@ function ColorButton({
           e.stopPropagation();
           onLockToggle(property);
         }}
-        className="absolute -top-2 -right-2 p-1 rounded-full bg-neutral-50 border border-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-100"
+        className="absolute -top-2 -right-2 p-1 rounded-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-neutral-100 dark:hover:bg-neutral-800"
         title={isLocked ? "Unlock color" : "Lock color"}
       >
-        {isLocked ? <Lock size={14} /> : <Unlock size={14} />}
+        {isLocked ? <Lock size={14} className="text-current" /> : <Unlock size={14} className="text-current" />}
       </button>
     </div>
   );
@@ -56,6 +81,15 @@ const colorSchemes = [
   { id: "Triadic", name: "Triadic" },
   { id: "Tetradic", name: "Tetradic" },
 ];
+
+
+type WCAGBadgeStage = "success" | "warning" | "danger";
+
+function getWCAGBadgeStage(result: WCAGContrastResult): WCAGBadgeStage {
+  if (result.aaaNormal) return "success";
+  if (result.aaNormal) return "warning";
+  return "danger";
+}
 
 export function ThemeCustomizer() {
   const { theme, updateThemeProperty, themeName, setTheme } = useTheme();
@@ -90,6 +124,20 @@ export function ThemeCustomizer() {
     button: HTMLButtonElement
   ) => {
     if (lockedColors.has(property)) return;
+
+    const isSameButton =
+      isOpen &&
+      selectedProperty === property &&
+      activeButton === button;
+
+    if (isSameButton) {
+      setIsOpen(false);
+      setSelectedColor(null);
+      setSelectedProperty(null);
+      setActiveButton(null);
+      return;
+    }
+
     setSelectedColor(color);
     setSelectedProperty(property);
     setActiveButton(button);
@@ -262,21 +310,37 @@ export function ThemeCustomizer() {
       color: theme.colors.background,
       label: "Background",
       property: "background",
+      onColor: theme.colors.onBackground,
     },
 
-    { color: theme.colors.primary, label: "Primary", property: "primary" },
+    {
+      color: theme.colors.primary,
+      label: "Primary",
+      property: "primary",
+      onColor: theme.colors.onPrimary,
+    },
 
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
+      onColor: theme.colors.onAccent,
     },
     {
       color: theme.colors.container,
       label: "Container",
       property: "container",
+      onColor: theme.colors.onContainer,
     },
   ];
+
+  const wcagByProperty = colorButtons.reduce<Record<string, WCAGContrastResult>>(
+    (acc, button) => {
+      acc[button.property] = getWCAGContrastResult(button.onColor, button.color);
+      return acc;
+    },
+    {}
+  );
 
   const handleExportClick = () => {
     if (showExportModal) {
@@ -500,6 +564,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               onClick={handleColorClick}
               isLocked={lockedColors.has(property)}
               onLockToggle={handleLockToggle}
+              contrastResult={wcagByProperty[property]}
             />
           ))}
           <div className="relative flex items-center h-full">
@@ -634,6 +699,42 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           >
             <div className="relative">
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
+              {selectedProperty && wcagByProperty[selectedProperty] && (
+                <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-neutral-800">WCAG Contrast Check</p>
+                    <p className="font-semibold">
+                      {wcagByProperty[selectedProperty].ratio}:1
+                    </p>
+                  </div>
+                  <ul className="mt-2 space-y-1">
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaNormal ? (
+                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
+                      ) : (
+                        <X size={11} strokeWidth={2.75} className="text-red-600" />
+                      )}
+                      <span>AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaLarge ? (
+                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
+                      ) : (
+                        <X size={11} strokeWidth={2.75} className="text-red-600" />
+                      )}
+                      <span>AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaaNormal ? (
+                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
+                      ) : (
+                        <X size={11} strokeWidth={2.75} className="text-red-600" />
+                      )}
+                      <span>AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
               <ColorPicker
                 color={selectedColor}
                 onChange={handleColorChange}

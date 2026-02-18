@@ -55,6 +55,54 @@ export const getTextColor = (color: string): string => {
   }
 };
 
+export interface WCAGContrastResult {
+  ratio: number;
+  aaNormal: boolean;
+  aaLarge: boolean;
+  aaaNormal: boolean;
+  aaaLarge: boolean;
+}
+
+function channelToLinear(value: number): number {
+  const normalized = value / 255;
+  return normalized <= 0.03928
+    ? normalized / 12.92
+    : ((normalized + 0.055) / 1.055) ** 2.4;
+}
+
+function relativeLuminance(color: string): number {
+  const { r, g, b } = hexToRgb(color);
+  const rLin = channelToLinear(r);
+  const gLin = channelToLinear(g);
+  const bLin = channelToLinear(b);
+
+  return 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
+}
+
+export function getContrastRatio(foreground: string, background: string): number {
+  const l1 = relativeLuminance(foreground);
+  const l2 = relativeLuminance(background);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+
+  return Number(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
+}
+
+export function getWCAGContrastResult(
+  foreground: string,
+  background: string
+): WCAGContrastResult {
+  const ratio = getContrastRatio(foreground, background);
+
+  return {
+    ratio,
+    aaNormal: ratio >= 4.5,
+    aaLarge: ratio >= 3,
+    aaaNormal: ratio >= 7,
+    aaaLarge: ratio >= 4.5,
+  };
+}
+
 export function hexToRgb(hex: string): RGB {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -333,7 +381,7 @@ function findBestColorMatch(targetHsl: HSL, options: HSL[], usedColors: HSL[] = 
   });
 }
 
-function getContrastRatio(color1: string, color2: string): number {
+function getContrastRatioInternal(color1: string, color2: string): number {
   const l1 = chroma(color1).luminance();
   const l2 = chroma(color2).luminance();
   const lighter = Math.max(l1, l2);
@@ -344,7 +392,7 @@ function getContrastRatio(color1: string, color2: string): number {
 function ensureContrast(color: string, background: string, minContrast: number = 4.5): string {
   const hsl = hexToHsl(color);
   const bgLuminance = chroma(background).luminance();
-  const currentContrast = getContrastRatio(color, background);
+  const currentContrast = getContrastRatioInternal(color, background);
   
   if (currentContrast >= minContrast) {
     return color;
