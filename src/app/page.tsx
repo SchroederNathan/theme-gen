@@ -7,7 +7,7 @@ import Pricing from "@/components/studio/pricing";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-text pb-[120rem]">
+    <div className="min-h-screen bg-background text-text pb-24">
       <Hero />
       <Bento />
       <main className="relative">
