@@ -27,18 +27,30 @@ function ColorButton({
 }: ColorButtonProps) {
   return (
     <div className="relative group h-full">
-      <div
-        className="absolute top-1 left-1 z-10 rounded-full p-[2px] bg-neutral-50/60 border border-neutral-200"
-        title={contrastResult.aaNormal
-          ? `WCAG AA normal text pass (${contrastResult.ratio}:1)`
-          : `WCAG AA normal text fail (${contrastResult.ratio}:1)`}
-      >
-        {contrastResult.aaNormal ? (
-          <Check size={10} className="text-emerald-600" />
-        ) : (
-          <AlertTriangle size={10} className="text-amber-600" />
-        )}
-      </div>
+      {(() => {
+        const badgeStage = getWCAGBadgeStage(contrastResult);
+
+        return (
+          <div
+            className={`absolute top-1 left-1 z-10 rounded-full p-[2px] ${getStageStyles(badgeStage)}`}
+            title={
+              badgeStage === "success"
+                ? `WCAG AAA normal text pass (${contrastResult.ratio}:1)`
+                : badgeStage === "warning"
+                  ? `WCAG AA normal text pass, AAA normal fail (${contrastResult.ratio}:1)`
+                  : `WCAG AA normal text fail (${contrastResult.ratio}:1)`
+            }
+          >
+            {badgeStage === "success" ? (
+              <Check size={10} className="text-white" />
+            ) : badgeStage === "warning" ? (
+              <AlertTriangle size={10} className="text-white" />
+            ) : (
+              <X size={10} className="text-white" />
+            )}
+          </div>
+        );
+      })()}
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
         className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
@@ -70,6 +82,21 @@ const colorSchemes = [
   { id: "Triadic", name: "Triadic" },
   { id: "Tetradic", name: "Tetradic" },
 ];
+
+
+type WCAGBadgeStage = "success" | "warning" | "danger";
+
+function getWCAGBadgeStage(result: WCAGContrastResult): WCAGBadgeStage {
+  if (result.aaaNormal) return "success";
+  if (result.aaNormal) return "warning";
+  return "danger";
+}
+
+function getStageStyles(stage: WCAGBadgeStage): string {
+  if (stage === "success") return "bg-green-600";
+  if (stage === "warning") return "bg-yellow-500";
+  return "bg-red-600";
+}
 
 export function ThemeCustomizer() {
   const { theme, updateThemeProperty, themeName, setTheme } = useTheme();
@@ -688,9 +715,30 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     </p>
                   </div>
                   <ul className="mt-2 space-y-1">
-                    <li>• AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</li>
-                    <li>• AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</li>
-                    <li>• AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</li>
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaNormal ? (
+                        <Check size={12} className="text-green-600" />
+                      ) : (
+                        <X size={12} className="text-red-600" />
+                      )}
+                      <span>AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaLarge ? (
+                        <Check size={12} className="text-green-600" />
+                      ) : (
+                        <X size={12} className="text-red-600" />
+                      )}
+                      <span>AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</span>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      {wcagByProperty[selectedProperty].aaaNormal ? (
+                        <Check size={12} className="text-green-600" />
+                      ) : (
+                        <X size={12} className="text-red-600" />
+                      )}
+                      <span>AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</span>
+                    </li>
                   </ul>
                 </div>
               )}
