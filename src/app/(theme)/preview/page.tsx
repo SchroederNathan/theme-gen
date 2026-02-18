@@ -1,13 +1,7 @@
-import Hero from "@/components/studio/hero";
-import Pricing from "@/components/studio/pricing";
+import { redirect } from "next/navigation";
 
 const Preview = () => {
-  return (
-    <main className="relative">
-      <Hero />
-      <Pricing />
-    </main>
-  );
+  redirect("/");
 };
 
 export default Preview;
