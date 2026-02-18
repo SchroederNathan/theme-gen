@@ -155,7 +155,9 @@ export function ThemeCustomizer() {
 
     const onProperty = linkedOnColorByRole[selectedProperty];
     if (onProperty && !lockedColors.has(onProperty)) {
-      const readableOnColor = getContrastRatio("#FFFFFF", newColor) >= 4.5 ? "#FFFFFF" : "#111827";
+      const whiteContrast = getContrastRatio("#FFFFFF", newColor);
+      const darkContrast = getContrastRatio("#111827", newColor);
+      const readableOnColor = whiteContrast >= darkContrast ? "#FFFFFF" : "#111827";
       updateThemeProperty(["colors", onProperty], readableOnColor);
     }
   };
@@ -172,21 +174,33 @@ export function ThemeCustomizer() {
     });
   };
 
+  const contrastAuditDefinitions = [
+    { id: "onBackground/background", label: "Body text on Background", foreground: "onBackground", background: "background", min: 4.5, required: true },
+    { id: "onContainer/container", label: "Text on Container", foreground: "onContainer", background: "container", min: 4.5, required: true },
+    { id: "onPrimary/primary", label: "Text on Primary", foreground: "onPrimary", background: "primary", min: 4.5, required: true },
+    { id: "onAccent/accent", label: "Text on Accent", foreground: "onAccent", background: "accent", min: 4.5, required: true },
+    { id: "onBackground/container", label: "Body text on Container", foreground: "onBackground", background: "container", min: 4.5, required: true },
+    { id: "primary/background", label: "Primary against Background", foreground: "primary", background: "background", min: 3, required: true },
+    { id: "accent/background", label: "Accent against Background", foreground: "accent", background: "background", min: 3, required: true },
+    { id: "container/background", label: "Container against Background", foreground: "container", background: "background", min: 1.5, required: true },
+    { id: "onContainer/background", label: "Container text on Background", foreground: "onContainer", background: "background", min: 4.5, required: false },
+  ] as const;
+
+  const getContrastAudit = (palette: Record<string, string>) => {
+    return contrastAuditDefinitions.map((definition) => {
+      const ratio = getContrastRatio(palette[definition.foreground], palette[definition.background]);
+      return {
+        ...definition,
+        ratio,
+        pass: ratio >= definition.min,
+      };
+    });
+  };
+
   const isPaletteAccessible = (palette: Record<string, string>) => {
-    const wcagChecks = [
-      getWCAGContrastResult(palette.onBackground, palette.background).aaNormal,
-      getWCAGContrastResult(palette.onPrimary, palette.primary).aaNormal,
-      getWCAGContrastResult(palette.onAccent, palette.accent).aaNormal,
-      getWCAGContrastResult(palette.onContainer, palette.container).aaNormal,
-    ];
-
-    const pairChecks = [
-      getContrastRatio(palette.primary, palette.background) >= 3,
-      getContrastRatio(palette.accent, palette.background) >= 3,
-      getContrastRatio(palette.container, palette.background) >= 1.25,
-    ];
-
-    return wcagChecks.every(Boolean) && pairChecks.every(Boolean);
+    return getContrastAudit(palette)
+      .filter((item) => item.required)
+      .every((item) => item.pass);
   };
 
   const smartShuffle = () => {
@@ -321,6 +335,10 @@ export function ThemeCustomizer() {
     },
     {}
   );
+
+  const currentContrastAudit = getContrastAudit(theme.colors as Record<string, string>);
+  const requiredContrastAudit = currentContrastAudit.filter((item) => item.required);
+  const requiredContrastPassCount = requiredContrastAudit.filter((item) => item.pass).length;
 
   const handleExportClick = () => {
     if (showExportModal) {
@@ -569,10 +587,19 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                   marginBottom: "8px",
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 font-semibold">
                   Smart Shuffle
                   <Sparkles size={16} className="text-neutral-800" />
                 </div>
+                <p className="mt-1 text-[11px] text-neutral-600">Required checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing</p>
+                <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
+                  {currentContrastAudit.map((item) => (
+                    <li key={item.id} className="flex items-start justify-between gap-2">
+                      <span className={item.pass ? "text-emerald-700" : "text-red-700"}>{item.label}</span>
+                      <span className="font-semibold text-neutral-800">{item.ratio}:1</span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="absolute -bottom-1 -z-10 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
               </div>
             )}
