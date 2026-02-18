@@ -564,7 +564,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
         ref={containerRef}
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
       >
-        <div className="flex flex-row gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
+        <div className="flex flex-row gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
           {colorButtons.map(({ color, label, property }) => (
             <ColorButton
               key={property}
