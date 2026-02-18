@@ -90,6 +90,20 @@ export function ThemeCustomizer() {
     button: HTMLButtonElement
   ) => {
     if (lockedColors.has(property)) return;
+
+    const isSameButton =
+      isOpen &&
+      selectedProperty === property &&
+      activeButton === button;
+
+    if (isSameButton) {
+      setIsOpen(false);
+      setSelectedColor(null);
+      setSelectedProperty(null);
+      setActiveButton(null);
+      return;
+    }
+
     setSelectedColor(color);
     setSelectedProperty(property);
     setActiveButton(button);
