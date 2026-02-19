@@ -12,8 +12,11 @@
   /* Background and surface colors */
   --color-background: #F9FAFB;
   --color-onBackground: #111827;
+  --color-surface: #FFFFFF;
+  --color-onSurface: #111827;
   --color-container: #FFFFFF;
   --color-onContainer: #111827;
+  --color-text: #111827;
   
   /* State colors */
   --color-success: #059669;
@@ -117,8 +120,20 @@ body {
   background-color: var(--color-container);
 }
 
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
 .text-onContainer {
   color: var(--color-onContainer);
+}
+
+.text-onSurface {
+  color: var(--color-onSurface);
+}
+
+.text-text {
+  color: var(--color-text);
 }
 
 /* State utility classes */

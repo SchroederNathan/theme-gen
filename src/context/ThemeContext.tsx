@@ -28,6 +28,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.style.setProperty(`--color-${key}`, value);
     });
 
+    root.style.setProperty("--color-surface", newTheme.colors.container);
+    root.style.setProperty("--color-onSurface", newTheme.colors.onContainer);
+    root.style.setProperty("--color-text", newTheme.colors.onBackground);
+
     // Update typography variables
     //     root.style.setProperty("--font-family", newTheme.typography.fontFamily);
     //     Object.entries(newTheme.typography.fontSize).forEach(([key, value]) => {

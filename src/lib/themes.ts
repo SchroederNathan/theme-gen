@@ -4,6 +4,8 @@ export type Theme = {
     // Core colors
     primary: string;
     onPrimary: string;
+    secondary: string;
+    onSecondary: string;
     accent: string;
     onAccent: string;
 
@@ -31,6 +33,8 @@ export const themes: Record<string, Theme> = {
       // Core colors
       primary: "#4F46E5", // Indigo 600
       onPrimary: "#FFFFFF", // White
+      secondary: "#7C3AED", // Violet 600
+      onSecondary: "#FFFFFF", // White
       accent: "#0EA5E9", // Sky 500
       onAccent: "#FFFFFF", // White
 
@@ -56,6 +60,8 @@ export const themes: Record<string, Theme> = {
       // Core colors
       primary: "#6366F1", // Indigo 500
       onPrimary: "#FFFFFF", // White
+      secondary: "#8B5CF6", // Violet 500
+      onSecondary: "#FFFFFF", // White
       accent: "#38BDF8", // Sky 400
       onAccent: "#FFFFFF", // White
 

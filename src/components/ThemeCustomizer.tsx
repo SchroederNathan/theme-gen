@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
+import { generateColorPalette, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
 import { AlertTriangle, Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
@@ -10,6 +10,8 @@ interface ColorButtonProps {
   color: string;
   label: string;
   property: string;
+  previewBackground: string;
+  previewText: string;
   onClick: (color: string, property: string, button: HTMLButtonElement) => void;
   isLocked: boolean;
   onLockToggle: (property: string) => void;
@@ -21,6 +23,8 @@ function ColorButton({
   color,
   label,
   property,
+  previewBackground,
+  previewText,
   onClick,
   isLocked,
   onLockToggle,
@@ -59,9 +63,9 @@ function ColorButton({
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
         className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: previewBackground }}
       >
-        <p className="text-lg font-bold" style={{ color: getTextColor(color) }}>
+        <p className="text-lg font-bold" style={{ color: previewText }}>
           {label}
         </p>
       </button>
@@ -194,16 +198,10 @@ export function ThemeCustomizer() {
         property: "onBackground",
       },
       { color: theme.colors.primary, label: "Primary", property: "primary" },
-      {
-        color: theme.colors.onPrimary,
-        label: "On Primary",
-        property: "onPrimary",
-      },
-      {
-        color: theme.colors.accent,
-        label: "Accent",
-        property: "accent",
-      },
+      { color: theme.colors.onPrimary, label: "On Primary", property: "onPrimary" },
+      { color: theme.colors.secondary, label: "Secondary", property: "secondary" },
+      { color: theme.colors.onSecondary, label: "On Secondary", property: "onSecondary" },
+      { color: theme.colors.accent, label: "Accent", property: "accent" },
       {
         color: theme.colors.onAccent,
         label: "On Accent",
@@ -317,36 +315,55 @@ export function ThemeCustomizer() {
 
   const colorButtons = [
     {
+      color: theme.colors.onBackground,
+      label: "Text",
+      property: "onBackground",
+      onColor: theme.colors.onBackground,
+      previewBackground: theme.colors.background,
+      previewText: theme.colors.onBackground,
+      contrastBackground: theme.colors.background,
+    },
+    {
       color: theme.colors.background,
       label: "Background",
       property: "background",
       onColor: theme.colors.onBackground,
+      previewBackground: theme.colors.background,
+      previewText: theme.colors.onBackground,
+      contrastBackground: theme.colors.background,
     },
-
     {
       color: theme.colors.primary,
       label: "Primary",
       property: "primary",
       onColor: theme.colors.onPrimary,
+      previewBackground: theme.colors.primary,
+      previewText: theme.colors.onPrimary,
+      contrastBackground: theme.colors.primary,
     },
-
+    {
+      color: theme.colors.secondary,
+      label: "Secondary",
+      property: "secondary",
+      onColor: theme.colors.onSecondary,
+      previewBackground: theme.colors.secondary,
+      previewText: theme.colors.onSecondary,
+      contrastBackground: theme.colors.secondary,
+    },
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
       onColor: theme.colors.onAccent,
-    },
-    {
-      color: theme.colors.container,
-      label: "Container",
-      property: "container",
-      onColor: theme.colors.onContainer,
+      previewBackground: theme.colors.accent,
+      previewText: theme.colors.onAccent,
+      contrastBackground: theme.colors.accent,
     },
   ];
 
   const wcagByProperty = colorButtons.reduce<Record<string, WCAGContrastResult>>(
     (acc, button) => {
-      acc[button.property] = getWCAGContrastResult(button.onColor, button.color);
+      acc[button.property] = getWCAGContrastResult(button.onColor, button.contrastBackground);
       return acc;
     },
     {}
@@ -565,7 +582,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
       >
         <div className="flex flex-row gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
-          {colorButtons.map(({ color, label, property }) => (
+          {colorButtons.map(({ color, label, property, previewBackground, previewText }) => (
             <ColorButton
               key={property}
               color={color}
@@ -575,6 +592,8 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               isLocked={lockedColors.has(property)}
               onLockToggle={handleLockToggle}
               contrastResult={wcagByProperty[property]}
+              previewBackground={previewBackground}
+              previewText={previewText}
               isDarkTheme={themeName === "dark"}
             />
           ))}
