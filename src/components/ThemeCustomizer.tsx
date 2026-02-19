@@ -1,8 +1,9 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getContrastRatio, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
-import { AlertTriangle, Check, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import { generateColorPalette, getContrastRatio, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
+import { Check, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import chroma from "chroma-js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
 
@@ -13,8 +14,17 @@ interface ColorButtonProps {
   onClick: (color: string, property: string, button: HTMLButtonElement) => void;
   isLocked: boolean;
   onLockToggle: (property: string) => void;
-  contrastResult: WCAGContrastResult;
+  ratio: number;
+  target: number;
   isDarkTheme: boolean;
+}
+
+type BadgeStage = "pass" | "warn" | "fail";
+
+function getBadgeStage(ratio: number, target: number): BadgeStage {
+  if (ratio >= target * 1.5) return "pass";
+  if (ratio >= target) return "warn";
+  return "fail";
 }
 
 function ColorButton({
@@ -24,38 +34,33 @@ function ColorButton({
   onClick,
   isLocked,
   onLockToggle,
-  contrastResult,
+  ratio,
+  target,
   isDarkTheme,
 }: ColorButtonProps) {
+  const stage = getBadgeStage(ratio, target);
   return (
     <div className="relative group h-full">
-      {(() => {
-        const badgeStage = getWCAGBadgeStage(contrastResult);
-        return (
-          <div
-            className={`absolute -top-2 -left-2 z-10 p-1 rounded-full border shadow-sm flex items-center justify-center ${
-              isDarkTheme
-                ? "bg-neutral-900 border-neutral-700 text-neutral-200"
-                : "bg-neutral-50 border-neutral-200 text-neutral-700"
-            }`}
-            title={
-              badgeStage === "success"
-                ? `WCAG AAA normal text pass (${contrastResult.ratio}:1)`
-                : badgeStage === "warning"
-                  ? `WCAG AA normal text pass, AAA normal fail (${contrastResult.ratio}:1)`
-                  : `WCAG AA normal text fail (${contrastResult.ratio}:1)`
-            }
-          >
-            {badgeStage === "success" ? (
-              <Check size={9} strokeWidth={3.25} className="text-current" />
-            ) : badgeStage === "warning" ? (
-              <AlertTriangle size={9} strokeWidth={3.25} className="text-current" />
-            ) : (
-              <X size={9} strokeWidth={3.25} className="text-current" />
-            )}
-          </div>
-        );
-      })()}
+      <div
+        className={`absolute -top-2 -left-2 z-10 p-1 rounded-full border shadow-sm flex items-center justify-center ${
+          isDarkTheme
+            ? "bg-neutral-900 border-neutral-700 text-neutral-200"
+            : "bg-neutral-50 border-neutral-200 text-neutral-700"
+        }`}
+        title={
+          stage === "fail"
+            ? `Below ${target}:1 target (${ratio}:1)`
+            : `Passes ${target}:1 target (${ratio}:1)`
+        }
+      >
+        {stage === "pass" ? (
+          <Check size={9} strokeWidth={3.25} className="text-current" />
+        ) : stage === "warn" ? (
+          <Check size={9} strokeWidth={3.25} className="text-current" />
+        ) : (
+          <X size={9} strokeWidth={3.25} className="text-current" />
+        )}
+      </div>
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
         className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
@@ -81,14 +86,6 @@ function ColorButton({
       </button>
     </div>
   );
-}
-
-type WCAGBadgeStage = "success" | "warning" | "danger";
-
-function getWCAGBadgeStage(result: WCAGContrastResult): WCAGBadgeStage {
-  if (result.aaaNormal) return "success";
-  if (result.aaNormal) return "warning";
-  return "danger";
 }
 
 export function ThemeCustomizer() {
@@ -141,24 +138,22 @@ export function ThemeCustomizer() {
     setIsOpen(true);
   };
 
-  const linkedOnColorByRole: Record<string, string> = {
-    background: "onBackground",
-    primary: "onPrimary",
-    accent: "onAccent",
-    container: "onContainer",
-  };
-
   const handleColorChange = (newColor: string) => {
     if (!selectedProperty) return;
 
     updateThemeProperty(["colors", selectedProperty], newColor);
 
-    const onProperty = linkedOnColorByRole[selectedProperty];
-    if (onProperty && !lockedColors.has(onProperty)) {
-      const whiteContrast = getContrastRatio("#FFFFFF", newColor);
-      const darkContrast = getContrastRatio("#111827", newColor);
-      const readableOnColor = whiteContrast >= darkContrast ? "#FFFFFF" : "#111827";
-      updateThemeProperty(["colors", onProperty], readableOnColor);
+    // Re-derive border and muted from text + background
+    const currentText = selectedProperty === "text" ? newColor : theme.colors.text;
+    const currentBg = selectedProperty === "background" ? newColor : theme.colors.background;
+
+    if (!lockedColors.has("border")) {
+      const newBorder = chroma.mix(currentText, currentBg, 0.82, "rgb").hex();
+      updateThemeProperty(["colors", "border"], newBorder);
+    }
+    if (!lockedColors.has("muted")) {
+      const newMuted = chroma.mix(currentText, currentBg, 0.55, "rgb").hex();
+      updateThemeProperty(["colors", "muted"], newMuted);
     }
   };
 
@@ -175,15 +170,11 @@ export function ThemeCustomizer() {
   };
 
   const contrastAuditDefinitions = [
-    { id: "onBackground/background", label: "Body text on Background", foreground: "onBackground", background: "background", min: 4.5, required: true },
-    { id: "onContainer/container", label: "Text on Container", foreground: "onContainer", background: "container", min: 4.5, required: true },
-    { id: "onPrimary/primary", label: "Text on Primary", foreground: "onPrimary", background: "primary", min: 4.5, required: true },
-    { id: "onAccent/accent", label: "Text on Accent", foreground: "onAccent", background: "accent", min: 4.5, required: true },
-    { id: "onBackground/container", label: "Body text on Container", foreground: "onBackground", background: "container", min: 4.5, required: true },
-    { id: "primary/background", label: "Primary against Background", foreground: "primary", background: "background", min: 3, required: true },
-    { id: "accent/background", label: "Accent against Background", foreground: "accent", background: "background", min: 3, required: true },
-    { id: "container/background", label: "Container against Background", foreground: "container", background: "background", min: 1.5, required: true },
-    { id: "onContainer/background", label: "Container text on Background", foreground: "onContainer", background: "background", min: 4.5, required: false },
+    { id: "text/background", label: "Text on Background", foreground: "text", background: "background", min: 7, required: true },
+    { id: "primary/background", label: "Primary on Background", foreground: "primary", background: "background", min: 3, required: true },
+    { id: "text/secondary", label: "Text on Secondary", foreground: "text", background: "secondary", min: 4.5, required: true },
+    { id: "accent/secondary", label: "Accent on Secondary", foreground: "accent", background: "secondary", min: 3, required: true },
+    { id: "accent/background", label: "Accent on Background", foreground: "accent", background: "background", min: 3, required: true },
   ] as const;
 
   const getContrastAudit = (palette: Record<string, string>) => {
@@ -217,8 +208,7 @@ export function ThemeCustomizer() {
         .toString(16)
         .padStart(6, "0")}`,
       themeName === "dark",
-      lockedColorValues,
-      "Analogous"
+      lockedColorValues
     );
 
     for (let index = 0; index < 24 && !isPaletteAccessible(palette); index += 1) {
@@ -227,8 +217,7 @@ export function ThemeCustomizer() {
           .toString(16)
           .padStart(6, "0")}`,
         themeName === "dark",
-        lockedColorValues,
-        "Analogous"
+        lockedColorValues
       );
     }
 
@@ -249,7 +238,6 @@ export function ThemeCustomizer() {
       const buttonRect = activeButton.getBoundingClientRect();
       const popoverRect = popoverRef.current.getBoundingClientRect();
       const containerRect = containerRef.current?.getBoundingClientRect();
-      // Calculate left relative to the container
       const left =
         buttonRect.left -
         (containerRect?.left || 0) +
@@ -279,7 +267,6 @@ export function ThemeCustomizer() {
     if (!showExportModal) return;
     const handleClick = (e: MouseEvent) => {
       if (!(e.target instanceof Node)) return;
-      // Check if click is on the modal backdrop (not the modal content)
       if ((e.target as HTMLElement).closest('.bg-white.rounded-lg.shadow-xl')) return;
       handleCloseModal();
     };
@@ -291,7 +278,6 @@ export function ThemeCustomizer() {
   useEffect(() => {
     if (showExportModal && !isModalClosing) {
       setIsModalEntering(false);
-      // Small delay to ensure initial state renders before animation
       const timer = setTimeout(() => {
         setIsModalEntering(true);
       }, 10);
@@ -301,36 +287,52 @@ export function ThemeCustomizer() {
 
   const colorButtons = [
     {
+      color: theme.colors.text,
+      label: "Text",
+      property: "text",
+      fg: "text" as const,
+      bg: "background" as const,
+      target: 7,
+    },
+    {
       color: theme.colors.background,
       label: "Background",
       property: "background",
-      onColor: theme.colors.onBackground,
+      fg: "text" as const,
+      bg: "background" as const,
+      target: 7,
     },
-
     {
       color: theme.colors.primary,
       label: "Primary",
       property: "primary",
-      onColor: theme.colors.onPrimary,
+      fg: "primary" as const,
+      bg: "background" as const,
+      target: 3,
     },
-
+    {
+      color: theme.colors.secondary,
+      label: "Secondary",
+      property: "secondary",
+      fg: "text" as const,
+      bg: "secondary" as const,
+      target: 4.5,
+    },
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
-      onColor: theme.colors.onAccent,
-    },
-    {
-      color: theme.colors.container,
-      label: "Container",
-      property: "container",
-      onColor: theme.colors.onContainer,
+      fg: "accent" as const,
+      bg: "secondary" as const,
+      target: 3,
     },
   ];
 
-  const wcagByProperty = colorButtons.reduce<Record<string, WCAGContrastResult>>(
+  const ratioByProperty = colorButtons.reduce<Record<string, number>>(
     (acc, button) => {
-      acc[button.property] = getWCAGContrastResult(button.onColor, button.color);
+      const fg = theme.colors[button.fg];
+      const bg = theme.colors[button.bg];
+      acc[button.property] = getContrastRatio(fg, bg);
       return acc;
     },
     {}
@@ -342,10 +344,8 @@ export function ThemeCustomizer() {
 
   const handleExportClick = () => {
     if (showExportModal) {
-      // If modal is already open, close it
       handleCloseModal();
     } else {
-      // If modal is closed, open it
       setShowExportModal(true);
       setIsModalClosing(false);
       setIsModalEntering(false);
@@ -358,7 +358,7 @@ export function ThemeCustomizer() {
     setTimeout(() => {
       setShowExportModal(false);
       setIsModalClosing(false);
-    }, 200); // Match the leave animation duration
+    }, 200);
   };
 
   const formatColor = (hexColor: string, format: 'hex' | 'rgb' | 'hsl'): string => {
@@ -391,10 +391,10 @@ ${Object.entries(formattedColors).map(([key, value]) => `  --color-${key}: ${val
 }
 
 /* Usage examples */
-.bg-primary { background-color: var(--color-primary); }
-.text-primary { color: var(--color-primary); }
-.bg-background { background-color: var(--color-background); }
-.text-on-background { color: var(--color-onBackground); }`;
+body { color: var(--color-text); background: var(--color-background); }
+.card { background: var(--color-secondary); color: var(--color-text); }
+.btn-primary { background: var(--color-primary); color: var(--color-background); }
+.highlight { color: var(--color-accent); }`;
 
       case 'tailwind':
         return `// tailwind.config.js
@@ -409,9 +409,9 @@ ${Object.entries(formattedColors).map(([key, value]) => `        ${key}: '${valu
 }
 
 /* Usage examples */
-// bg-primary text-onPrimary
-// bg-background text-onBackground
-// bg-container text-onContainer`;
+// <body class="bg-background text-text">
+// <div class="bg-secondary text-text">
+// <button class="bg-primary text-background">`;
 
       case 'scss':
         return `// Theme colors
@@ -428,8 +428,8 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
 }
 
 /* Usage examples */
-// @include color(background-color, primary);
-// @include color(color, onPrimary);`;
+// body { @include color(color, text); @include color(background, background); }
+// .card { @include color(background, secondary); }`;
 
       default:
         return '';
@@ -448,7 +448,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
 
   return (
     <>
-      {/* Export Modal - moved outside to cover entire screen */}
+      {/* Export Modal */}
       {showExportModal && (
         <div
           className="relative z-10"
@@ -456,7 +456,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           aria-modal="true"
           aria-labelledby="modal-title"
         >
-          {/* Background backdrop with fade animation */}
           <div
             className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${isModalClosing
               ? 'opacity-0 ease-in duration-200'
@@ -469,7 +468,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              {/* Modal panel with scale/translate animation */}
               <div
                 className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${isModalClosing
                   ? 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200'
@@ -489,7 +487,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                 </div>
 
                 <div className="p-6">
-                  {/* Format Tabs */}
                   <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
                     {(['css', 'tailwind', 'scss'] as const).map((format) => (
                       <button
@@ -505,7 +502,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     ))}
                   </div>
 
-                  {/* Color Format Options */}
                   <div className="flex space-x-4 mb-6">
                     <span className="text-sm font-medium text-neutral-700">Color Format:</span>
                     {(['hex', 'rgb', 'hsl'] as const).map((format) => (
@@ -523,7 +519,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     ))}
                   </div>
 
-                  {/* Code Block */}
                   <div className="relative">
                     <pre className="bg-neutral-900 text-neutral-100 p-4 rounded-lg overflow-auto max-h-96 text-sm text-left">
                       <code>{generateExportCode()}</code>
@@ -553,7 +548,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
       >
         <div className="flex flex-row gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
-          {colorButtons.map(({ color, label, property }) => (
+          {colorButtons.map(({ color, label, property, target }) => (
             <ColorButton
               key={property}
               color={color}
@@ -562,7 +557,8 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               onClick={handleColorClick}
               isLocked={lockedColors.has(property)}
               onLockToggle={handleLockToggle}
-              contrastResult={wcagByProperty[property]}
+              ratio={ratioByProperty[property]}
+              target={target}
               isDarkTheme={themeName === "dark"}
             />
           ))}
@@ -671,42 +667,31 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           >
             <div className="relative">
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
-              {selectedProperty && wcagByProperty[selectedProperty] && (
-                <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-neutral-800">WCAG Contrast Check</p>
-                    <p className="font-semibold">
-                      {wcagByProperty[selectedProperty].ratio}:1
+              {selectedProperty && (() => {
+                const btn = colorButtons.find(b => b.property === selectedProperty);
+                if (!btn) return null;
+                const ratio = ratioByProperty[selectedProperty];
+                const passes = ratio >= btn.target;
+                return (
+                  <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-neutral-800">Contrast Check</p>
+                      <p className="font-semibold">{ratio}:1</p>
+                    </div>
+                    <div className="mt-2 flex items-center gap-1.5">
+                      {passes ? (
+                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
+                      ) : (
+                        <X size={11} strokeWidth={2.75} className="text-red-600" />
+                      )}
+                      <span>Target {btn.target}:1 — {passes ? "Pass" : "Fail"}</span>
+                    </div>
+                    <p className="mt-1.5 text-[10px] text-neutral-500">
+                      {btn.fg} vs {btn.bg}
                     </p>
                   </div>
-                  <ul className="mt-2 space-y-1">
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaNormal ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaLarge ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaaNormal ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</span>
-                    </li>
-                  </ul>
-                </div>
-              )}
+                );
+              })()}
               <ColorPicker
                 color={selectedColor}
                 onChange={handleColorChange}

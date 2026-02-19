@@ -37,20 +37,17 @@ export const getTextColor = (color: string): string => {
   const hsl = hexToHsl(color);
   const luminance = chroma(color).luminance();
 
-  // For dark backgrounds, use a light color with the same hue
   if (luminance < 0.45) {
-    // Keep the same hue but make it light and slightly desaturated
     return hslToHex({
       h: hsl.h,
-      s: Math.min(30, hsl.s), // Reduce saturation for better readability
-      l: 90 // Light but not pure white
+      s: Math.min(30, hsl.s),
+      l: 90
     });
   } else {
-    // For light backgrounds, use a dark color with the same hue
     return hslToHex({
       h: hsl.h,
-      s: Math.min(30, hsl.s), // Reduce saturation for better readability
-      l: 15 // Dark but not pure black
+      s: Math.min(30, hsl.s),
+      l: 15
     });
   }
 };
@@ -271,79 +268,108 @@ export function hsvToRgb(hsv: HSV): RGB {
   };
 }
 
-type ColorScheme =
-  | "Monochromatic"
-  | "Analogous"
-  | "Complementary"
-  | "Split Complementary"
-  | "Triadic"
-  | "Tetradic";
-
-function pickAccessibleTextColor(background: string, targetContrast: number = 4.5): string {
-  const whiteContrast = getContrastRatio("#FFFFFF", background);
-  const blackContrast = getContrastRatio("#111827", background);
-
-  if (whiteContrast >= targetContrast || blackContrast >= targetContrast) {
-    return whiteContrast >= blackContrast ? "#FFFFFF" : "#111827";
-  }
-
-  return whiteContrast >= blackContrast ? "#FFFFFF" : "#111827";
-}
-
-function nudgeForContrast(color: string, against: string, minimumRatio: number): string {
-  let candidate = chroma(color);
+function nudgeForContrastOklch(
+  color: string,
+  against: string,
+  minimumRatio: number
+): string {
+  const [l, c, h] = chroma(color).oklch();
   const againstLuminance = chroma(against).luminance();
+  const direction = againstLuminance > 0.5 ? -0.03 : 0.03;
 
-  for (let index = 0; index < 18; index += 1) {
+  let currentL = l;
+  for (let step = 0; step < 25; step += 1) {
+    const candidate = chroma.oklch(
+      Math.max(0, Math.min(1, currentL)),
+      c,
+      h
+    );
     if (getContrastRatio(candidate.hex(), against) >= minimumRatio) {
       return candidate.hex();
     }
-
-    candidate = againstLuminance > 0.45 ? candidate.darken(0.35) : candidate.brighten(0.35);
+    currentL += direction;
   }
 
-  return candidate.hex();
+  return chroma.oklch(Math.max(0, Math.min(1, currentL)), c, h).hex();
 }
 
-function deriveBaseHue(baseColor: string, lockedColors: Record<string, string>): number {
-  const colorToUse = lockedColors.primary || lockedColors.accent || baseColor;
-  return hexToHsl(colorToUse).h;
+const ACCENT_OFFSETS = [150, 180, 120, 210, 60, 240];
+
+function pickAccentOffset(): number {
+  return ACCENT_OFFSETS[Math.floor(Math.random() * ACCENT_OFFSETS.length)];
+}
+
+function remapHue(hue: number): number {
+  const h = ((hue % 360) + 360) % 360;
+  if (h > 70 && h < 150) {
+    return h < 110 ? 60 : 160;
+  }
+  return h;
 }
 
 export function generateColorPalette(
   baseColor: string,
   isDarkMode: boolean = false,
-  lockedColors: Record<string, string> = {},
-  scheme: ColorScheme = "Analogous"
+  lockedColors: Record<string, string> = {}
 ): Record<string, string> {
-  void scheme;
-  const baseHue = deriveBaseHue(baseColor, lockedColors);
-  const background = lockedColors.background || chroma.hsl(baseHue, isDarkMode ? 0.2 : 0.28, isDarkMode ? 0.1 : 0.965).hex();
-  const container = lockedColors.container || chroma(background).set("hsl.l", isDarkMode ? 0.16 : 0.925).hex();
+  const rawHue = chroma(baseColor).oklch()[2] || 0;
 
-  let primary = lockedColors.primary || chroma.hsl((baseHue + 18) % 360, 0.7, isDarkMode ? 0.6 : 0.43).hex();
-  let accent = lockedColors.accent || chroma.hsl((baseHue + 168) % 360, 0.68, isDarkMode ? 0.62 : 0.44).hex();
+  const primaryHue = remapHue(rawHue);
+  const accentOffset = pickAccentOffset();
+  const accentHue = remapHue((primaryHue + accentOffset) % 360);
 
-  primary = nudgeForContrast(primary, background, 3);
-  accent = nudgeForContrast(accent, background, 3);
+  const primaryC = isDarkMode ? 0.14 : 0.14;
+  const accentC = isDarkMode ? 0.12 : 0.12;
 
-  const onBackground = lockedColors.onBackground || pickAccessibleTextColor(background, 7);
-  const onContainer = lockedColors.onContainer || pickAccessibleTextColor(container, 7);
-  const onPrimary = lockedColors.onPrimary || pickAccessibleTextColor(primary, 4.5);
-  const onAccent = lockedColors.onAccent || pickAccessibleTextColor(accent, 4.5);
+  const text =
+    lockedColors.text ||
+    chroma
+      .oklch(isDarkMode ? 0.93 : 0.18, 0.02, primaryHue)
+      .hex();
 
-  const border = lockedColors.border || chroma.mix(onBackground, background, 0.82, "rgb").hex();
-  const muted = lockedColors.muted || chroma.mix(onBackground, background, 0.58, "rgb").hex();
+  const background =
+    lockedColors.background ||
+    chroma
+      .oklch(isDarkMode ? 0.16 : 0.985, isDarkMode ? 0.012 : 0.01, primaryHue)
+      .hex();
+
+  let primary =
+    lockedColors.primary ||
+    chroma
+      .oklch(isDarkMode ? 0.65 : 0.55, primaryC, primaryHue)
+      .hex();
+
+  const secondary =
+    lockedColors.secondary ||
+    chroma
+      .oklch(isDarkMode ? 0.25 : 0.94, isDarkMode ? 0.02 : 0.02, primaryHue)
+      .hex();
+
+  let accent =
+    lockedColors.accent ||
+    chroma
+      .oklch(isDarkMode ? 0.68 : 0.58, accentC, accentHue)
+      .hex();
+
+  primary = nudgeForContrastOklch(primary, background, 3);
+  accent = nudgeForContrastOklch(accent, background, 3);
+
+  const finalText = nudgeForContrastOklch(text, background, 7);
+
+  const border =
+    lockedColors.border ||
+    chroma.mix(finalText, background, 0.82, "rgb").hex();
+
+  const muted =
+    lockedColors.muted ||
+    chroma.mix(finalText, background, 0.55, "rgb").hex();
 
   return {
+    text: finalText,
     background,
-    onBackground,
-    container,
-    onContainer,
     primary,
-    onPrimary,
+    secondary,
     accent,
-    onAccent,
     border,
     muted,
   };

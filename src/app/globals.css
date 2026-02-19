@@ -2,26 +2,19 @@
 
 @theme {
   /* Core colors */
+  --color-text: #1a1625;
+  --color-background: #faf9fc;
   --color-primary: #4F46E5;
-  --color-onPrimary: #FFFFFF;
-  --color-secondary: #0EA5E9;
-  --color-onSecondary: #FFFFFF;
+  --color-secondary: #eeedf2;
   --color-accent: #0EA5E9;
-  --color-onAccent: #FFFFFF;
-  
-  /* Background and surface colors */
-  --color-background: #F9FAFB;
-  --color-onBackground: #111827;
-  --color-container: #FFFFFF;
-  --color-onContainer: #111827;
-  
+
   /* State colors */
   --color-success: #059669;
   --color-error: #DC2626;
   --color-warning: #D97706;
-  
+
   /* Utility colors */
-  --color-border: #E5E7EB;
+  --color-border: #d4d2da;
   --color-muted: #6B7280;
 }
 
@@ -31,7 +24,7 @@ html {
 
 body {
   background: var(--color-background);
-  color: var(--color-onBackground);
+  color: var(--color-text);
   min-height: 100vh;
 }
 
@@ -68,16 +61,16 @@ body {
 }
 
 /* Core color utility classes */
+.text-text {
+  color: var(--color-text);
+}
+
 .bg-primary {
   background-color: var(--color-primary);
 }
 
 .text-primary {
   color: var(--color-primary);
-}
-
-.text-onPrimary {
-  color: var(--color-onPrimary);
 }
 
 .bg-secondary {
@@ -88,10 +81,6 @@ body {
   color: var(--color-secondary);
 }
 
-.text-onSecondary {
-  color: var(--color-onSecondary);
-}
-
 .bg-accent {
   background-color: var(--color-accent);
 }
@@ -100,25 +89,13 @@ body {
   color: var(--color-accent);
 }
 
-.text-onAccent {
-  color: var(--color-onAccent);
-}
-
-/* Background and surface utility classes */
+/* Background utility classes */
 .bg-background {
   background-color: var(--color-background);
 }
 
-.text-onBackground {
-  color: var(--color-onBackground);
-}
-
-.bg-container {
-  background-color: var(--color-container);
-}
-
-.text-onContainer {
-  color: var(--color-onContainer);
+.text-background {
+  color: var(--color-background);
 }
 
 /* State utility classes */
@@ -188,7 +165,7 @@ body {
   left: -12px;
   right: -12px;
   bottom: -12px;
-  background: linear-gradient(45deg, var(--color-primary), var(--color-secondary), var(--color-primary));
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent), var(--color-primary));
   background-size: 150% 150%;
   z-index: -1;
   animation: spin 3s linear infinite;

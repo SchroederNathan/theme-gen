@@ -2,23 +2,18 @@ export type Theme = {
   name: string;
   colors: {
     // Core colors
-    primary: string;
-    onPrimary: string;
-    accent: string;
-    onAccent: string;
-
-    // Background and container colors
+    text: string;
     background: string;
-    onBackground: string;
-    container: string;
-    onContainer: string;
+    primary: string;
+    secondary: string;
+    accent: string;
 
     // State colors
     success: string;
     error: string;
     warning: string;
 
-    // Utility colors
+    // Utility colors (auto-derived)
     border: string;
     muted: string;
   };
@@ -28,51 +23,35 @@ export const themes: Record<string, Theme> = {
   light: {
     name: "Light",
     colors: {
-      // Core colors
-      primary: "#4F46E5", // Indigo 600
-      onPrimary: "#FFFFFF", // White
-      accent: "#0EA5E9", // Sky 500
-      onAccent: "#FFFFFF", // White
+      text: "#1a1625",
+      background: "#faf9fc",
+      primary: "#4F46E5",
+      secondary: "#eeedf2",
+      accent: "#0284C7",
 
-      // Background and container colors
-      background: "#F9FAFB", // Gray 50
-      onBackground: "#111827", // Gray 900
-      container: "#FFFFFF", // White
-      onContainer: "#111827", // Gray 900
+      success: "#059669",
+      error: "#DC2626",
+      warning: "#D97706",
 
-      // State colors
-      success: "#059669", // Emerald 600
-      error: "#DC2626", // Red 600
-      warning: "#D97706", // Amber 600
-
-      // Utility colors
-      border: "#E5E7EB", // Gray 200
-      muted: "#6B7280", // Gray 500
+      border: "#d4d2da",
+      muted: "#8a8694",
     },
   },
   dark: {
     name: "Dark",
     colors: {
-      // Core colors
-      primary: "#6366F1", // Indigo 500
-      onPrimary: "#FFFFFF", // White
-      accent: "#38BDF8", // Sky 400
-      onAccent: "#FFFFFF", // White
+      text: "#ede9f5",
+      background: "#1a1625",
+      primary: "#818CF8",
+      secondary: "#2a2735",
+      accent: "#22D3EE",
 
-      // Background and container colors
-      background: "#111827", // Gray 900
-      onBackground: "#F9FAFB", // Gray 50
-      container: "#1F2937", // Gray 800
-      onContainer: "#F9FAFB", // Gray 50
+      success: "#10B981",
+      error: "#EF4444",
+      warning: "#F59E0B",
 
-      // State colors
-      success: "#10B981", // Emerald 500
-      error: "#EF4444", // Red 500
-      warning: "#F59E0B", // Amber 500
-
-      // Utility colors
-      border: "#374151", // Gray 700
-      muted: "#9CA3AF", // Gray 400
+      border: "#3d3a48",
+      muted: "#9490a0",
     },
   },
 };

@@ -9,12 +9,12 @@ const people = [
   export default function Checklist() {
     return (
       <fieldset>
-        <legend className="text-base font-semibold text-onSurface px-4">Members</legend>
+        <legend className="text-base font-semibold text-text px-4">Members</legend>
         <div className="mt-4 divide-y divide-border border-t border-b border-border">
           {people.map((person, personIdx) => (
             <div key={personIdx} className="relative flex gap-3 py-4">
               <div className="min-w-0 flex-1 text-sm/6">
-                <label htmlFor={`person-${person.id}`} className="font-medium px-4 text-onSurface select-none">
+                <label htmlFor={`person-${person.id}`} className="font-medium px-4 text-text select-none">
                   {person.name}
                 </label>
               </div>
@@ -25,12 +25,12 @@ const people = [
                     id={`person-${person.id}`}
                     name={`person-${person.id}`}
                     type="checkbox"
-                    className="col-start-1 row-start-1 appearance-none rounded-sm border border-border bg-surface checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:border-border disabled:bg-background disabled:checked:bg-background forced-colors:appearance-auto"
+                    className="col-start-1 row-start-1 appearance-none rounded-sm border border-border bg-secondary checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:border-border disabled:bg-background disabled:checked:bg-background forced-colors:appearance-auto"
                   />
                   <svg
                     fill="none"
                     viewBox="0 0 14 14"
-                    className="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-onPrimary group-has-disabled:stroke-onBackground/25"
+                    className="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-background group-has-disabled:stroke-text/25"
                   >
                     <path
                       d="M3 8L6 11L11 3.5"

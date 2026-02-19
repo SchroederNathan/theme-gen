@@ -50,12 +50,12 @@ export default function Pricing() {
             clipPath:
               "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
           }}
-          className="mx-auto aspect-1155/678 w-[72.1875rem] bg-gradient-to-tr from-primary to-secondary opacity-30"
+          className="mx-auto aspect-1155/678 w-[72.1875rem] bg-gradient-to-tr from-primary to-accent opacity-30"
         />
       </div>
       <div className="mx-auto max-w-4xl text-center">
         <h2 className="text-base/7 font-semibold text-primary">Pricing</h2>
-        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-onBackground sm:text-6xl">
+        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-text sm:text-6xl">
           Choose the right imaginary plan for you
         </p>
       </div>
@@ -69,7 +69,7 @@ export default function Pricing() {
             key={tier.id}
             className={classNames(
               tier.featured
-                ? "relative bg-surface shadow-2xl"
+                ? "relative bg-secondary shadow-2xl"
                 : "bg-background sm:mx-8 lg:mx-0",
               tier.featured
                 ? ""
@@ -82,7 +82,7 @@ export default function Pricing() {
             <h3
               id={tier.id}
               className={classNames(
-                tier.featured ? "text-secondary" : "text-primary",
+                tier.featured ? "text-accent" : "text-primary",
                 "text-base/7 font-semibold"
               )}
             >
@@ -91,7 +91,7 @@ export default function Pricing() {
             <p className="mt-4 flex items-baseline gap-x-2">
               <span
                 className={classNames(
-                  tier.featured ? "text-onSurface" : "text-onBackground",
+                  tier.featured ? "text-text" : "text-text",
                   "text-5xl font-semibold tracking-tight"
                 )}
               >
@@ -126,7 +126,7 @@ export default function Pricing() {
                   <CheckIcon
                     aria-hidden="true"
                     className={classNames(
-                      tier.featured ? "text-secondary" : "text-primary",
+                      tier.featured ? "text-accent" : "text-primary",
                       "h-6 w-5 flex-none"
                     )}
                   />
@@ -139,7 +139,7 @@ export default function Pricing() {
               aria-describedby={tier.id}
               className={classNames(
                 tier.featured
-                  ? "bg-primary text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  ? "bg-primary text-background shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   : "text-primary ring-1 ring-border ring-inset hover:ring-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold sm:mt-10"
               )}

@@ -5,12 +5,19 @@ declare module "chroma-js" {
     darken(amount?: number): ChromaColor;
     brighten(amount?: number): ChromaColor;
     set(channel: string, value: number): ChromaColor;
+    oklch(): [number, number, number];
   }
 
   interface Chroma {
     (color: string): ChromaColor;
     hsl(h: number, s: number, l: number): ChromaColor;
-    mix(color1: string, color2: string, f?: number, mode?: string): ChromaColor;
+    oklch(l: number, c: number, h: number): ChromaColor;
+    mix(
+      color1: string | ChromaColor,
+      color2: string | ChromaColor,
+      f?: number,
+      mode?: string
+    ): ChromaColor;
   }
 
   const chroma: Chroma;

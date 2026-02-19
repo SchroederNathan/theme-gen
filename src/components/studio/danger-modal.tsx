@@ -12,7 +12,7 @@ export default function DangerModal() {
               <TriangleAlert aria-hidden="true" className="size-6 text-error" />
             </div>
             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 className="text-base font-semibold text-onSurface">
+              <h3 className="text-base font-semibold text-text">
                 Deactivate account
               </h3>
               <div className="mt-2">
@@ -28,7 +28,7 @@ export default function DangerModal() {
             <button
               type="button"
               //   onClick={() => setOpen(false)}
-              className="inline-flex w-full justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-onPrimary hover:bg-error/90 sm:ml-3 sm:w-auto"
+              className="inline-flex w-full justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-background hover:bg-error/90 sm:ml-3 sm:w-auto"
             >
               Deactivate
             </button>
@@ -36,7 +36,7 @@ export default function DangerModal() {
               type="button"
               data-autofocus
               //   onClick={() => setOpen(false)}
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-surface px-3 py-2 text-sm font-semibold text-onSurface ring-1 ring-border ring-inset hover:bg-surface/90 sm:mt-0 sm:w-auto"
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-text ring-1 ring-border ring-inset hover:bg-secondary/90 sm:mt-0 sm:w-auto"
             >
               Cancel
             </button>

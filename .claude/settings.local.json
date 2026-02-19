@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.realtimecolors.com)",
+      "WebSearch",
+      "WebFetch(domain:supergeekery.com)",
+      "WebFetch(domain:evilmartians.com)",
+      "Bash(npm run build:*)",
+      "Bash(node -e:*)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "mcp__plugin_playwright_playwright__browser_run_code",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "Bash(lsof:*)",
+      "Bash(npx next build:*)",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "Bash(curl:*)",
+      "Bash(xargs:*)",
+      "mcp__plugin_playwright_playwright__browser_evaluate"
+    ]
+  }
+}
