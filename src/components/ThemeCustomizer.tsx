@@ -1,8 +1,8 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
-import { AlertTriangle, Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import { generateColorPalette, getContrastingTextColor, hexToRgb, rgbToHsl, ColorScheme } from "@/lib/colorUtils";
+import { Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
 
@@ -13,7 +13,6 @@ interface ColorButtonProps {
   onClick: (color: string, property: string, button: HTMLButtonElement) => void;
   isLocked: boolean;
   onLockToggle: (property: string) => void;
-  contrastResult: WCAGContrastResult;
   isDarkTheme: boolean;
 }
 
@@ -24,44 +23,18 @@ function ColorButton({
   onClick,
   isLocked,
   onLockToggle,
-  contrastResult,
   isDarkTheme,
 }: ColorButtonProps) {
+  const textColor = getContrastingTextColor(color);
+
   return (
     <div className="relative group h-full">
-      {(() => {
-        const badgeStage = getWCAGBadgeStage(contrastResult);
-        return (
-          <div
-            className={`absolute -top-2 -left-2 z-10 p-1 rounded-full border shadow-sm flex items-center justify-center ${
-              isDarkTheme
-                ? "bg-neutral-900 border-neutral-700 text-neutral-200"
-                : "bg-neutral-50 border-neutral-200 text-neutral-700"
-            }`}
-            title={
-              badgeStage === "success"
-                ? `WCAG AAA normal text pass (${contrastResult.ratio}:1)`
-                : badgeStage === "warning"
-                  ? `WCAG AA normal text pass, AAA normal fail (${contrastResult.ratio}:1)`
-                  : `WCAG AA normal text fail (${contrastResult.ratio}:1)`
-            }
-          >
-            {badgeStage === "success" ? (
-              <Check size={9} strokeWidth={3.25} className="text-current" />
-            ) : badgeStage === "warning" ? (
-              <AlertTriangle size={9} strokeWidth={3.25} className="text-current" />
-            ) : (
-              <X size={9} strokeWidth={3.25} className="text-current" />
-            )}
-          </div>
-        );
-      })()}
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
-        className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
+        className="w-28 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
         style={{ backgroundColor: color }}
       >
-        <p className="text-lg font-bold" style={{ color: getTextColor(color) }}>
+        <p className="text-sm font-bold" style={{ color: textColor }}>
           {label}
         </p>
       </button>
@@ -92,30 +65,19 @@ const colorSchemes = [
   { id: "Tetradic", name: "Tetradic" },
 ];
 
-
-type WCAGBadgeStage = "success" | "warning" | "danger";
-
-function getWCAGBadgeStage(result: WCAGContrastResult): WCAGBadgeStage {
-  if (result.aaaNormal) return "success";
-  if (result.aaNormal) return "warning";
-  return "danger";
-}
-
 export function ThemeCustomizer() {
   const { theme, updateThemeProperty, themeName, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [activeButton, setActiveButton] = useState<HTMLButtonElement | null>(
-    null
-  );
+  const [activeButton, setActiveButton] = useState<HTMLButtonElement | null>(null);
   const [popoverLeft, setPopoverLeft] = useState<number>(0);
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [showRandomizeTooltip, setShowRandomizeTooltip] = useState(false);
   const [showThemeTooltip, setShowThemeTooltip] = useState(false);
-  const [selectedScheme, setSelectedScheme] = useState(colorSchemes[1]); // Default to Analogous
+  const [selectedScheme, setSelectedScheme] = useState(colorSchemes[1]);
   const [showSchemeMenu, setShowSchemeMenu] = useState(false);
   const schemeMenuRef = useRef<HTMLDivElement>(null);
   const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
@@ -172,69 +134,38 @@ export function ThemeCustomizer() {
     });
   };
 
+  // The 5 user-controllable color buttons
+  const colorButtons = [
+    { color: theme.colors.text, label: "Text", property: "text" },
+    { color: theme.colors.background, label: "Background", property: "background" },
+    { color: theme.colors.primary, label: "Primary", property: "primary" },
+    { color: theme.colors.secondary, label: "Secondary", property: "secondary" },
+    { color: theme.colors.accent, label: "Accent", property: "accent" },
+  ];
+
   const randomizeColors = () => {
-    // Generate a random base color
     const randomColor =
       "#" +
       Math.floor(Math.random() * 16777215)
         .toString(16)
         .padStart(6, "0");
 
-    // Create an object of locked colors
+    // Collect locked color values
     const lockedColorValues: Record<string, string> = {};
-    const colorButtons = [
-      {
-        color: theme.colors.background,
-        label: "Background",
-        property: "background",
-      },
-      {
-        color: theme.colors.onBackground,
-        label: "On Background",
-        property: "onBackground",
-      },
-      { color: theme.colors.primary, label: "Primary", property: "primary" },
-      {
-        color: theme.colors.onPrimary,
-        label: "On Primary",
-        property: "onPrimary",
-      },
-      {
-        color: theme.colors.accent,
-        label: "Accent",
-        property: "accent",
-      },
-      {
-        color: theme.colors.onAccent,
-        label: "On Accent",
-        property: "onAccent",
-      },
-      {
-        color: theme.colors.container,
-        label: "Container",
-        property: "container",
-      },
-      {
-        color: theme.colors.onContainer,
-        label: "On Container",
-        property: "onContainer",
-      },
-    ];
     colorButtons.forEach(({ property, color }) => {
       if (lockedColors.has(property)) {
         lockedColorValues[property] = color;
       }
     });
 
-    // Generate a harmonious palette based on the random color, current theme, locked colors, and selected scheme
     const palette = generateColorPalette(
       randomColor,
       themeName === "dark",
       lockedColorValues,
-      selectedScheme.id as "Monochromatic" | "Analogous" | "Complementary" | "Split Complementary" | "Triadic" | "Tetradic"
+      selectedScheme.id as ColorScheme
     );
 
-    // Update all unlocked colors with the new palette
+    // Update all colors with the new palette
     Object.entries(palette).forEach(([property, color]) => {
       if (!lockedColors.has(property)) {
         updateThemeProperty(["colors", property], color);
@@ -252,7 +183,6 @@ export function ThemeCustomizer() {
       const buttonRect = activeButton.getBoundingClientRect();
       const popoverRect = popoverRef.current.getBoundingClientRect();
       const containerRect = containerRef.current?.getBoundingClientRect();
-      // Calculate left relative to the container
       const left =
         buttonRect.left -
         (containerRect?.left || 0) +
@@ -295,7 +225,6 @@ export function ThemeCustomizer() {
     if (!showExportModal) return;
     const handleClick = (e: MouseEvent) => {
       if (!(e.target instanceof Node)) return;
-      // Check if click is on the modal backdrop (not the modal content)
       if ((e.target as HTMLElement).closest('.bg-white.rounded-lg.shadow-xl')) return;
       handleCloseModal();
     };
@@ -307,7 +236,6 @@ export function ThemeCustomizer() {
   useEffect(() => {
     if (showExportModal && !isModalClosing) {
       setIsModalEntering(false);
-      // Small delay to ensure initial state renders before animation
       const timer = setTimeout(() => {
         setIsModalEntering(true);
       }, 10);
@@ -315,49 +243,10 @@ export function ThemeCustomizer() {
     }
   }, [showExportModal, isModalClosing]);
 
-  const colorButtons = [
-    {
-      color: theme.colors.background,
-      label: "Background",
-      property: "background",
-      onColor: theme.colors.onBackground,
-    },
-
-    {
-      color: theme.colors.primary,
-      label: "Primary",
-      property: "primary",
-      onColor: theme.colors.onPrimary,
-    },
-
-    {
-      color: theme.colors.accent,
-      label: "Accent",
-      property: "accent",
-      onColor: theme.colors.onAccent,
-    },
-    {
-      color: theme.colors.container,
-      label: "Container",
-      property: "container",
-      onColor: theme.colors.onContainer,
-    },
-  ];
-
-  const wcagByProperty = colorButtons.reduce<Record<string, WCAGContrastResult>>(
-    (acc, button) => {
-      acc[button.property] = getWCAGContrastResult(button.onColor, button.color);
-      return acc;
-    },
-    {}
-  );
-
   const handleExportClick = () => {
     if (showExportModal) {
-      // If modal is already open, close it
       handleCloseModal();
     } else {
-      // If modal is closed, open it
       setShowExportModal(true);
       setIsModalClosing(false);
       setIsModalEntering(false);
@@ -370,7 +259,7 @@ export function ThemeCustomizer() {
     setTimeout(() => {
       setShowExportModal(false);
       setIsModalClosing(false);
-    }, 200); // Match the leave animation duration
+    }, 200);
   };
 
   const formatColor = (hexColor: string, format: 'hex' | 'rgb' | 'hsl'): string => {
@@ -400,13 +289,7 @@ export function ThemeCustomizer() {
       case 'css':
         return `:root {
 ${Object.entries(formattedColors).map(([key, value]) => `  --color-${key}: ${value};`).join('\n')}
-}
-
-/* Usage examples */
-.bg-primary { background-color: var(--color-primary); }
-.text-primary { color: var(--color-primary); }
-.bg-background { background-color: var(--color-background); }
-.text-on-background { color: var(--color-onBackground); }`;
+}`;
 
       case 'tailwind':
         return `// tailwind.config.js
@@ -418,12 +301,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `        ${key}: '${valu
       }
     }
   }
-}
-
-/* Usage examples */
-// bg-primary text-onPrimary
-// bg-background text-onBackground
-// bg-container text-onContainer`;
+}`;
 
       case 'scss':
         return `// Theme colors
@@ -432,16 +310,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `$color-${key}: ${value}
 // Color map
 $colors: (
 ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`).join('\n')}
-);
-
-// Mixin for color usage
-@mixin color($property, $color-name) {
-  #{$property}: map-get($colors, $color-name);
-}
-
-/* Usage examples */
-// @include color(background-color, primary);
-// @include color(color, onPrimary);`;
+);`;
 
       default:
         return '';
@@ -460,7 +329,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
 
   return (
     <>
-      {/* Export Modal - moved outside to cover entire screen */}
+      {/* Export Modal */}
       {showExportModal && (
         <div
           className="relative z-10"
@@ -468,7 +337,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           aria-modal="true"
           aria-labelledby="modal-title"
         >
-          {/* Background backdrop with fade animation */}
           <div
             className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${isModalClosing
               ? 'opacity-0 ease-in duration-200'
@@ -481,7 +349,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              {/* Modal panel with scale/translate animation */}
               <div
                 className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${isModalClosing
                   ? 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200'
@@ -501,7 +368,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                 </div>
 
                 <div className="p-6">
-                  {/* Format Tabs */}
                   <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
                     {(['css', 'tailwind', 'scss'] as const).map((format) => (
                       <button
@@ -517,7 +383,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     ))}
                   </div>
 
-                  {/* Color Format Options */}
                   <div className="flex space-x-4 mb-6">
                     <span className="text-sm font-medium text-neutral-700">Color Format:</span>
                     {(['hex', 'rgb', 'hsl'] as const).map((format) => (
@@ -535,7 +400,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     ))}
                   </div>
 
-                  {/* Code Block */}
                   <div className="relative">
                     <pre className="bg-neutral-900 text-neutral-100 p-4 rounded-lg overflow-auto max-h-96 text-sm text-left">
                       <code>{generateExportCode()}</code>
@@ -552,7 +416,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                       )}
                     </button>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -564,7 +427,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
         ref={containerRef}
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
       >
-        <div className="flex flex-row gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
+        <div className="flex flex-row gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-14 shadow-lg items-center">
           {colorButtons.map(({ color, label, property }) => (
             <ColorButton
               key={property}
@@ -574,20 +437,19 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               onClick={handleColorClick}
               isLocked={lockedColors.has(property)}
               onLockToggle={handleLockToggle}
-              contrastResult={wcagByProperty[property]}
               isDarkTheme={themeName === "dark"}
             />
           ))}
           <div className="relative flex items-center h-full">
             <button
               onClick={randomizeColors}
-              className=" h-full rounded-md  ps-2 hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-between"
+              className="h-full rounded-md ps-2 hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-between"
               onMouseEnter={() => setShowRandomizeTooltip(true)}
               onMouseLeave={() => setShowRandomizeTooltip(false)}
             >
               <Shuffle size={16} className="text-neutral-800" />
               <ChevronDown
-                className=" text-neutral-500 h-full cursor-pointer w-4 rounded-e-md hover:bg-neutral-200 transition-colors"
+                className="text-neutral-500 h-full cursor-pointer w-4 rounded-e-md hover:bg-neutral-200 transition-colors"
                 size={16}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -710,42 +572,6 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           >
             <div className="relative">
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
-              {selectedProperty && wcagByProperty[selectedProperty] && (
-                <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-neutral-800">WCAG Contrast Check</p>
-                    <p className="font-semibold">
-                      {wcagByProperty[selectedProperty].ratio}:1
-                    </p>
-                  </div>
-                  <ul className="mt-2 space-y-1">
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaNormal ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AA normal text: {wcagByProperty[selectedProperty].aaNormal ? "Pass" : "Fail"} (≥ 4.5:1)</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaLarge ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AA large text: {wcagByProperty[selectedProperty].aaLarge ? "Pass" : "Fail"} (≥ 3:1)</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      {wcagByProperty[selectedProperty].aaaNormal ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>AAA normal text: {wcagByProperty[selectedProperty].aaaNormal ? "Pass" : "Fail"} (≥ 7:1)</span>
-                    </li>
-                  </ul>
-                </div>
-              )}
               <ColorPicker
                 color={selectedColor}
                 onChange={handleColorChange}

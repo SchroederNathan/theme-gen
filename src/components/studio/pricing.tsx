@@ -55,12 +55,12 @@ export default function Pricing() {
       </div>
       <div className="mx-auto max-w-4xl text-center">
         <h2 className="text-base/7 font-semibold text-primary">Pricing</h2>
-        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-onBackground sm:text-6xl">
+        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-text sm:text-6xl">
           Choose the right imaginary plan for you
         </p>
       </div>
       <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-muted sm:text-xl/8">
-        Choose a plan packed with imaginary features for your fictional audience. 
+        Choose a plan packed with imaginary features for your fictional audience.
         Perfect for pretend customers and non-existent sales.
       </p>
       <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
@@ -89,37 +89,19 @@ export default function Pricing() {
               {tier.name}
             </h3>
             <p className="mt-4 flex items-baseline gap-x-2">
-              <span
-                className={classNames(
-                  tier.featured ? "text-onSurface" : "text-onBackground",
-                  "text-5xl font-semibold tracking-tight"
-                )}
-              >
+              <span className="text-5xl font-semibold tracking-tight text-text">
                 {tier.priceMonthly}
               </span>
-              <span
-                className={classNames(
-                  tier.featured ? "text-muted" : "text-muted",
-                  "text-base"
-                )}
-              >
+              <span className="text-base text-muted">
                 /month
               </span>
             </p>
-            <p
-              className={classNames(
-                tier.featured ? "text-muted" : "text-muted",
-                "mt-6 text-base/7"
-              )}
-            >
+            <p className="mt-6 text-base/7 text-muted">
               {tier.description}
             </p>
             <ul
               role="list"
-              className={classNames(
-                tier.featured ? "text-muted" : "text-muted",
-                "mt-8 space-y-3 text-sm/6 sm:mt-10"
-              )}
+              className="mt-8 space-y-3 text-sm/6 text-muted sm:mt-10"
             >
               {tier.features.map((feature) => (
                 <li key={feature} className="flex gap-x-3">

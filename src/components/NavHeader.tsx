@@ -52,17 +52,6 @@ const products: {
     aiBadge: true,
   },
 ];
-// const callsToAction = [
-//   { name: "Watch demo", href: "#", icon: PlayCircle },
-//   { name: "Contact sales", href: "#", icon: Phone },
-// ];
-// const company = [
-//   { name: "About us", href: "#" },
-//   { name: "Careers", href: "#" },
-//   { name: "Support", href: "#" },
-//   { name: "Press", href: "#" },
-//   { name: "Blog", href: "#" },
-// ];
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -112,9 +101,9 @@ export default function Example() {
                 {products.map((item) => (
                   <div
                     key={item.name}
-                    className="group relative flex gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-onSurface/5"
+                    className="group relative flex gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-text/5"
                   >
-                    <div className="mt-1 flex size-11 flex-none items-center justify-center rounded-lg bg-onSurface/5 group-hover:bg-background">
+                    <div className="mt-1 flex size-11 flex-none items-center justify-center rounded-lg bg-text/5 group-hover:bg-background">
                       <item.icon
                         aria-hidden="true"
                         className="size-6 text-muted group-hover:text-primary"
@@ -126,11 +115,6 @@ export default function Example() {
                         className="block font-semibold text-text"
                       >
                         {item.name}
-                        {/* {item.aiBadge && (
-                          <span className="inline-flex ms-2 items-center rounded-md px-1.5 py-0.5 text-xs font-medium ai-badge">
-                            AI
-                          </span>
-                        )} */}
                         <span className="absolute inset-0" />
                       </Link>
                       <p className="mt-1 text-muted">{item.description}</p>
@@ -138,21 +122,6 @@ export default function Example() {
                   </div>
                 ))}
               </div>
-              {/* <div className="grid grid-cols-2 divide-x divide-onSurface/15 bg-onSurface/5">
-                {callsToAction.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-text hover:bg-hover"
-                  >
-                    <item.icon
-                      aria-hidden="true"
-                      className="size-5 flex-none text-muted"
-                    />
-                    {item.name}
-                  </Link>
-                ))}
-              </div> */}
             </PopoverPanel>
           </Popover>
 
@@ -217,7 +186,7 @@ export default function Example() {
                             key={item.name}
                             as={Link}
                             href={item.href}
-                            className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold text-text hover:bg-onSurface/5"
+                            className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold text-text hover:bg-text/5"
                           >
                             {item.name}
                             {item.aiBadge && (
@@ -233,13 +202,13 @@ export default function Example() {
                 </Disclosure>
                 <Link
                   href="/colors"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-onSurface/5"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-text/5"
                 >
                   Colors
                 </Link>
                 <Link
                   href="/gallery"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-onSurface/5"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-text hover:bg-text/5"
                 >
                   Gallery
                 </Link>
@@ -247,7 +216,7 @@ export default function Example() {
               <div className="py-6">
                 <Link
                   href="/login"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-text hover:bg-onSurface/5"
+                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-text hover:bg-text/5"
                 >
                   Log in
                 </Link>

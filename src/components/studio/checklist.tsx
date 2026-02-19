@@ -5,16 +5,16 @@ const people = [
     { id: 4, name: 'Kathryn Murphy', selected: false },
     { id: 5, name: 'Theresa Webb', selected: false },
   ]
-  
+
   export default function Checklist() {
     return (
       <fieldset>
-        <legend className="text-base font-semibold text-onSurface px-4">Members</legend>
+        <legend className="text-base font-semibold text-text px-4">Members</legend>
         <div className="mt-4 divide-y divide-border border-t border-b border-border">
           {people.map((person, personIdx) => (
             <div key={personIdx} className="relative flex gap-3 py-4">
               <div className="min-w-0 flex-1 text-sm/6">
-                <label htmlFor={`person-${person.id}`} className="font-medium px-4 text-onSurface select-none">
+                <label htmlFor={`person-${person.id}`} className="font-medium px-4 text-text select-none">
                   {person.name}
                 </label>
               </div>
@@ -30,7 +30,7 @@ const people = [
                   <svg
                     fill="none"
                     viewBox="0 0 14 14"
-                    className="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-onPrimary group-has-disabled:stroke-onBackground/25"
+                    className="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-onPrimary group-has-disabled:stroke-text/25"
                   >
                     <path
                       d="M3 8L6 11L11 3.5"
@@ -55,4 +55,3 @@ const people = [
       </fieldset>
     )
   }
-  

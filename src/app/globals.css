@@ -1,28 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core colors */
-  --color-primary: #4F46E5;
-  --color-onPrimary: #FFFFFF;
-  --color-secondary: #0EA5E9;
-  --color-onSecondary: #FFFFFF;
-  --color-accent: #0EA5E9;
-  --color-onAccent: #FFFFFF;
-  
-  /* Background and surface colors */
+  /* 5 user-controllable colors */
+  --color-text: #111827;
   --color-background: #F9FAFB;
-  --color-onBackground: #111827;
-  --color-container: #FFFFFF;
-  --color-onContainer: #111827;
-  
+  --color-primary: #4F46E5;
+  --color-secondary: #0EA5E9;
+  --color-accent: #F59E0B;
+
+  /* Auto-derived colors */
+  --color-onPrimary: #FFFFFF;
+  --color-onSecondary: #FFFFFF;
+  --color-onAccent: #111827;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-muted: #6B7280;
+
   /* State colors */
   --color-success: #059669;
   --color-error: #DC2626;
   --color-warning: #D97706;
-  
-  /* Utility colors */
-  --color-border: #E5E7EB;
-  --color-muted: #6B7280;
 }
 
 html {
@@ -31,7 +28,7 @@ html {
 
 body {
   background: var(--color-background);
-  color: var(--color-onBackground);
+  color: var(--color-text);
   min-height: 100vh;
 }
 
@@ -65,98 +62,6 @@ body {
 
 .animate-spin {
   animation: spin 2s linear infinite;
-}
-
-/* Core color utility classes */
-.bg-primary {
-  background-color: var(--color-primary);
-}
-
-.text-primary {
-  color: var(--color-primary);
-}
-
-.text-onPrimary {
-  color: var(--color-onPrimary);
-}
-
-.bg-secondary {
-  background-color: var(--color-secondary);
-}
-
-.text-secondary {
-  color: var(--color-secondary);
-}
-
-.text-onSecondary {
-  color: var(--color-onSecondary);
-}
-
-.bg-accent {
-  background-color: var(--color-accent);
-}
-
-.text-accent {
-  color: var(--color-accent);
-}
-
-.text-onAccent {
-  color: var(--color-onAccent);
-}
-
-/* Background and surface utility classes */
-.bg-background {
-  background-color: var(--color-background);
-}
-
-.text-onBackground {
-  color: var(--color-onBackground);
-}
-
-.bg-container {
-  background-color: var(--color-container);
-}
-
-.text-onContainer {
-  color: var(--color-onContainer);
-}
-
-/* State utility classes */
-.bg-success {
-  background-color: var(--color-success);
-}
-
-.text-success {
-  color: var(--color-success);
-}
-
-.bg-error {
-  background-color: var(--color-error);
-}
-
-.text-error {
-  color: var(--color-error);
-}
-
-.bg-warning {
-  background-color: var(--color-warning);
-}
-
-.text-warning {
-  color: var(--color-warning);
-}
-
-/* Utility classes */
-.border-border {
-  border-color: var(--color-border);
-}
-
-.ring-border {
-  --tw-ring-color: var(--color-border);
-}
-
-.text-muted {
-  color: var(--color-muted);
 }
 
 /* Hover and focus states */

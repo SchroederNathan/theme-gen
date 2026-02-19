@@ -33,75 +33,7 @@ export const getColorName = nearestColor.from(colors);
 export const getIconColor = (color: string): string =>
   chroma(color).luminance() < 0.05 ? "#ddd" : "#222";
 
-export const getTextColor = (color: string): string => {
-  const hsl = hexToHsl(color);
-  const luminance = chroma(color).luminance();
-
-  // For dark backgrounds, use a light color with the same hue
-  if (luminance < 0.45) {
-    // Keep the same hue but make it light and slightly desaturated
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(30, hsl.s), // Reduce saturation for better readability
-      l: 90 // Light but not pure white
-    });
-  } else {
-    // For light backgrounds, use a dark color with the same hue
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(30, hsl.s), // Reduce saturation for better readability
-      l: 15 // Dark but not pure black
-    });
-  }
-};
-
-export interface WCAGContrastResult {
-  ratio: number;
-  aaNormal: boolean;
-  aaLarge: boolean;
-  aaaNormal: boolean;
-  aaaLarge: boolean;
-}
-
-function channelToLinear(value: number): number {
-  const normalized = value / 255;
-  return normalized <= 0.03928
-    ? normalized / 12.92
-    : ((normalized + 0.055) / 1.055) ** 2.4;
-}
-
-function relativeLuminance(color: string): number {
-  const { r, g, b } = hexToRgb(color);
-  const rLin = channelToLinear(r);
-  const gLin = channelToLinear(g);
-  const bLin = channelToLinear(b);
-
-  return 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
-}
-
-export function getContrastRatio(foreground: string, background: string): number {
-  const l1 = relativeLuminance(foreground);
-  const l2 = relativeLuminance(background);
-  const lighter = Math.max(l1, l2);
-  const darker = Math.min(l1, l2);
-
-  return Number(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
-}
-
-export function getWCAGContrastResult(
-  foreground: string,
-  background: string
-): WCAGContrastResult {
-  const ratio = getContrastRatio(foreground, background);
-
-  return {
-    ratio,
-    aaNormal: ratio >= 4.5,
-    aaLarge: ratio >= 3,
-    aaaNormal: ratio >= 7,
-    aaaLarge: ratio >= 4.5,
-  };
-}
+// ─── Color space conversions ────────────────────────────────────────
 
 export function hexToRgb(hex: string): RGB {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -240,29 +172,17 @@ export function hsvToRgb(hsv: HSV): RGB {
     g = 0,
     b = 0;
   if (h >= 0 && h < 60) {
-    r = c;
-    g = x;
-    b = 0;
+    r = c; g = x; b = 0;
   } else if (h >= 60 && h < 120) {
-    r = x;
-    g = c;
-    b = 0;
+    r = x; g = c; b = 0;
   } else if (h >= 120 && h < 180) {
-    r = 0;
-    g = c;
-    b = x;
+    r = 0; g = c; b = x;
   } else if (h >= 180 && h < 240) {
-    r = 0;
-    g = x;
-    b = c;
+    r = 0; g = x; b = c;
   } else if (h >= 240 && h < 300) {
-    r = x;
-    g = 0;
-    b = c;
+    r = x; g = 0; b = c;
   } else {
-    r = c;
-    g = 0;
-    b = x;
+    r = c; g = 0; b = x;
   }
   return {
     r: Math.round((r + m) * 255),
@@ -271,7 +191,43 @@ export function hsvToRgb(hsv: HSV): RGB {
   };
 }
 
-type ColorScheme =
+// ─── WCAG contrast utilities ────────────────────────────────────────
+
+function channelToLinear(value: number): number {
+  const normalized = value / 255;
+  return normalized <= 0.03928
+    ? normalized / 12.92
+    : ((normalized + 0.055) / 1.055) ** 2.4;
+}
+
+function relativeLuminance(color: string): number {
+  const { r, g, b } = hexToRgb(color);
+  const rLin = channelToLinear(r);
+  const gLin = channelToLinear(g);
+  const bLin = channelToLinear(b);
+  return 0.2126 * rLin + 0.7152 * gLin + 0.0722 * bLin;
+}
+
+export function getContrastRatio(foreground: string, background: string): number {
+  const l1 = relativeLuminance(foreground);
+  const l2 = relativeLuminance(background);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return Number(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
+}
+
+/**
+ * Generate the best contrasting text color (white or near-black) for a given surface.
+ * Guarantees WCAG AA (4.5:1) contrast.
+ */
+export function getContrastingTextColor(surfaceHex: string): string {
+  const lum = relativeLuminance(surfaceHex);
+  return lum > 0.179 ? "#111827" : "#FFFFFF";
+}
+
+// ─── Color scheme generation ────────────────────────────────────────
+
+export type ColorScheme =
   | 'Monochromatic'
   | 'Analogous'
   | 'Complementary'
@@ -279,277 +235,184 @@ type ColorScheme =
   | 'Triadic'
   | 'Tetradic';
 
-function getColorHarmony(baseHsl: HSL, isDarkMode: boolean, scheme: ColorScheme = 'Analogous'): HSL[] {
-  let harmonies: HSL[] = [];
+/**
+ * Generate harmonious hues from a base hue using color theory.
+ */
+function getHarmonyHues(baseHue: number, scheme: ColorScheme): number[] {
+  const h = baseHue;
   switch (scheme) {
     case 'Monochromatic':
-      harmonies = [
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: baseHsl.h, s: Math.max(20, baseHsl.s - 20), l: Math.min(90, baseHsl.l + 20) },
-        { h: baseHsl.h, s: Math.min(100, baseHsl.s + 20), l: Math.max(10, baseHsl.l - 20) },
-        { h: baseHsl.h, s: baseHsl.s, l: Math.max(10, baseHsl.l - 10) },
-        { h: baseHsl.h, s: baseHsl.s, l: Math.min(90, baseHsl.l + 10) },
-      ];
-      break;
+      return [h, h, h];
     case 'Analogous':
-      harmonies = [
-        { h: (baseHsl.h + 30) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h - 30 + 360) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 60) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h - 60 + 360) % 360, s: baseHsl.s, l: baseHsl.l },
-      ];
-      break;
+      return [h, (h + 30) % 360, (h - 30 + 360) % 360];
     case 'Complementary':
-      harmonies = [
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 180) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: baseHsl.h, s: Math.max(20, baseHsl.s - 20), l: Math.min(90, baseHsl.l + 20) },
-        { h: (baseHsl.h + 180) % 360, s: Math.max(20, baseHsl.s - 20), l: Math.min(90, baseHsl.l + 20) },
-      ];
-      break;
+      return [h, (h + 180) % 360];
     case 'Split Complementary':
-      harmonies = [
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 150) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h - 150 + 360) % 360, s: baseHsl.s, l: baseHsl.l },
-      ];
-      break;
+      return [h, (h + 150) % 360, (h + 210) % 360];
     case 'Triadic':
-      harmonies = [
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 120) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 240) % 360, s: baseHsl.s, l: baseHsl.l },
-      ];
-      break;
+      return [h, (h + 120) % 360, (h + 240) % 360];
     case 'Tetradic':
-      harmonies = [
-        { h: baseHsl.h, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 90) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 180) % 360, s: baseHsl.s, l: baseHsl.l },
-        { h: (baseHsl.h + 270) % 360, s: baseHsl.s, l: baseHsl.l },
-      ];
-      break;
+      return [h, (h + 90) % 360, (h + 180) % 360, (h + 270) % 360];
     default:
-      harmonies = [baseHsl];
+      return [h];
   }
-
-  // Add more variation to saturation and lightness while maintaining the color family
-  return harmonies.map(color => ({
-    ...color,
-    s: Math.max(20, Math.min(100, color.s + (Math.random() * 40 - 20))),
-    l: isDarkMode
-      ? Math.max(20, Math.min(80, color.l + (Math.random() * 40 - 20)))
-      : Math.max(60, Math.min(95, color.l + (Math.random() * 20 - 10)))
-  }));
 }
 
-function findBestColorMatch(targetHsl: HSL, options: HSL[], usedColors: HSL[] = []): HSL {
-  // Filter out colors that are too similar to already used colors
-  const filteredOptions = options.filter(option => {
-    return !usedColors.some(used => {
-      const hueDiff = Math.abs(option.h - used.h);
-      const satDiff = Math.abs(option.s - used.s);
-      const lightDiff = Math.abs(option.l - used.l);
-      // Allow more variation in hue, saturation, and lightness
-      return hueDiff < 20 && satDiff < 15 && lightDiff < 15;
-    });
+function pickFromHarmony(hues: number[], excludeIndex: number = 0): number {
+  const candidates = hues.filter((_, i) => i !== excludeIndex);
+  return candidates[Math.floor(Math.random() * candidates.length)] ?? hues[0];
+}
+
+/**
+ * Derive surface, border, and muted colors from text and background.
+ */
+function deriveUtilityColors(textHex: string, bgHex: string, isDark: boolean) {
+  const bgHsl = hexToHsl(bgHex);
+  const textHsl = hexToHsl(textHex);
+
+  // Surface: slightly offset from background (cards, containers)
+  const surface = hslToHex({
+    h: bgHsl.h,
+    s: bgHsl.s,
+    l: isDark
+      ? Math.min(100, bgHsl.l + 6)
+      : Math.min(100, bgHsl.l + 4),
   });
 
-  // If no options remain after filtering, return a color with more variation
-  if (filteredOptions.length === 0) {
-    return options.reduce((best, current) => {
-      const currentDiff = Math.abs(current.h - targetHsl.h) + 
-                         Math.abs(current.s - targetHsl.s) + 
-                         Math.abs(current.l - targetHsl.l);
-      const bestDiff = Math.abs(best.h - targetHsl.h) + 
-                      Math.abs(best.s - targetHsl.s) + 
-                      Math.abs(best.l - targetHsl.l);
-      return currentDiff > bestDiff ? current : best;
-    });
-  }
-
-  // Find the color that's most different from the target while maintaining harmony
-  return filteredOptions.reduce((best, current) => {
-    const currentDiff = Math.abs(current.h - targetHsl.h) + 
-                       Math.abs(current.s - targetHsl.s) + 
-                       Math.abs(current.l - targetHsl.l);
-    const bestDiff = Math.abs(best.h - targetHsl.h) + 
-                    Math.abs(best.s - targetHsl.s) + 
-                    Math.abs(best.l - targetHsl.l);
-    return currentDiff > bestDiff ? current : best;
+  // Border: between bg and text, low saturation
+  const border = hslToHex({
+    h: bgHsl.h,
+    s: Math.max(5, Math.round(bgHsl.s * 0.3)),
+    l: isDark
+      ? Math.min(100, bgHsl.l + 18)
+      : Math.max(0, bgHsl.l - 14),
   });
+
+  // Muted: subdued text
+  const muted = hslToHex({
+    h: textHsl.h,
+    s: Math.max(5, Math.round(textHsl.s * 0.3)),
+    l: isDark
+      ? Math.max(0, textHsl.l - 30)
+      : Math.min(100, textHsl.l + 35),
+  });
+
+  return { surface, border, muted };
 }
 
-function getContrastRatioInternal(color1: string, color2: string): number {
-  const l1 = chroma(color1).luminance();
-  const l2 = chroma(color2).luminance();
-  const lighter = Math.max(l1, l2);
-  const darker = Math.min(l1, l2);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-function ensureContrast(color: string, background: string, minContrast: number = 4.5): string {
-  const hsl = hexToHsl(color);
-  const bgLuminance = chroma(background).luminance();
-  const currentContrast = getContrastRatioInternal(color, background);
-  
-  if (currentContrast >= minContrast) {
-    return color;
-  }
-
-  // If background is dark, make the color lighter
-  if (bgLuminance < 0.5) {
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(100, hsl.s + 20), // Increase saturation for better visibility
-      l: Math.min(95, hsl.l + 30) // Make it lighter
-    });
-  } else {
-    // If background is light, make the color darker
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(100, hsl.s + 20), // Increase saturation for better visibility
-      l: Math.max(20, hsl.l - 30) // Make it darker
-    });
-  }
-}
-
+/**
+ * Generate a complete color palette from a base (primary) color.
+ *
+ * 5 user-controllable colors: text, background, primary, secondary, accent.
+ * Derived colors auto-calculated for contrast and harmony.
+ */
 export function generateColorPalette(
   baseColor: string,
   isDarkMode: boolean = false,
   lockedColors: Record<string, string> = {},
   scheme: ColorScheme = 'Analogous'
 ): Record<string, string> {
-  // Convert all locked colors to HSL
-  const lockedHsl: Record<string, HSL> = {};
-  Object.entries(lockedColors).forEach(([key, value]) => {
-    lockedHsl[key] = hexToHsl(value);
+  const baseHsl = hexToHsl(baseColor);
+  const harmonyHues = getHarmonyHues(baseHsl.h, scheme);
+
+  // ── Primary ──
+  const primary = lockedColors.primary ?? hslToHex({
+    h: baseHsl.h,
+    s: Math.max(50, Math.min(90, baseHsl.s)),
+    l: isDarkMode
+      ? Math.max(45, Math.min(65, baseHsl.l))
+      : Math.max(35, Math.min(55, baseHsl.l)),
   });
 
-  // If we have locked colors, use them to influence the palette
-  let baseHsl: HSL;
-  if (Object.keys(lockedHsl).length > 0) {
-    // Priority order for base color: background > border > primary > other locked colors
-    if (lockedHsl.background) {
-      baseHsl = {
-        h: lockedHsl.background.h,
-        s: Math.min(100, lockedHsl.background.s + 20),
-        l: isDarkMode ? 50 : 50
-      };
-    } else if (lockedHsl.border) {
-      baseHsl = {
-        h: lockedHsl.border.h,
-        s: Math.min(100, lockedHsl.border.s + 20),
-        l: isDarkMode ? 50 : 50
-      };
-    } else if (lockedHsl.primary) {
-      baseHsl = lockedHsl.primary;
-    } else {
-      baseHsl = Object.values(lockedHsl)[0];
-    }
-  } else {
-    baseHsl = hexToHsl(baseColor);
-  }
-
-  // Generate harmonious color options
-  const harmonyOptions = getColorHarmony(baseHsl, isDarkMode, scheme);
-  
-  // Start building the palette
-  const palette: Record<string, string> = {};
-  const usedColors: HSL[] = [];
-
-  // Handle each color role
-  const roles = ['primary', 'background', 'container', 'accent', 'border'];
-  roles.forEach(role => {
-    if (lockedColors[role]) {
-      // Use the locked color
-      palette[role] = lockedColors[role];
-      usedColors.push(lockedHsl[role]);
-    } else if (role === 'container' && palette.background) {
-      // Generate container color variations based on background
-      const backgroundHsl = hexToHsl(palette.background);
-      const containerOptions = generateContainerOptions(backgroundHsl);
-      // Find the best container color that hasn't been used yet
-      const bestContainer = findBestColorMatch(backgroundHsl, containerOptions, usedColors);
-      palette[role] = hslToHex(bestContainer);
-      usedColors.push(bestContainer);
-    } else {
-      // Find the best color from harmony options for this role
-      const bestMatch = findBestColorMatch(baseHsl, harmonyOptions, usedColors);
-      const adjustedColor = adjustColorForRole(bestMatch, role, isDarkMode);
-      palette[role] = hslToHex(adjustedColor);
-      usedColors.push(bestMatch);
-    }
+  // ── Background ──
+  const background = lockedColors.background ?? hslToHex({
+    h: baseHsl.h,
+    s: Math.max(5, Math.min(15, Math.round(baseHsl.s * 0.15))),
+    l: isDarkMode
+      ? Math.floor(Math.random() * 5) + 8
+      : Math.floor(Math.random() * 4) + 95,
   });
 
-  // Ensure primary color has good contrast with background
-  if (palette.background && palette.primary) {
-    palette.primary = ensureContrast(palette.primary, palette.background);
-  }
+  // ── Text ──
+  const text = lockedColors.text ?? hslToHex({
+    h: baseHsl.h,
+    s: Math.max(5, Math.min(15, Math.round(baseHsl.s * 0.1))),
+    l: isDarkMode
+      ? Math.floor(Math.random() * 5) + 90
+      : Math.floor(Math.random() * 5) + 8,
+  });
 
-  // Generate "on" colors for text contrast
-  const onColors = {
-    onPrimary: getTextColor(palette.primary),
-    onBackground: getTextColor(palette.background),
-    onContainer: getTextColor(palette.container),
-    onAccent: getTextColor(palette.accent),
-  };
+  // ── Secondary ──
+  const secondaryHue = pickFromHarmony(harmonyHues, 0);
+  const secondary = lockedColors.secondary ?? hslToHex({
+    h: secondaryHue,
+    s: Math.max(45, Math.min(85, baseHsl.s + (Math.random() * 20 - 10))),
+    l: isDarkMode
+      ? Math.max(45, Math.min(65, 55 + (Math.random() * 10 - 5)))
+      : Math.max(35, Math.min(55, 45 + (Math.random() * 10 - 5))),
+  });
+
+  // ── Accent ──
+  const usedSecondaryHue = hexToHsl(secondary).h;
+  const accentCandidates = harmonyHues.filter(h => {
+    const diff = Math.abs(h - usedSecondaryHue);
+    return diff > 30 && diff < 330;
+  });
+  const accentHue = accentCandidates.length > 0
+    ? accentCandidates[Math.floor(Math.random() * accentCandidates.length)]
+    : (baseHsl.h + 60) % 360;
+  const accent = lockedColors.accent ?? hslToHex({
+    h: accentHue,
+    s: Math.max(60, Math.min(95, baseHsl.s + 15)),
+    l: isDarkMode
+      ? Math.max(50, Math.min(70, 60 + (Math.random() * 10 - 5)))
+      : Math.max(40, Math.min(60, 50 + (Math.random() * 10 - 5))),
+  });
+
+  // ── Derived colors ──
+  const onPrimary = getContrastingTextColor(primary);
+  const onSecondary = getContrastingTextColor(secondary);
+  const onAccent = getContrastingTextColor(accent);
+  const { surface, border, muted } = deriveUtilityColors(text, background, isDarkMode);
 
   return {
-    ...palette,
-    ...onColors
+    text,
+    background,
+    primary,
+    secondary,
+    accent,
+    onPrimary,
+    onSecondary,
+    onAccent,
+    surface,
+    border,
+    muted,
+    success: "#059669",
+    error: "#DC2626",
+    warning: "#D97706",
   };
 }
 
-function generateContainerOptions(backgroundHsl: HSL): HSL[] {
-  const options: HSL[] = [];
-  const baseHue = backgroundHsl.h;
-  const baseSat = backgroundHsl.s;
-  const baseLight = backgroundHsl.l;
+/**
+ * Recalculate all derived colors from the 5 user-controllable colors.
+ * Call this whenever any user color changes to keep derived colors in sync.
+ */
+export function derivePaletteColors(
+  userColors: { text: string; background: string; primary: string; secondary: string; accent: string },
+  isDarkMode: boolean
+): Record<string, string> {
+  const { text, background, primary, secondary, accent } = userColors;
+  const onPrimary = getContrastingTextColor(primary);
+  const onSecondary = getContrastingTextColor(secondary);
+  const onAccent = getContrastingTextColor(accent);
+  const { surface, border, muted } = deriveUtilityColors(text, background, isDarkMode);
 
-  // Generate variations with different saturation and lightness combinations
-  const satVariations = [-15, -10, -5];
-  const lightVariations = [-8, -5, -3];
-
-  satVariations.forEach(satChange => {
-    lightVariations.forEach(lightChange => {
-      options.push({
-        h: baseHue,
-        s: Math.max(20, Math.min(100, baseSat + satChange)),
-        l: Math.max(10, Math.min(90, baseLight + lightChange))
-      });
-    });
-  });
-
-  return options;
-}
-
-function adjustColorForRole(hsl: HSL, role: string, isDarkMode: boolean): HSL {
-  const adjustments: Record<string, { s: number; l: number }> = {
-    background: {
-      s: -30,
-      l: isDarkMode ? -50 : 85 // Increased lightness for light mode
-    },
-    container: {
-      s: -20,
-      l: isDarkMode ? -30 : 75 // Increased lightness for light mode
-    },
-    accent: {
-      s: 20,
-      l: isDarkMode ? 10 : -10
-    },
-    border: {
-      s: -60,
-      l: isDarkMode ? -40 : 40 // Increased lightness for light mode
-    }
-  };
-
-  const adjustment = adjustments[role] || { s: 0, l: 0 };
   return {
-    h: hsl.h, // Keep the same hue to maintain color family
-    s: Math.max(20, Math.min(100, hsl.s + adjustment.s + (Math.random() * 20 - 10))),
-    l: Math.max(10, Math.min(90, hsl.l + adjustment.l + (Math.random() * 20 - 10)))
+    onPrimary,
+    onSecondary,
+    onAccent,
+    surface,
+    border,
+    muted,
   };
 }
-

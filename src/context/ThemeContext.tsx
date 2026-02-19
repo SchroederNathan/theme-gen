@@ -1,5 +1,6 @@
 "use client";
 
+import { derivePaletteColors } from "@/lib/colorUtils";
 import { Theme, defaultTheme, themes } from "@/lib/themes";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -16,33 +17,17 @@ type NestedTheme = {
   [key: string]: string | NestedTheme;
 };
 
+const USER_COLOR_KEYS = ["text", "background", "primary", "secondary", "accent"];
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeName, setThemeName] = useState(defaultTheme);
   const [theme, setTheme] = useState<Theme>(themes[defaultTheme]);
 
   const updateCSSVariables = (newTheme: Theme) => {
     const root = document.documentElement;
-
-    // Update color variables
     Object.entries(newTheme.colors).forEach(([key, value]) => {
       root.style.setProperty(`--color-${key}`, value);
     });
-
-    // Update typography variables
-    //     root.style.setProperty("--font-family", newTheme.typography.fontFamily);
-    //     Object.entries(newTheme.typography.fontSize).forEach(([key, value]) => {
-    //       root.style.setProperty(`--font-size-${key}`, value);
-    //     });
-
-    //     // Update spacing variables
-    //     Object.entries(newTheme.spacing).forEach(([key, value]) => {
-    //       root.style.setProperty(`--spacing-${key}`, value);
-    //     });
-
-    //     // Update border radius variables
-    //     Object.entries(newTheme.borderRadius).forEach(([key, value]) => {
-    //       root.style.setProperty(`--radius-${key}`, value);
-    //     });
   };
 
   useEffect(() => {
@@ -66,7 +51,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateThemeProperty = (path: string[], value: string) => {
-    const newTheme = { ...theme };
+    const newTheme = { ...theme, colors: { ...theme.colors } };
     let current: NestedTheme = newTheme;
 
     // Navigate to the nested property
@@ -76,6 +61,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Update the value
     current[path[path.length - 1]] = value;
+
+    // If a user-controllable color changed, recalculate derived colors
+    const changedKey = path[path.length - 1];
+    if (path[0] === "colors" && USER_COLOR_KEYS.includes(changedKey)) {
+      const isDark = themeName === "dark";
+      const derived = derivePaletteColors(
+        {
+          text: newTheme.colors.text,
+          background: newTheme.colors.background,
+          primary: newTheme.colors.primary,
+          secondary: newTheme.colors.secondary,
+          accent: newTheme.colors.accent,
+        },
+        isDark
+      );
+      Object.entries(derived).forEach(([key, val]) => {
+        (newTheme.colors as Record<string, string>)[key] = val;
+      });
+    }
 
     // Update state and CSS variables
     setTheme(newTheme);
