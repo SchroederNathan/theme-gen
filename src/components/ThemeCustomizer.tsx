@@ -1,9 +1,26 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getContrastRatio, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
+import {
+  generateColorPalette,
+  getContrastRatio,
+  getTextColor,
+  hexToRgb,
+  rgbToHsl,
+} from "@/lib/colorUtils";
 import { themes } from "@/lib/themes";
-import { Check, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Download,
+  Lock,
+  Moon,
+  Shuffle,
+  Sparkles,
+  Sun,
+  Unlock,
+  X,
+} from "lucide-react";
 import chroma from "chroma-js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
@@ -85,7 +102,11 @@ function ColorButton({
         }`}
         title={isLocked ? "Unlock color" : "Lock color"}
       >
-        {isLocked ? <Lock size={9} strokeWidth={3.25} className="text-current" /> : <Unlock size={9} strokeWidth={3.25} className="text-current" />}
+        {isLocked ? (
+          <Lock size={9} strokeWidth={3.25} className="text-current" />
+        ) : (
+          <Unlock size={9} strokeWidth={3.25} className="text-current" />
+        )}
       </button>
     </div>
   );
@@ -97,7 +118,7 @@ export function ThemeCustomizer() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const [activeButton, setActiveButton] = useState<HTMLButtonElement | null>(
-    null
+    null,
   );
   const [popoverLeft, setPopoverLeft] = useState<number>(0);
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
@@ -109,10 +130,14 @@ export function ThemeCustomizer() {
 
   // Export modal state
   const [showExportModal, setShowExportModal] = useState(false);
-  const [exportFormat, setExportFormat] = useState<'css' | 'tailwind' | 'scss'>('css');
-  const [tailwindVersion, setTailwindVersion] = useState<'3' | '4'>('4');
-  const [exportMode, setExportMode] = useState<'light' | 'dark' | 'both'>('both');
-  const [colorFormat, setColorFormat] = useState<'hex' | 'rgb' | 'hsl'>('hex');
+  const [exportFormat, setExportFormat] = useState<"css" | "tailwind" | "scss">(
+    "css",
+  );
+  const [tailwindVersion, setTailwindVersion] = useState<"3" | "4">("4");
+  const [exportMode, setExportMode] = useState<"light" | "dark" | "both">(
+    "both",
+  );
+  const [colorFormat, setColorFormat] = useState<"hex" | "rgb" | "hsl">("hex");
   const [copied, setCopied] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [isModalEntering, setIsModalEntering] = useState(false);
@@ -120,14 +145,12 @@ export function ThemeCustomizer() {
   const handleColorClick = (
     color: string,
     property: string,
-    button: HTMLButtonElement
+    button: HTMLButtonElement,
   ) => {
     if (lockedColors.has(property)) return;
 
     const isSameButton =
-      isOpen &&
-      selectedProperty === property &&
-      activeButton === button;
+      isOpen && selectedProperty === property && activeButton === button;
 
     if (isSameButton) {
       setIsOpen(false);
@@ -149,8 +172,10 @@ export function ThemeCustomizer() {
     updateThemeProperty(["colors", selectedProperty], newColor);
 
     // Re-derive border and muted from text + background
-    const currentText = selectedProperty === "text" ? newColor : theme.colors.text;
-    const currentBg = selectedProperty === "background" ? newColor : theme.colors.background;
+    const currentText =
+      selectedProperty === "text" ? newColor : theme.colors.text;
+    const currentBg =
+      selectedProperty === "background" ? newColor : theme.colors.background;
 
     if (!lockedColors.has("border")) {
       const newBorder = chroma.mix(currentText, currentBg, 0.82, "rgb").hex();
@@ -175,16 +200,54 @@ export function ThemeCustomizer() {
   };
 
   const contrastAuditDefinitions = [
-    { id: "text/background", label: "Text on Background", foreground: "text", background: "background", min: 7, required: true },
-    { id: "primary/background", label: "Primary on Background", foreground: "primary", background: "background", min: 3, required: true },
-    { id: "text/secondary", label: "Text on Secondary", foreground: "text", background: "secondary", min: 4.5, required: true },
-    { id: "accent/secondary", label: "Accent on Secondary", foreground: "accent", background: "secondary", min: 3, required: true },
-    { id: "accent/background", label: "Accent on Background", foreground: "accent", background: "background", min: 3, required: true },
+    {
+      id: "text/background",
+      label: "Text on Background",
+      foreground: "text",
+      background: "background",
+      min: 7,
+      required: true,
+    },
+    {
+      id: "primary/background",
+      label: "Primary on Background",
+      foreground: "primary",
+      background: "background",
+      min: 3,
+      required: true,
+    },
+    {
+      id: "text/secondary",
+      label: "Text on Secondary",
+      foreground: "text",
+      background: "secondary",
+      min: 4.5,
+      required: true,
+    },
+    {
+      id: "accent/secondary",
+      label: "Accent on Secondary",
+      foreground: "accent",
+      background: "secondary",
+      min: 3,
+      required: true,
+    },
+    {
+      id: "accent/background",
+      label: "Accent on Background",
+      foreground: "accent",
+      background: "background",
+      min: 3,
+      required: true,
+    },
   ] as const;
 
   const getContrastAudit = (palette: Record<string, string>) => {
     return contrastAuditDefinitions.map((definition) => {
-      const ratio = getContrastRatio(palette[definition.foreground], palette[definition.background]);
+      const ratio = getContrastRatio(
+        palette[definition.foreground],
+        palette[definition.background],
+      );
       return {
         ...definition,
         ratio,
@@ -213,16 +276,20 @@ export function ThemeCustomizer() {
         .toString(16)
         .padStart(6, "0")}`,
       themeName === "dark",
-      lockedColorValues
+      lockedColorValues,
     );
 
-    for (let index = 0; index < 24 && !isPaletteAccessible(palette); index += 1) {
+    for (
+      let index = 0;
+      index < 24 && !isPaletteAccessible(palette);
+      index += 1
+    ) {
       palette = generateColorPalette(
         `#${Math.floor(Math.random() * 16777215)
           .toString(16)
           .padStart(6, "0")}`,
         themeName === "dark",
-        lockedColorValues
+        lockedColorValues,
       );
     }
 
@@ -272,7 +339,8 @@ export function ThemeCustomizer() {
     if (!showExportModal) return;
     const handleClick = (e: MouseEvent) => {
       if (!(e.target instanceof Node)) return;
-      if ((e.target as HTMLElement).closest('.bg-white.rounded-lg.shadow-xl')) return;
+      if ((e.target as HTMLElement).closest(".bg-white.rounded-lg.shadow-xl"))
+        return;
       handleCloseModal();
     };
     document.addEventListener("mousedown", handleClick);
@@ -340,12 +408,18 @@ export function ThemeCustomizer() {
       acc[button.property] = getContrastRatio(fg, bg);
       return acc;
     },
-    {}
+    {},
   );
 
-  const currentContrastAudit = getContrastAudit(theme.colors as Record<string, string>);
-  const requiredContrastAudit = currentContrastAudit.filter((item) => item.required);
-  const requiredContrastPassCount = requiredContrastAudit.filter((item) => item.pass).length;
+  const currentContrastAudit = getContrastAudit(
+    theme.colors as Record<string, string>,
+  );
+  const requiredContrastAudit = currentContrastAudit.filter(
+    (item) => item.required,
+  );
+  const requiredContrastPassCount = requiredContrastAudit.filter(
+    (item) => item.pass,
+  ).length;
 
   const handleExportClick = () => {
     if (showExportModal) {
@@ -366,14 +440,17 @@ export function ThemeCustomizer() {
     }, 200);
   };
 
-  const formatColor = (hexColor: string, format: 'hex' | 'rgb' | 'hsl'): string => {
+  const formatColor = (
+    hexColor: string,
+    format: "hex" | "rgb" | "hsl",
+  ): string => {
     switch (format) {
-      case 'hex':
+      case "hex":
         return hexColor;
-      case 'rgb':
+      case "rgb":
         const rgb = hexToRgb(hexColor);
         return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-      case 'hsl':
+      case "hsl":
         const hsl = rgbToHsl(hexToRgb(hexColor));
         return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
       default:
@@ -381,7 +458,7 @@ export function ThemeCustomizer() {
     }
   };
 
-  const getColorsForMode = (mode: 'light' | 'dark'): Record<string, string> => {
+  const getColorsForMode = (mode: "light" | "dark"): Record<string, string> => {
     if (mode === themeName) return theme.colors as Record<string, string>;
     const saved = JSON.parse(localStorage.getItem("customThemes") || "{}");
     if (saved[mode]) return saved[mode].colors;
@@ -397,63 +474,71 @@ export function ThemeCustomizer() {
   };
 
   const generateExportCode = () => {
-    const light = fmt(getColorsForMode('light'));
-    const dark = fmt(getColorsForMode('dark'));
+    const light = fmt(getColorsForMode("light"));
+    const dark = fmt(getColorsForMode("dark"));
 
-    const cssVars = (colors: Record<string, string>, indent = '  ') =>
-      Object.entries(colors).map(([k, v]) => `${indent}--color-${k}: ${v};`).join('\n');
+    const cssVars = (colors: Record<string, string>, indent = "  ") =>
+      Object.entries(colors)
+        .map(([k, v]) => `${indent}--color-${k}: ${v};`)
+        .join("\n");
 
     const twObj = (colors: Record<string, string>, indent: string) =>
-      Object.entries(colors).map(([k, v]) => `${indent}${k}: '${v}',`).join('\n');
+      Object.entries(colors)
+        .map(([k, v]) => `${indent}${k}: '${v}',`)
+        .join("\n");
 
     const scssVars = (colors: Record<string, string>, prefix: string) =>
-      Object.entries(colors).map(([k, v]) => `$${prefix}${k}: ${v};`).join('\n');
+      Object.entries(colors)
+        .map(([k, v]) => `$${prefix}${k}: ${v};`)
+        .join("\n");
 
-    const scssMap = (colors: Record<string, string>, indent = '  ') =>
-      Object.entries(colors).map(([k, v]) => `${indent}"${k}": ${v},`).join('\n');
+    const scssMap = (colors: Record<string, string>, indent = "  ") =>
+      Object.entries(colors)
+        .map(([k, v]) => `${indent}"${k}": ${v},`)
+        .join("\n");
 
     switch (exportFormat) {
-      case 'css': {
-        if (exportMode === 'light') {
+      case "css": {
+        if (exportMode === "light") {
           return `:root {\n${cssVars(light)}\n}`;
         }
-        if (exportMode === 'dark') {
+        if (exportMode === "dark") {
           return `:root {\n${cssVars(dark)}\n}`;
         }
-        return `:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n${cssVars(dark, '    ')}\n  }\n}`;
+        return `:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n${cssVars(dark, "    ")}\n  }\n}`;
       }
 
-      case 'tailwind': {
-        if (tailwindVersion === '3') {
-          if (exportMode === 'light') {
-            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, '        ')}\n      }\n    }\n  }\n}`;
+      case "tailwind": {
+        if (tailwindVersion === "3") {
+          if (exportMode === "light") {
+            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, "        ")}\n      }\n    }\n  }\n}`;
           }
-          if (exportMode === 'dark') {
-            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(dark, '        ')}\n      }\n    }\n  }\n}`;
+          if (exportMode === "dark") {
+            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(dark, "        ")}\n      }\n    }\n  }\n}`;
           }
-          return `// tailwind.config.js\nmodule.exports = {\n  darkMode: 'class',\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, '        ')}\n      }\n    }\n  }\n}\n\n/* Add to your global CSS: */\n:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}`;
+          return `// tailwind.config.js\nmodule.exports = {\n  darkMode: 'class',\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, "        ")}\n      }\n    }\n  }\n}\n\n/* Add to your global CSS: */\n:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}`;
         }
-        if (exportMode === 'light') {
+        if (exportMode === "light") {
           return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}`;
         }
-        if (exportMode === 'dark') {
+        if (exportMode === "dark") {
           return `@import "tailwindcss";\n\n@theme {\n${cssVars(dark)}\n}`;
         }
-        return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}\n\n@variant dark {\n  @theme {\n${cssVars(dark, '    ')}\n  }\n}`;
+        return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}\n\n@variant dark {\n  @theme {\n${cssVars(dark, "    ")}\n  }\n}`;
       }
 
-      case 'scss': {
-        if (exportMode === 'light') {
-          return `${scssVars(light, 'color-')}\n\n$colors: (\n${scssMap(light)}\n);`;
+      case "scss": {
+        if (exportMode === "light") {
+          return `${scssVars(light, "color-")}\n\n$colors: (\n${scssMap(light)}\n);`;
         }
-        if (exportMode === 'dark') {
-          return `${scssVars(dark, 'color-')}\n\n$colors: (\n${scssMap(dark)}\n);`;
+        if (exportMode === "dark") {
+          return `${scssVars(dark, "color-")}\n\n$colors: (\n${scssMap(dark)}\n);`;
         }
-        return `// Light theme\n${scssVars(light, 'light-')}\n\n$light-colors: (\n${scssMap(light)}\n);\n\n// Dark theme\n${scssVars(dark, 'dark-')}\n\n$dark-colors: (\n${scssMap(dark)}\n);`;
+        return `// Light theme\n${scssVars(light, "light-")}\n\n$light-colors: (\n${scssMap(light)}\n);\n\n// Dark theme\n${scssVars(dark, "dark-")}\n\n$dark-colors: (\n${scssMap(dark)}\n);`;
       }
 
       default:
-        return '';
+        return "";
     }
   };
 
@@ -463,7 +548,7 @@ export function ThemeCustomizer() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error("Failed to copy: ", err);
     }
   };
 
@@ -478,27 +563,34 @@ export function ThemeCustomizer() {
           aria-labelledby="modal-title"
         >
           <div
-            className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${isModalClosing
-              ? 'opacity-0 ease-in duration-200'
-              : isModalEntering
-                ? 'opacity-100'
-                : 'opacity-0'
-              }`}
+            className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${
+              isModalClosing
+                ? "opacity-0 ease-in duration-200"
+                : isModalEntering
+                  ? "opacity-100"
+                  : "opacity-0"
+            }`}
             aria-hidden="true"
           ></div>
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
               <div
-                className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${isModalClosing
-                  ? 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200'
-                  : isModalEntering
-                    ? 'opacity-100 translate-y-0 sm:scale-100'
-                    : 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
-                  }`}
+                className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${
+                  isModalClosing
+                    ? "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200"
+                    : isModalEntering
+                      ? "opacity-100 translate-y-0 sm:scale-100"
+                      : "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                }`}
               >
                 <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-                  <h2 id="modal-title" className="text-lg font-semibold text-neutral-900">Export Theme</h2>
+                  <h2
+                    id="modal-title"
+                    className="text-lg font-semibold text-neutral-900"
+                  >
+                    Export Theme
+                  </h2>
                   <button
                     onClick={handleCloseModal}
                     className="p-1 rounded-md hover:bg-neutral-100 transition-colors"
@@ -509,67 +601,95 @@ export function ThemeCustomizer() {
 
                 <div className="p-6">
                   <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
-                    {(['css', 'tailwind', 'scss'] as const).map((format) => (
+                    {(["css", "tailwind", "scss"] as const).map((format) => (
                       <button
                         key={format}
                         onClick={() => setExportFormat(format)}
-                        className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${exportFormat === format
-                          ? 'bg-white text-neutral-900 shadow-sm'
-                          : 'text-neutral-600 hover:text-neutral-900'
-                          }`}
+                        className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                          exportFormat === format
+                            ? "bg-white text-neutral-900 shadow-sm"
+                            : "text-neutral-600 hover:text-neutral-900"
+                        }`}
                       >
-                        {format === 'css' ? 'CSS' : format === 'tailwind' ? 'TailwindCSS' : 'SCSS'}
+                        {format === "css"
+                          ? "CSS"
+                          : format === "tailwind"
+                            ? "TailwindCSS"
+                            : "SCSS"}
                       </button>
                     ))}
                   </div>
 
-                  {exportFormat === 'tailwind' && (
+                  {exportFormat === "tailwind" && (
                     <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-4 w-fit">
-                      {(['4', '3'] as const).map((ver) => (
+                      {(["4", "3"] as const).map((ver) => (
                         <button
                           key={ver}
                           onClick={() => setTailwindVersion(ver)}
-                          className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${tailwindVersion === ver
-                            ? 'bg-white text-neutral-900 shadow-sm'
-                            : 'text-neutral-600 hover:text-neutral-900'
-                            }`}
+                          className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+                            tailwindVersion === ver
+                              ? "bg-white text-neutral-900 shadow-sm"
+                              : "text-neutral-600 hover:text-neutral-900"
+                          }`}
                         >
-                          {ver === '4' ? 'v4.2' : 'v3.4'}
+                          {ver === "4" ? "v4.2" : "v3.4"}
                         </button>
                       ))}
                     </div>
                   )}
 
                   <div className="flex items-center space-x-4 mb-4">
-                    <span className="text-sm font-medium text-neutral-700">Mode:</span>
-                    {(['light', 'dark', 'both'] as const).map((mode) => (
-                      <label key={mode} className="flex items-center space-x-2 cursor-pointer">
+                    <span className="text-sm font-medium text-neutral-700">
+                      Mode:
+                    </span>
+                    {(["light", "dark", "both"] as const).map((mode) => (
+                      <label
+                        key={mode}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
                         <input
                           type="radio"
                           name="exportMode"
                           value={mode}
                           checked={exportMode === mode}
-                          onChange={(e) => setExportMode(e.target.value as 'light' | 'dark' | 'both')}
+                          onChange={(e) =>
+                            setExportMode(
+                              e.target.value as "light" | "dark" | "both",
+                            )
+                          }
                           className="text-primary focus:ring-primary"
                         />
-                        <span className="text-sm text-neutral-700 capitalize">{mode}</span>
+                        <span className="text-sm text-neutral-700 capitalize">
+                          {mode}
+                        </span>
                       </label>
                     ))}
                   </div>
 
                   <div className="flex space-x-4 mb-6">
-                    <span className="text-sm font-medium text-neutral-700">Color Format:</span>
-                    {(['hex', 'rgb', 'hsl'] as const).map((format) => (
-                      <label key={format} className="flex items-center space-x-2 cursor-pointer">
+                    <span className="text-sm font-medium text-neutral-700">
+                      Color Format:
+                    </span>
+                    {(["hex", "rgb", "hsl"] as const).map((format) => (
+                      <label
+                        key={format}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
                         <input
                           type="radio"
                           name="colorFormat"
                           value={format}
                           checked={colorFormat === format}
-                          onChange={(e) => setColorFormat(e.target.value as 'hex' | 'rgb' | 'hsl')}
+                          onChange={(e) =>
+                            setColorFormat(
+                              e.target.value as "hex" | "rgb" | "hsl",
+                            )
+                          }
                           className="text-primary focus:ring-primary"
                         />
-                        <span className="text-sm text-neutral-700 uppercase">{format}</span>
+                        <span className="text-sm text-neutral-700 uppercase">
+                          {format}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -590,7 +710,6 @@ export function ThemeCustomizer() {
                       )}
                     </button>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -642,12 +761,26 @@ export function ThemeCustomizer() {
                     Smart Shuffle
                     <Sparkles size={16} className="text-neutral-800" />
                   </div>
-                  <p className="mt-1 text-[11px] text-neutral-600">Accessibility checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing (we take this seriously)</p>
+                  <p className="mt-1 text-[11px] text-neutral-600">
+                    Accessibility checks: {requiredContrastPassCount}/
+                    {requiredContrastAudit.length} passing
+                  </p>
                   <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
                     {currentContrastAudit.map((item) => (
-                      <li key={item.id} className="flex items-start justify-between gap-2">
-                        <span className={item.pass ? "text-emerald-700" : "text-red-700"}>{item.label}</span>
-                        <span className="font-semibold text-neutral-800">{item.ratio}:1</span>
+                      <li
+                        key={item.id}
+                        className="flex items-start justify-between gap-2"
+                      >
+                        <span
+                          className={
+                            item.pass ? "text-emerald-700" : "text-red-700"
+                          }
+                        >
+                          {item.label}
+                        </span>
+                        <span className="font-semibold text-neutral-800">
+                          {item.ratio}:1
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -723,31 +856,46 @@ export function ThemeCustomizer() {
           >
             <div className="relative">
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
-              {selectedProperty && (() => {
-                const btn = colorButtons.find(b => b.property === selectedProperty);
-                if (!btn) return null;
-                const ratio = ratioByProperty[selectedProperty];
-                const passes = ratio >= btn.target;
-                return (
-                  <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-neutral-800">Contrast Check</p>
-                      <p className="font-semibold">{ratio}:1</p>
+              {selectedProperty &&
+                (() => {
+                  const btn = colorButtons.find(
+                    (b) => b.property === selectedProperty,
+                  );
+                  if (!btn) return null;
+                  const ratio = ratioByProperty[selectedProperty];
+                  const passes = ratio >= btn.target;
+                  return (
+                    <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-neutral-800">
+                          Contrast Check
+                        </p>
+                        <p className="font-semibold">{ratio}:1</p>
+                      </div>
+                      <div className="mt-2 flex items-center gap-1.5">
+                        {passes ? (
+                          <Check
+                            size={11}
+                            strokeWidth={2.75}
+                            className="text-green-600"
+                          />
+                        ) : (
+                          <X
+                            size={11}
+                            strokeWidth={2.75}
+                            className="text-red-600"
+                          />
+                        )}
+                        <span>
+                          Target {btn.target}:1 — {passes ? "Pass" : "Fail"}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-[10px] text-neutral-500">
+                        {btn.fg} vs {btn.bg}
+                      </p>
                     </div>
-                    <div className="mt-2 flex items-center gap-1.5">
-                      {passes ? (
-                        <Check size={11} strokeWidth={2.75} className="text-green-600" />
-                      ) : (
-                        <X size={11} strokeWidth={2.75} className="text-red-600" />
-                      )}
-                      <span>Target {btn.target}:1 — {passes ? "Pass" : "Fail"}</span>
-                    </div>
-                    <p className="mt-1.5 text-[10px] text-neutral-500">
-                      {btn.fg} vs {btn.bg}
-                    </p>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
               <ColorPicker
                 color={selectedColor}
                 onChange={handleColorChange}
