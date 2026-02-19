@@ -109,6 +109,7 @@ export function ThemeCustomizer() {
   // Export modal state
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState<'css' | 'tailwind' | 'scss'>('css');
+  const [tailwindVersion, setTailwindVersion] = useState<'3' | '4'>('4');
   const [colorFormat, setColorFormat] = useState<'hex' | 'rgb' | 'hsl'>('hex');
   const [copied, setCopied] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -399,7 +400,8 @@ body { color: var(--color-text); background: var(--color-background); }
 .highlight { color: var(--color-accent); }`;
 
       case 'tailwind':
-        return `// tailwind.config.js
+        if (tailwindVersion === '3') {
+          return `// tailwind.config.js
 module.exports = {
   theme: {
     extend: {
@@ -414,6 +416,18 @@ ${Object.entries(formattedColors).map(([key, value]) => `        ${key}: '${valu
 // <body class="bg-background text-text">
 // <div class="bg-secondary text-text">
 // <button class="bg-primary text-background">`;
+        }
+        return `/* app.css */
+@import "tailwindcss";
+
+@theme {
+${Object.entries(formattedColors).map(([key, value]) => `  --color-${key}: ${value};`).join('\n')}
+}
+
+/* Usage examples */
+/* <body class="bg-background text-text"> */
+/* <div class="bg-secondary text-text"> */
+/* <button class="bg-primary text-background"> */`;
 
       case 'scss':
         return `// Theme colors
@@ -503,6 +517,23 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                       </button>
                     ))}
                   </div>
+
+                  {exportFormat === 'tailwind' && (
+                    <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-4 w-fit">
+                      {(['4', '3'] as const).map((ver) => (
+                        <button
+                          key={ver}
+                          onClick={() => setTailwindVersion(ver)}
+                          className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${tailwindVersion === ver
+                            ? 'bg-white text-neutral-900 shadow-sm'
+                            : 'text-neutral-600 hover:text-neutral-900'
+                            }`}
+                        >
+                          {ver === '4' ? 'v4.2' : 'v3.4'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="flex space-x-4 mb-6">
                     <span className="text-sm font-medium text-neutral-700">Color Format:</span>
