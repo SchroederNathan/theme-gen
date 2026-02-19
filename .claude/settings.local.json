@@ -18,7 +18,8 @@
       "mcp__plugin_playwright_playwright__browser_console_messages",
       "Bash(curl:*)",
       "Bash(xargs:*)",
-      "mcp__plugin_playwright_playwright__browser_evaluate"
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "Bash(ls:*)"
     ]
   }
 }

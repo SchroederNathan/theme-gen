@@ -58,7 +58,7 @@ export default function Login() {
                   <a
                     href="#"
                     className="font-semibold text-primary hover:text-primary/90"
-                  >
+                  > 
                     Forgot Password?
                   </a>
                 </div>
