@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Theme Gen",
-  description: "A visual theme generator for your next project.",
+  description: "A visual theme generator for your next project. We help with the color thing.",
   icons: {
     icon: [
       { url: "/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },

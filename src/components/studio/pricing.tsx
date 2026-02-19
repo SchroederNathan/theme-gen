@@ -23,12 +23,12 @@ const tiers = [
     priceMonthly: "$0",
     description: "Also free because this is just a demo and we're not real.",
     features: [
-      "Unlimited products (that you can't actually create)",
-      "Unlimited subscribers (we promise not to email them)",
-      "Advanced analytics (pretty charts that mean nothing)",
-      "Dedicated support representative (his name is Bob, he's imaginary)",
-      "Marketing automations (we'll pretend to automate stuff)",
-      "Custom integrations (with other made-up services)",
+      "Unlimited products",
+      "Unlimited subscribers",
+      "Advanced analytics",
+      "Dedicated support representative",
+      "Marketing automations",
+      "Custom integrations",
     ],
     featured: true,
   },
@@ -144,7 +144,7 @@ export default function Pricing() {
                 "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold sm:mt-10"
               )}
             >
-              Get started today
+              Get started (it&apos;s free, we&apos;re not kidding)
             </a>
           </div>
         ))}

@@ -8,7 +8,7 @@ export default function Bento() {
           Design with ease
         </h2>
         <p className="mt-2 max-w-lg text-4xl font-semibold text-text tracking-tight text-pretty text-text sm:text-5xl">
-          Everything you need to create beautiful themes
+          Everything you need to create themes that won&apos;t make designers cry
         </p>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
           <div className="relative lg:col-span-3">
@@ -30,8 +30,7 @@ export default function Bento() {
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-text/80">
                   Easily customize every color in your theme with our visual
-                  editor. Pick colors with precision using hex codes or our
-                  interactive color picker.
+                  editor. Pick colors with precision—or just guess and hope for the best.
                 </p>
               </div>
             </div>
@@ -55,9 +54,8 @@ export default function Bento() {
                   See Changes Instantly
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
-                  Watch your theme updates in real-time with our interactive
-                  preview. Test your design across different UI components with
-                  zero delay.
+                  Watch your theme updates in real-time. See your mistakes
+                  instantly, before anyone else does.
                 </p>
               </div>
             </div>
@@ -81,8 +79,8 @@ export default function Bento() {
                   Toggle Light & Dark
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
-                  Seamlessly switch between light and dark modes to ensure your
-                  theme looks perfect in any environment.
+                  Seamlessly switch between light and dark modes. Perfect for
+                  night owls and those who work in poorly lit caves.
                 </p>
               </div>
             </div>
@@ -107,7 +105,7 @@ export default function Bento() {
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
                   Export your theme to CSS variables, Tailwind config, or other
-                  formats with a single click for seamless integration.
+                  formats. One click. Copy-paste. Done. (No more manual conversion.)
                 </p>
               </div>
             </div>
@@ -131,8 +129,7 @@ export default function Bento() {
                   Share & Discover
                 </p>
                 <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
-                  Browse a collection of pre-made themes or share your creations
-                  with the community to inspire others.
+                  Browse themes made by others. Steal their ideas. (We call it &quot;inspiration.&quot;)
                 </p>
               </div>
             </div>

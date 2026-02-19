@@ -347,7 +347,7 @@ export const ColorPicker = (props: ColorPickerProps) => {
         )}
         <div className="flex flex-row justify-end gap-2 items-center mt-2">
           <span className="text-xs text-neutral-600 mr-auto">
-            {getColorName(currentColor)?.name || "Unknown"}
+            {getColorName(currentColor)?.name || "Mystery color"}
           </span>
           <button
             className="w-8 h-8 flex items-center justify-center rounded-md border border-neutral-100  focus:outline-none focus:border-neutral-200 hover:border-neutral-200 hover:cursor-pointer transition-all"
@@ -358,7 +358,7 @@ export const ColorPicker = (props: ColorPickerProps) => {
             {copied ? (
               <Check size={16} className="text-neutral-800" />
             ) : (
-              <Copy size={16} />
+              <Copy size={16} className="text-neutral-800" />
             )}
           </button>
           <button
@@ -372,7 +372,7 @@ export const ColorPicker = (props: ColorPickerProps) => {
             type="button"
             disabled={!eyeDropperSupported}
           >
-            <Pipette size={16} />
+            <Pipette size={16} className="text-neutral-800" />
           </button>
         </div>
       </div>

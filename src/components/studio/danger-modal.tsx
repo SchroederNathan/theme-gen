@@ -13,13 +13,12 @@ export default function DangerModal() {
             </div>
             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 className="text-base font-semibold text-text">
-                Deactivate account
+                Delete your color palette?
               </h3>
               <div className="mt-2">
                 <p className="text-sm text-muted">
-                  Are you sure you want to deactivate your account? All of your
-                  data will be permanently removed from our servers forever.
-                  This action cannot be undone.
+                  All those hours of &quot;is this coral or salmon?&quot; will vanish into
+                  the void. Your gradients will weep. This cannot be undone.
                 </p>
               </div>
             </div>
@@ -30,7 +29,7 @@ export default function DangerModal() {
               //   onClick={() => setOpen(false)}
               className="inline-flex w-full justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-background hover:bg-error/90 sm:ml-3 sm:w-auto"
             >
-              Deactivate
+              Yes, delete it
             </button>
             <button
               type="button"

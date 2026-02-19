@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/context/ThemeContext";
 import { generateColorPalette, getContrastRatio, getTextColor, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
+import { themes } from "@/lib/themes";
 import { Check, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import chroma from "chroma-js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -110,6 +111,7 @@ export function ThemeCustomizer() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState<'css' | 'tailwind' | 'scss'>('css');
   const [tailwindVersion, setTailwindVersion] = useState<'3' | '4'>('4');
+  const [exportMode, setExportMode] = useState<'light' | 'dark' | 'both'>('both');
   const [colorFormat, setColorFormat] = useState<'hex' | 'rgb' | 'hsl'>('hex');
   const [copied, setCopied] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -379,73 +381,76 @@ export function ThemeCustomizer() {
     }
   };
 
-  const generateExportCode = () => {
-    const colors = theme.colors;
-    const formattedColors: Record<string, string> = {};
+  const getColorsForMode = (mode: 'light' | 'dark'): Record<string, string> => {
+    if (mode === themeName) return theme.colors as Record<string, string>;
+    const saved = JSON.parse(localStorage.getItem("customThemes") || "{}");
+    if (saved[mode]) return saved[mode].colors;
+    return themes[mode].colors as Record<string, string>;
+  };
 
+  const fmt = (colors: Record<string, string>) => {
+    const out: Record<string, string> = {};
     Object.entries(colors).forEach(([key, value]) => {
-      formattedColors[key] = formatColor(value, colorFormat);
+      out[key] = formatColor(value, colorFormat);
     });
+    return out;
+  };
+
+  const generateExportCode = () => {
+    const light = fmt(getColorsForMode('light'));
+    const dark = fmt(getColorsForMode('dark'));
+
+    const cssVars = (colors: Record<string, string>, indent = '  ') =>
+      Object.entries(colors).map(([k, v]) => `${indent}--color-${k}: ${v};`).join('\n');
+
+    const twObj = (colors: Record<string, string>, indent: string) =>
+      Object.entries(colors).map(([k, v]) => `${indent}${k}: '${v}',`).join('\n');
+
+    const scssVars = (colors: Record<string, string>, prefix: string) =>
+      Object.entries(colors).map(([k, v]) => `$${prefix}${k}: ${v};`).join('\n');
+
+    const scssMap = (colors: Record<string, string>, indent = '  ') =>
+      Object.entries(colors).map(([k, v]) => `${indent}"${k}": ${v},`).join('\n');
 
     switch (exportFormat) {
-      case 'css':
-        return `:root {
-${Object.entries(formattedColors).map(([key, value]) => `  --color-${key}: ${value};`).join('\n')}
-}
-
-/* Usage examples */
-body { color: var(--color-text); background: var(--color-background); }
-.card { background: var(--color-secondary); color: var(--color-text); }
-.btn-primary { background: var(--color-primary); color: var(--color-background); }
-.highlight { color: var(--color-accent); }`;
-
-      case 'tailwind':
-        if (tailwindVersion === '3') {
-          return `// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-${Object.entries(formattedColors).map(([key, value]) => `        ${key}: '${value}',`).join('\n')}
-      }
-    }
-  }
-}
-
-/* Usage examples */
-// <body class="bg-background text-text">
-// <div class="bg-secondary text-text">
-// <button class="bg-primary text-background">`;
+      case 'css': {
+        if (exportMode === 'light') {
+          return `:root {\n${cssVars(light)}\n}`;
         }
-        return `/* app.css */
-@import "tailwindcss";
+        if (exportMode === 'dark') {
+          return `:root {\n${cssVars(dark)}\n}`;
+        }
+        return `:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n${cssVars(dark, '    ')}\n  }\n}`;
+      }
 
-@theme {
-${Object.entries(formattedColors).map(([key, value]) => `  --color-${key}: ${value};`).join('\n')}
-}
+      case 'tailwind': {
+        if (tailwindVersion === '3') {
+          if (exportMode === 'light') {
+            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, '        ')}\n      }\n    }\n  }\n}`;
+          }
+          if (exportMode === 'dark') {
+            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(dark, '        ')}\n      }\n    }\n  }\n}`;
+          }
+          return `// tailwind.config.js\nmodule.exports = {\n  darkMode: 'class',\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, '        ')}\n      }\n    }\n  }\n}\n\n/* Add to your global CSS: */\n:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}`;
+        }
+        if (exportMode === 'light') {
+          return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}`;
+        }
+        if (exportMode === 'dark') {
+          return `@import "tailwindcss";\n\n@theme {\n${cssVars(dark)}\n}`;
+        }
+        return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}\n\n@variant dark {\n  @theme {\n${cssVars(dark, '    ')}\n  }\n}`;
+      }
 
-/* Usage examples */
-/* <body class="bg-background text-text"> */
-/* <div class="bg-secondary text-text"> */
-/* <button class="bg-primary text-background"> */`;
-
-      case 'scss':
-        return `// Theme colors
-${Object.entries(formattedColors).map(([key, value]) => `$color-${key}: ${value};`).join('\n')}
-
-// Color map
-$colors: (
-${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`).join('\n')}
-);
-
-// Mixin for color usage
-@mixin color($property, $color-name) {
-  #{$property}: map-get($colors, $color-name);
-}
-
-/* Usage examples */
-// body { @include color(color, text); @include color(background, background); }
-// .card { @include color(background, secondary); }`;
+      case 'scss': {
+        if (exportMode === 'light') {
+          return `${scssVars(light, 'color-')}\n\n$colors: (\n${scssMap(light)}\n);`;
+        }
+        if (exportMode === 'dark') {
+          return `${scssVars(dark, 'color-')}\n\n$colors: (\n${scssMap(dark)}\n);`;
+        }
+        return `// Light theme\n${scssVars(light, 'light-')}\n\n$light-colors: (\n${scssMap(light)}\n);\n\n// Dark theme\n${scssVars(dark, 'dark-')}\n\n$dark-colors: (\n${scssMap(dark)}\n);`;
+      }
 
       default:
         return '';
@@ -535,6 +540,23 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     </div>
                   )}
 
+                  <div className="flex items-center space-x-4 mb-4">
+                    <span className="text-sm font-medium text-neutral-700">Mode:</span>
+                    {(['light', 'dark', 'both'] as const).map((mode) => (
+                      <label key={mode} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="exportMode"
+                          value={mode}
+                          checked={exportMode === mode}
+                          onChange={(e) => setExportMode(e.target.value as 'light' | 'dark' | 'both')}
+                          className="text-primary focus:ring-primary"
+                        />
+                        <span className="text-sm text-neutral-700 capitalize">{mode}</span>
+                      </label>
+                    ))}
+                  </div>
+
                   <div className="flex space-x-4 mb-6">
                     <span className="text-sm font-medium text-neutral-700">Color Format:</span>
                     {(['hex', 'rgb', 'hsl'] as const).map((format) => (
@@ -620,7 +642,7 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                     Smart Shuffle
                     <Sparkles size={16} className="text-neutral-800" />
                   </div>
-                  <p className="mt-1 text-[11px] text-neutral-600">Required checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing</p>
+                  <p className="mt-1 text-[11px] text-neutral-600">Accessibility checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing (we take this seriously)</p>
                   <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
                     {currentContrastAudit.map((item) => (
                       <li key={item.id} className="flex items-start justify-between gap-2">

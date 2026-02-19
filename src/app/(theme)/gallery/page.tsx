@@ -2,7 +2,9 @@ import React from 'react'
 
 const Gallery = () => {
   return (
-    <div>Gallery</div>
+    <div className="p-8 text-center text-muted">
+        Gallery (of themes, not art—though some might argue)
+      </div>
   )
 }
 

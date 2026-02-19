@@ -10,8 +10,7 @@ export default function Testimonial() {
           <figure className="mt-10">
             <blockquote className="text-center text-xl/8 font-semibold text-text sm:text-2xl/9">
               <p>
-                &quot;Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo expedita voluptas culpa sapiente alias
-                molestiae. Numquam corrupti in laborum sed rerum et corporis.&quot;
+                &quot;I used to spend 47 hours picking colors. Now I spend 47 hours picking colors, but at least the site looks good while I do it.&quot;
               </p>
             </blockquote>
             <figcaption className="mt-10">

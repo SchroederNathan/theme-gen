@@ -34,19 +34,19 @@ const products: {
 }[] = [
   {
     name: "Studio",
-    description: "Playground for designing custom app themes",
+    description: "Where your color indecision goes to die",
     href: "/studio",
     icon: Palette,
   },
   {
     name: "Preview",
-    description: "Preview your theme in real-time",
+    description: "Preview your theme before it&apos;s too late",
     href: "/preview",
     icon: Eye,
   },
   {
     name: "Generate",
-    description: "Generate a color palette for your app",
+    description: "Let AI pick colors so you don&apos;t have to",
     href: "/generate",
     icon: Paintbrush,
     aiBadge: true,
@@ -78,7 +78,7 @@ export default function Example() {
             <span className="sr-only">Theme Gen</span>
             <Image
               src="/logos/logo.svg"
-              alt="Your Company"
+              alt="Theme Gen"
               width={40}
               height={40}
             />
@@ -181,7 +181,7 @@ export default function Example() {
               <span className="sr-only">Theme Gen</span>
               <Image
                 src="/logos/logo.svg"
-                alt="Your Company"
+                alt="Theme Gen"
                 width={32}
                 height={32}
               />

@@ -1,15 +1,15 @@
 const people = [
-    { id: 1, name: 'Annette Black', selected: true },
-    { id: 2, name: 'Cody Fisher', selected: true },
-    { id: 3, name: 'Courtney Henry', selected: false },
-    { id: 4, name: 'Kathryn Murphy', selected: false },
-    { id: 5, name: 'Theresa Webb', selected: false },
+    { id: 1, name: 'Definitely Not Coral', selected: true },
+    { id: 2, name: "Salmon's Shy Cousin", selected: true },
+    { id: 3, name: 'Corporate Gray', selected: false },
+    { id: 4, name: 'That One Blue', selected: false },
+    { id: 5, name: 'Accent McAccentface', selected: false },
   ]
   
   export default function Checklist() {
     return (
       <fieldset>
-        <legend className="text-base font-semibold text-text px-4">Members</legend>
+        <legend className="text-base font-semibold text-text px-4">Color suspects</legend>
         <div className="mt-4 divide-y divide-border border-t border-b border-border">
           {people.map((person, personIdx) => (
             <div key={personIdx} className="relative flex gap-3 py-4">

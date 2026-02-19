@@ -18,10 +18,10 @@ export default function Hero() {
               and export code that won&apos;t make other developers point and laugh.
             </p>
             <p className="mt-6 text-base/7 text-muted">
-              Whether you&apos;re designing a corporate snooze-fest, a &quot;please buy
+              Whether you&apos;re building a corporate snooze-fest, a &quot;please buy
               our stuff&quot; store, or a portfolio to prove you&apos;re not just a cat
-              walking on keyboards, Theme Studio helps you look like you know
-              what colors are.
+              walking on keyboards. ThemeGen helps you pick colors like someone
+              who&apos;s seen more than just the default blue.
             </p>
             <div className="mt-10 flex">
               <a
