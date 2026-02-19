@@ -288,14 +288,26 @@ function fromHsl(h: number, s: number, l: number): string {
   return hslToHex({ h: Math.round(h), s: Math.round(s), l: Math.round(l) });
 }
 
+
+function mixHex(colorA: string, colorB: string, ratio: number): string {
+  const a = hexToRgb(colorA);
+  const b = hexToRgb(colorB);
+  const t = Math.max(0, Math.min(1, ratio));
+
+  return rgbToHex({
+    r: Math.round(a.r + (b.r - a.r) * t),
+    g: Math.round(a.g + (b.g - a.g) * t),
+    b: Math.round(a.b + (b.b - a.b) * t),
+  });
+}
+
 export function generateColorPalette(
   baseColor: string,
   isDarkMode: boolean = false,
   lockedColors: Record<string, string> = {},
   scheme: ColorScheme = "Analogous"
 ): Record<string, string> {
-  const base = chroma(baseColor);
-  const [baseHue] = base.hsl();
+  const baseHue = hexToHsl(baseColor).h;
   const hue = Number.isFinite(baseHue) ? baseHue : 220;
   const { secondary, accent } = hueShiftForScheme(hue, scheme);
 
@@ -307,7 +319,7 @@ export function generateColorPalette(
 
   const container =
     lockedColors.container ??
-    chroma.mix(background, onBackground, isDarkMode ? 0.12 : 0.06, "rgb").hex();
+    mixHex(background, onBackground, isDarkMode ? 0.12 : 0.06);
 
   const primary =
     lockedColors.primary ??
@@ -328,10 +340,10 @@ export function generateColorPalette(
 
   const border =
     lockedColors.border ??
-    chroma.mix(background, onBackground, isDarkMode ? 0.22 : 0.14, "rgb").hex();
+    mixHex(background, onBackground, isDarkMode ? 0.22 : 0.14);
   const muted =
     lockedColors.muted ??
-    chroma.mix(onBackground, background, isDarkMode ? 0.38 : 0.5, "rgb").hex();
+    mixHex(onBackground, background, isDarkMode ? 0.38 : 0.5);
 
   return {
     primary,
