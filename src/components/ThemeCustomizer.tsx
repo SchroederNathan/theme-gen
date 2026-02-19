@@ -1,8 +1,8 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { generateColorPalette, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
-import { AlertTriangle, Check, ChevronDown, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
+import { generateColorPalette, getContrastRatio, getTextColor, getWCAGContrastResult, hexToRgb, rgbToHsl, WCAGContrastResult } from "@/lib/colorUtils";
+import { AlertTriangle, Check, Copy, Download, Lock, Moon, Shuffle, Sparkles, Sun, Unlock, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
 
@@ -83,16 +83,6 @@ function ColorButton({
   );
 }
 
-const colorSchemes = [
-  { id: "Monochromatic", name: "Monochromatic" },
-  { id: "Analogous", name: "Analogous" },
-  { id: "Complementary", name: "Complementary" },
-  { id: "Split Complementary", name: "Split Complementary" },
-  { id: "Triadic", name: "Triadic" },
-  { id: "Tetradic", name: "Tetradic" },
-];
-
-
 type WCAGBadgeStage = "success" | "warning" | "danger";
 
 function getWCAGBadgeStage(result: WCAGContrastResult): WCAGBadgeStage {
@@ -115,9 +105,6 @@ export function ThemeCustomizer() {
   const popoverRef = useRef<HTMLDivElement>(null);
   const [showRandomizeTooltip, setShowRandomizeTooltip] = useState(false);
   const [showThemeTooltip, setShowThemeTooltip] = useState(false);
-  const [selectedScheme, setSelectedScheme] = useState(colorSchemes[1]); // Default to Analogous
-  const [showSchemeMenu, setShowSchemeMenu] = useState(false);
-  const schemeMenuRef = useRef<HTMLDivElement>(null);
   const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
 
   // Export modal state
@@ -154,9 +141,24 @@ export function ThemeCustomizer() {
     setIsOpen(true);
   };
 
+  const linkedOnColorByRole: Record<string, string> = {
+    background: "onBackground",
+    primary: "onPrimary",
+    accent: "onAccent",
+    container: "onContainer",
+  };
+
   const handleColorChange = (newColor: string) => {
-    if (selectedProperty) {
-      updateThemeProperty(["colors", selectedProperty], newColor);
+    if (!selectedProperty) return;
+
+    updateThemeProperty(["colors", selectedProperty], newColor);
+
+    const onProperty = linkedOnColorByRole[selectedProperty];
+    if (onProperty && !lockedColors.has(onProperty)) {
+      const whiteContrast = getContrastRatio("#FFFFFF", newColor);
+      const darkContrast = getContrastRatio("#111827", newColor);
+      const readableOnColor = whiteContrast >= darkContrast ? "#FFFFFF" : "#111827";
+      updateThemeProperty(["colors", onProperty], readableOnColor);
     }
   };
 
@@ -172,69 +174,64 @@ export function ThemeCustomizer() {
     });
   };
 
-  const randomizeColors = () => {
-    // Generate a random base color
-    const randomColor =
-      "#" +
-      Math.floor(Math.random() * 16777215)
-        .toString(16)
-        .padStart(6, "0");
+  const contrastAuditDefinitions = [
+    { id: "onBackground/background", label: "Body text on Background", foreground: "onBackground", background: "background", min: 4.5, required: true },
+    { id: "onContainer/container", label: "Text on Container", foreground: "onContainer", background: "container", min: 4.5, required: true },
+    { id: "onPrimary/primary", label: "Text on Primary", foreground: "onPrimary", background: "primary", min: 4.5, required: true },
+    { id: "onAccent/accent", label: "Text on Accent", foreground: "onAccent", background: "accent", min: 4.5, required: true },
+    { id: "onBackground/container", label: "Body text on Container", foreground: "onBackground", background: "container", min: 4.5, required: true },
+    { id: "primary/background", label: "Primary against Background", foreground: "primary", background: "background", min: 3, required: true },
+    { id: "accent/background", label: "Accent against Background", foreground: "accent", background: "background", min: 3, required: true },
+    { id: "container/background", label: "Container against Background", foreground: "container", background: "background", min: 1.5, required: true },
+    { id: "onContainer/background", label: "Container text on Background", foreground: "onContainer", background: "background", min: 4.5, required: false },
+  ] as const;
 
-    // Create an object of locked colors
+  const getContrastAudit = (palette: Record<string, string>) => {
+    return contrastAuditDefinitions.map((definition) => {
+      const ratio = getContrastRatio(palette[definition.foreground], palette[definition.background]);
+      return {
+        ...definition,
+        ratio,
+        pass: ratio >= definition.min,
+      };
+    });
+  };
+
+  const isPaletteAccessible = (palette: Record<string, string>) => {
+    return getContrastAudit(palette)
+      .filter((item) => item.required)
+      .every((item) => item.pass);
+  };
+
+  const smartShuffle = () => {
     const lockedColorValues: Record<string, string> = {};
-    const colorButtons = [
-      {
-        color: theme.colors.background,
-        label: "Background",
-        property: "background",
-      },
-      {
-        color: theme.colors.onBackground,
-        label: "On Background",
-        property: "onBackground",
-      },
-      { color: theme.colors.primary, label: "Primary", property: "primary" },
-      {
-        color: theme.colors.onPrimary,
-        label: "On Primary",
-        property: "onPrimary",
-      },
-      {
-        color: theme.colors.accent,
-        label: "Accent",
-        property: "accent",
-      },
-      {
-        color: theme.colors.onAccent,
-        label: "On Accent",
-        property: "onAccent",
-      },
-      {
-        color: theme.colors.container,
-        label: "Container",
-        property: "container",
-      },
-      {
-        color: theme.colors.onContainer,
-        label: "On Container",
-        property: "onContainer",
-      },
-    ];
-    colorButtons.forEach(({ property, color }) => {
+
+    Object.entries(theme.colors).forEach(([property, color]) => {
       if (lockedColors.has(property)) {
         lockedColorValues[property] = color;
       }
     });
 
-    // Generate a harmonious palette based on the random color, current theme, locked colors, and selected scheme
-    const palette = generateColorPalette(
-      randomColor,
+    let palette = generateColorPalette(
+      `#${Math.floor(Math.random() * 16777215)
+        .toString(16)
+        .padStart(6, "0")}`,
       themeName === "dark",
       lockedColorValues,
-      selectedScheme.id as "Monochromatic" | "Analogous" | "Complementary" | "Split Complementary" | "Triadic" | "Tetradic"
+      "Analogous"
     );
 
-    // Update all unlocked colors with the new palette
+    for (let index = 0; index < 24 && !isPaletteAccessible(palette); index += 1) {
+      palette = generateColorPalette(
+        `#${Math.floor(Math.random() * 16777215)
+          .toString(16)
+          .padStart(6, "0")}`,
+        themeName === "dark",
+        lockedColorValues,
+        "Analogous"
+      );
+    }
+
     Object.entries(palette).forEach(([property, color]) => {
       if (!lockedColors.has(property)) {
         updateThemeProperty(["colors", property], color);
@@ -276,19 +273,6 @@ export function ThemeCustomizer() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Close scheme menu on outside click
-  useEffect(() => {
-    if (!showSchemeMenu) return;
-    const handleClick = (e: MouseEvent) => {
-      if (!(e.target instanceof Node)) return;
-      if (!schemeMenuRef.current?.contains(e.target)) {
-        setShowSchemeMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [showSchemeMenu]);
 
   // Close export modal on outside click
   useEffect(() => {
@@ -351,6 +335,10 @@ export function ThemeCustomizer() {
     },
     {}
   );
+
+  const currentContrastAudit = getContrastAudit(theme.colors as Record<string, string>);
+  const requiredContrastAudit = currentContrastAudit.filter((item) => item.required);
+  const requiredContrastPassCount = requiredContrastAudit.filter((item) => item.pass).length;
 
   const handleExportClick = () => {
     if (showExportModal) {
@@ -580,50 +568,14 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
           ))}
           <div className="relative flex items-center h-full">
             <button
-              onClick={randomizeColors}
-              className=" h-full rounded-md  ps-2 hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-between"
+              onClick={smartShuffle}
+              className="h-full rounded-md px-3 hover:bg-neutral-100 transition-colors flex items-center gap-2"
               onMouseEnter={() => setShowRandomizeTooltip(true)}
               onMouseLeave={() => setShowRandomizeTooltip(false)}
             >
               <Shuffle size={16} className="text-neutral-800" />
-              <ChevronDown
-                className=" text-neutral-500 h-full cursor-pointer w-4 rounded-e-md hover:bg-neutral-200 transition-colors"
-                size={16}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowSchemeMenu((v) => !v);
-                }}
-              />
+              <span className="text-sm font-medium text-neutral-800">Smart Shuffle</span>
             </button>
-            {showSchemeMenu && (
-              <div
-                ref={schemeMenuRef}
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 min-w-[180px]"
-              >
-                <div className="rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                  {colorSchemes.map((scheme) => (
-                    <button
-                      key={scheme.id}
-                      className={`group relative w-full text-left cursor-pointer py-2 pr-9 pl-3 text-gray-900 select-none hover:bg-primary hover:text-onPrimary ${selectedScheme.id === scheme.id
-                        ? "font-semibold"
-                        : "font-normal"
-                        }`}
-                      onClick={() => {
-                        setSelectedScheme(scheme);
-                        setShowSchemeMenu(false);
-                      }}
-                    >
-                      <span className="block truncate">{scheme.name}</span>
-                      {selectedScheme.id === scheme.id && (
-                        <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-primary group-hover:text-onPrimary">
-                          <Check />
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
             {showRandomizeTooltip && (
               <div
                 role="tooltip"
@@ -635,10 +587,19 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
                   marginBottom: "8px",
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 font-semibold">
                   Smart Shuffle
                   <Sparkles size={16} className="text-neutral-800" />
                 </div>
+                <p className="mt-1 text-[11px] text-neutral-600">Required checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing</p>
+                <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
+                  {currentContrastAudit.map((item) => (
+                    <li key={item.id} className="flex items-start justify-between gap-2">
+                      <span className={item.pass ? "text-emerald-700" : "text-red-700"}>{item.label}</span>
+                      <span className="font-semibold text-neutral-800">{item.ratio}:1</span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="absolute -bottom-1 -z-10 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
               </div>
             )}
