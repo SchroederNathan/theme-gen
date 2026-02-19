@@ -75,7 +75,9 @@ function ColorButton({
           e.stopPropagation();
           onLockToggle(property);
         }}
-        className={`absolute -top-2 -right-2 p-1 rounded-full border opacity-0 group-hover:opacity-100 transition-opacity ${
+        className={`absolute -top-2 -right-2 p-1 rounded-full border transition-opacity ${
+          isLocked ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        } ${
           isDarkTheme
             ? "bg-neutral-900 border-neutral-700 text-neutral-200 hover:bg-neutral-800"
             : "bg-neutral-50 border-neutral-200 text-neutral-700 hover:bg-neutral-100"
@@ -562,97 +564,98 @@ ${Object.entries(formattedColors).map(([key, value]) => `  "${key}": ${value},`)
               isDarkTheme={themeName === "dark"}
             />
           ))}
-          <div className="relative flex items-center h-full">
-            <button
-              onClick={smartShuffle}
-              className="h-full rounded-md px-3 hover:bg-neutral-100 transition-colors flex items-center gap-2"
-              onMouseEnter={() => setShowRandomizeTooltip(true)}
-              onMouseLeave={() => setShowRandomizeTooltip(false)}
-            >
-              <Shuffle size={16} className="text-neutral-800" />
-              <span className="text-sm font-medium text-neutral-800">Smart Shuffle</span>
-            </button>
-            {showRandomizeTooltip && (
-              <div
-                role="tooltip"
-                className="absolute bottom-4 z-100 inline-block px-3 py-2 text-sm font-medium text-neutral-800 border border-neutral-200 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg tooltip min-w-[144px] text-center"
-                style={{
-                  bottom: "100%",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  marginBottom: "8px",
-                }}
+          <div className="flex flex-row gap-1 items-center h-full">
+            <div className="relative flex items-center h-full">
+              <button
+                onClick={smartShuffle}
+                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+                onMouseEnter={() => setShowRandomizeTooltip(true)}
+                onMouseLeave={() => setShowRandomizeTooltip(false)}
               >
-                <div className="flex items-center justify-center gap-2 font-semibold">
-                  Smart Shuffle
-                  <Sparkles size={16} className="text-neutral-800" />
+                <Shuffle size={16} className="text-neutral-800" />
+              </button>
+              {showRandomizeTooltip && (
+                <div
+                  role="tooltip"
+                  className="absolute bottom-4 z-100 inline-block px-3 py-2 text-sm font-medium text-neutral-800 border border-neutral-200 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg tooltip min-w-[144px] text-center"
+                  style={{
+                    bottom: "100%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-2 font-semibold">
+                    Smart Shuffle
+                    <Sparkles size={16} className="text-neutral-800" />
+                  </div>
+                  <p className="mt-1 text-[11px] text-neutral-600">Required checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing</p>
+                  <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
+                    {currentContrastAudit.map((item) => (
+                      <li key={item.id} className="flex items-start justify-between gap-2">
+                        <span className={item.pass ? "text-emerald-700" : "text-red-700"}>{item.label}</span>
+                        <span className="font-semibold text-neutral-800">{item.ratio}:1</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="absolute -bottom-1 -z-10 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
                 </div>
-                <p className="mt-1 text-[11px] text-neutral-600">Required checks: {requiredContrastPassCount}/{requiredContrastAudit.length} passing</p>
-                <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
-                  {currentContrastAudit.map((item) => (
-                    <li key={item.id} className="flex items-start justify-between gap-2">
-                      <span className={item.pass ? "text-emerald-700" : "text-red-700"}>{item.label}</span>
-                      <span className="font-semibold text-neutral-800">{item.ratio}:1</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="absolute -bottom-1 -z-10 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-              </div>
-            )}
-          </div>
-          <div className="relative h-full">
-            <button
-              onClick={toggleTheme}
-              className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
-              onMouseEnter={() => setShowThemeTooltip(true)}
-              onMouseLeave={() => setShowThemeTooltip(false)}
-            >
-              {themeName === "light" ? (
-                <Moon size={16} className="text-neutral-800" />
-              ) : (
-                <Sun size={16} className="text-neutral-800" />
               )}
-            </button>
-            {showThemeTooltip && (
-              <div
-                role="tooltip"
-                className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
-                style={{
-                  bottom: "99%",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  marginBottom: "8px",
-                }}
+            </div>
+            <div className="relative h-full">
+              <button
+                onClick={toggleTheme}
+                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+                onMouseEnter={() => setShowThemeTooltip(true)}
+                onMouseLeave={() => setShowThemeTooltip(false)}
               >
-                Toggle Theme
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-              </div>
-            )}
-          </div>
-          <div className="relative h-full">
-            <button
-              onClick={handleExportClick}
-              className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
-              onMouseEnter={() => setShowDownloadTooltip(true)}
-              onMouseLeave={() => setShowDownloadTooltip(false)}
-            >
-              <Download size={16} className="text-neutral-800" />
-            </button>
-            {showDownloadTooltip && (
-              <div
-                role="tooltip"
-                className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
-                style={{
-                  bottom: "99%",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  marginBottom: "8px",
-                }}
+                {themeName === "light" ? (
+                  <Moon size={16} className="text-neutral-800" />
+                ) : (
+                  <Sun size={16} className="text-neutral-800" />
+                )}
+              </button>
+              {showThemeTooltip && (
+                <div
+                  role="tooltip"
+                  className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
+                  style={{
+                    bottom: "99%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Toggle Theme
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
+                </div>
+              )}
+            </div>
+            <div className="relative h-full">
+              <button
+                onClick={handleExportClick}
+                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+                onMouseEnter={() => setShowDownloadTooltip(true)}
+                onMouseLeave={() => setShowDownloadTooltip(false)}
               >
-                Export Theme
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-              </div>
-            )}
+                <Download size={16} className="text-neutral-800" />
+              </button>
+              {showDownloadTooltip && (
+                <div
+                  role="tooltip"
+                  className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
+                  style={{
+                    bottom: "99%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Export Theme
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
