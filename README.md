@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Theme Gen
+
+A visual theme generator for creating accessible, shareable color palettes. Pick colors, check contrast ratios against WCAG standards, and export production-ready theme code.
+
+## Features
+
+- **Live Preview** — Every change updates the entire site in real-time.
+- **WCAG Contrast Auditing** — Built-in checks for text/background (7:1), primary/background (3:1), text/secondary (4.5:1), and accent pairs (3:1).
+- **Smart Shuffle** — Generates random palettes that pass all required contrast checks. Respects locked colors.
+- **Color Locking** — Lock any color to preserve it during shuffles.
+- **Light / Dark Mode** — Toggle between modes with independent palettes.
+- **URL Sharing** — Theme encodes to URL params automatically. Copy the URL to share your palette.
+- **Export** — CSS variables, Tailwind CSS (v3 & v4), and SCSS. Supports hex, rgb, and hsl output.
+- **EyeDropper** — Pick colors directly from your screen (supported browsers).
+
+## URL Format
+
+Themes are encoded as compact hex values in the URL:
+
+```
+/?colors=1a1625-faf9fc-4F46E5-eeedf2-0284C7&mode=light
+```
+
+Order: `text-background-primary-secondary-accent`
+
+## Tech Stack
+
+- [Next.js 15](https://nextjs.org) + [React 19](https://react.dev)
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [chroma-js](https://gka.github.io/chroma.js/) for color manipulation
+- TypeScript
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
