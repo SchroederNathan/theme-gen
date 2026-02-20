@@ -1,6 +1,10 @@
-import Image from "next/image";
+"use client";
+import { useTheme } from "@/context/ThemeContext";
+import { Dithering, GodRays, GrainGradient, Warp } from "@paper-design/shaders-react";
 
 export default function Bento() {
+  const { theme } = useTheme();
+
   return (
     <div className=" py-24 sm:py-32">
       <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
@@ -14,12 +18,17 @@ export default function Bento() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-px rounded-lg bg-secondary max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-              <Image
-                alt="Color palette customization"
-                src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-performance.png"
+              <GrainGradient
                 width={800}
                 height={320}
-                className="h-80 object-cover object-left"
+                colors={[theme.colors.accent, theme.colors.primary, theme.colors.secondary]}
+                colorBack={theme.colors.background}
+                softness={0.5}
+                intensity={0.49}
+                noise={0.25}
+                shape="blob"
+                speed={0.5}
+                scale={2.6}
               />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
@@ -39,12 +48,16 @@ export default function Bento() {
           <div className="relative lg:col-span-3">
             <div className="absolute inset-px rounded-lg bg-secondary lg:rounded-tr-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-              <Image
-                alt="Real-time theme preview"
-                src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-releases.png"
+              <Dithering
                 width={800}
                 height={320}
-                className="h-80 object-cover object-left lg:object-right"
+                colorBack={theme.colors.background}
+                colorFront={theme.colors.primary}
+                shape="simplex"
+                type="4x4"
+                size={2}
+                speed={1}
+                scale={0.6}
               />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
@@ -64,13 +77,18 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-secondary lg:rounded-bl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-              <Image
-                alt="Dark and light mode support"
-                src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-speed.png"
-                width={800}
-                height={320}
-                className="h-80 object-cover object-left"
-              />
+            <GrainGradient
+  width={800}
+  height={320}
+  colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
+  colorBack={theme.colors.background}
+  softness={0.5}
+  intensity={0.5}
+  noise={0.5}
+  shape="ripple"
+  speed={1}
+  scale={0.5}
+/>
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
                   Dark Mode
@@ -89,12 +107,22 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-secondary" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-              <Image
-                alt="Code export options"
-                src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-integrations.png"
+
+
+              <GodRays
                 width={800}
                 height={320}
-                className="h-80 object-cover"
+                colors={[theme.colors.primary, theme.colors.accent, theme.colors.secondary]}
+                colorBack={theme.colors.background}
+                colorBloom={theme.colors.primary}
+                bloom={0.4}
+                intensity={0.8}
+                density={0.3}
+                spotty={0.3}
+                midSize={0.2}
+                midIntensity={0.4}
+                speed={0.75}
+                offsetY={-0.55}
               />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
@@ -114,12 +142,18 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-secondary max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
-              <Image
-                alt="Theme gallery and sharing"
-                src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-network.png"
+              <GrainGradient
                 width={800}
                 height={320}
-                className="h-80 object-cover"
+                colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
+                colorBack={theme.colors.background}
+                softness={0}
+                intensity={0.23}
+                noise={1}
+                shape="truchet"
+                speed={1.26}
+                scale={0.44}
+                rotation={80}
               />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">

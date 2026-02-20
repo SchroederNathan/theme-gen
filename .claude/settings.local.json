@@ -19,7 +19,8 @@
       "Bash(curl:*)",
       "Bash(xargs:*)",
       "mcp__plugin_playwright_playwright__browser_evaluate",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

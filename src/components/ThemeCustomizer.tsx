@@ -36,6 +36,7 @@ interface ColorButtonProps {
   ratio: number;
   target: number;
   isDarkTheme: boolean;
+  isCompact: boolean;
 }
 
 type BadgeStage = "pass" | "warn" | "fail";
@@ -56,10 +57,11 @@ function ColorButton({
   ratio,
   target,
   isDarkTheme,
+  isCompact,
 }: ColorButtonProps) {
   const stage = getBadgeStage(ratio, target);
   return (
-    <div className="relative group h-full">
+    <div className={`relative group ${isCompact ? "h-12" : "h-full"}`}>
       <div
         className={`absolute -top-2 -left-2 z-10 p-1 rounded-full border shadow-sm flex items-center justify-center ${
           isDarkTheme
@@ -82,7 +84,7 @@ function ColorButton({
       </div>
       <button
         onClick={(e) => onClick(color, property, e.currentTarget)}
-        className="w-32 h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors"
+        className={`${isCompact ? "w-full" : "w-32"} h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors`}
         style={{ backgroundColor: color }}
       >
         <p className="text-lg font-bold" style={{ color: getTextColor(color) }}>
@@ -125,6 +127,8 @@ export function ThemeCustomizer() {
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const [isCompact, setIsCompact] = useState(false);
+  const horizontalWidthRef = useRef(0);
   const [showRandomizeTooltip, setShowRandomizeTooltip] = useState(false);
   const [showThemeTooltip, setShowThemeTooltip] = useState(false);
   const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
@@ -332,6 +336,38 @@ export function ThemeCustomizer() {
       setPopoverLeft(left);
     }
   }, [isOpen, activeButton]);
+
+  // Detect toolbar overflow and toggle compact mode
+  useLayoutEffect(() => {
+    if (!isCompact && containerRef.current) {
+      const toolbar = containerRef.current.firstElementChild as HTMLElement;
+      if (toolbar) {
+        horizontalWidthRef.current = toolbar.scrollWidth;
+        if (toolbar.scrollWidth > window.innerWidth - 16) {
+          setIsCompact(true);
+        }
+      }
+    }
+  }, [isCompact]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (isCompact && horizontalWidthRef.current > 0) {
+        if (window.innerWidth >= horizontalWidthRef.current + 32) {
+          setIsCompact(false);
+        }
+      } else if (!isCompact && containerRef.current) {
+        const toolbar = containerRef.current.firstElementChild as HTMLElement;
+        if (toolbar && toolbar.scrollWidth > window.innerWidth - 16) {
+          horizontalWidthRef.current = toolbar.scrollWidth;
+          setIsCompact(true);
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isCompact]);
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -733,24 +769,47 @@ export function ThemeCustomizer() {
 
       <div
         ref={containerRef}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
+        className={`fixed z-50 ${
+          isCompact
+            ? "bottom-0 left-0 right-0"
+            : "bottom-4 left-1/2 -translate-x-1/2"
+        }`}
       >
-        <div className="flex flex-row gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-1 h-16 shadow-lg items-center">
-          {colorButtons.map(({ color, label, property, target }) => (
-            <ColorButton
-              key={property}
-              color={color}
-              label={label}
-              property={property}
-              onClick={handleColorClick}
-              isLocked={lockedColors.has(property)}
-              onLockToggle={handleLockToggle}
-              ratio={ratioByProperty[property]}
-              target={target}
-              isDarkTheme={themeName === "dark"}
-            />
-          ))}
-          <div className="flex flex-row gap-1 items-center h-full">
+        <div
+          className={`flex border border-neutral-200 bg-neutral-50 shadow-lg ${
+            isCompact
+              ? "flex-col gap-2 rounded-t-lg p-2 items-stretch"
+              : "flex-row gap-4 rounded-lg p-1 h-16 items-center"
+          }`}
+        >
+          <div
+            className={`flex ${
+              isCompact
+                ? "flex-col gap-2 w-full"
+                : "flex-row gap-4 w-auto h-full"
+            }`}
+          >
+            {colorButtons.map(({ color, label, property, target }) => (
+              <ColorButton
+                key={property}
+                color={color}
+                label={label}
+                property={property}
+                onClick={handleColorClick}
+                isLocked={lockedColors.has(property)}
+                onLockToggle={handleLockToggle}
+                ratio={ratioByProperty[property]}
+                target={target}
+                isDarkTheme={themeName === "dark"}
+                isCompact={isCompact}
+              />
+            ))}
+          </div>
+          <div
+            className={`flex flex-row gap-1 items-center justify-center ${
+              isCompact ? "h-12" : "h-full"
+            }`}
+          >
             <div className="relative flex items-center h-full">
               <button
                 onClick={smartShuffle}
