@@ -1,3 +1,5 @@
+"use client";
+
 import { track } from "@vercel/analytics";
 import { Coffee } from "lucide-react";
 import Image from "next/image";
