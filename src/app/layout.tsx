@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -54,6 +55,8 @@ export default function RootLayout({
           <ThemeCustomizer />
           <Footer />
         </ThemeProvider>
+        <Analytics />
+
       </body>
     </html>
   );
