@@ -27,7 +27,7 @@ export default function DangerModal() {
             <button
               type="button"
               //   onClick={() => setOpen(false)}
-              className="inline-flex w-full justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-background hover:bg-error/90 sm:ml-3 sm:w-auto"
+              className="inline-flex w-full justify-center rounded-md bg-error px-3 py-2 text-sm font-semibold text-onError hover:bg-error/90 sm:ml-3 sm:w-auto"
             >
               Yes, delete it
             </button>
@@ -35,7 +35,7 @@ export default function DangerModal() {
               type="button"
               data-autofocus
               //   onClick={() => setOpen(false)}
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-text ring-1 ring-border ring-inset hover:bg-secondary/90 sm:mt-0 sm:w-auto"
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-onSecondary ring-1 ring-border ring-inset hover:bg-secondary/90 sm:mt-0 sm:w-auto"
             >
               Cancel
             </button>

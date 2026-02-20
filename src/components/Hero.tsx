@@ -1,3 +1,4 @@
+import { Coffee } from "lucide-react";
 import Image from "next/image";
 
 const Hero = () => {
@@ -7,12 +8,12 @@ const Hero = () => {
         <div className="px-6 lg:px-0 lg:pt-4">
           <div className="mx-auto max-w-2xl">
             <div className="max-w-lg">
-              {/* <Image
+              <Image
                 src="/logos/logo.svg"
-                alt="Your Company"
-                width={70}
-                height={70}
-              /> */}
+                alt="Theme Gen"
+                width={40}
+                height={40}
+              />
               <div className="mt-24 sm:mt-32 lg:mt-16">
                 <a href="#" className="inline-flex space-x-6">
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-sm/6 font-semibold text-primary ring-1 ring-primary/10 ring-inset">
@@ -42,13 +43,18 @@ const Hero = () => {
               </p>
               <div className="mt-10 flex items-center gap-x-6">
                 <a
-                  href="#"
-                  className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-background shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  href="https://ko-fi.com/nathanschroeder"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-md bg-primary flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
-                  Create Theme
+                  <Coffee aria-hidden="true" className="size-4" />
+                  Buy me a coffee
                 </a>
                 <a
                   href="https://github.com/SchroederNathan/theme-gen.git"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-sm/6 font-semibold text-text flex items-center gap-2 bg-accent/20 px-3.5 py-2.5 rounded-md"
                 >
                   GitHub

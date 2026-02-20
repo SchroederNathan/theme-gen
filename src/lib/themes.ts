@@ -13,6 +13,14 @@ export type Theme = {
     error: string;
     warning: string;
 
+    // On-surface colors (auto-derived)
+    onPrimary: string;
+    onSecondary: string;
+    onAccent: string;
+    onSuccess: string;
+    onError: string;
+    onWarning: string;
+
     // Utility colors (auto-derived)
     border: string;
     muted: string;
@@ -33,6 +41,13 @@ export const themes: Record<string, Theme> = {
       error: "#DC2626",
       warning: "#D97706",
 
+      onPrimary: "#ffffff",
+      onSecondary: "#1a1625",
+      onAccent: "#ffffff",
+      onSuccess: "#ffffff",
+      onError: "#ffffff",
+      onWarning: "#ffffff",
+
       border: "#d4d2da",
       muted: "#8a8694",
     },
@@ -49,6 +64,13 @@ export const themes: Record<string, Theme> = {
       success: "#10B981",
       error: "#EF4444",
       warning: "#F59E0B",
+
+      onPrimary: "#1a1625",
+      onSecondary: "#ede9f5",
+      onAccent: "#1a1625",
+      onSuccess: "#1a1625",
+      onError: "#ffffff",
+      onWarning: "#1a1625",
 
       border: "#3d3a48",
       muted: "#9490a0",

@@ -13,6 +13,14 @@
   --color-error: #DC2626;
   --color-warning: #D97706;
 
+  /* On-surface colors */
+  --color-onPrimary: #ffffff;
+  --color-onSecondary: #1a1625;
+  --color-onAccent: #ffffff;
+  --color-onSuccess: #ffffff;
+  --color-onError: #ffffff;
+  --color-onWarning: #ffffff;
+
   /* Utility colors */
   --color-border: #d4d2da;
   --color-muted: #6B7280;
@@ -87,6 +95,31 @@ body {
 
 .text-accent {
   color: var(--color-accent);
+}
+
+/* On-surface utility classes */
+.text-onPrimary {
+  color: var(--color-onPrimary);
+}
+
+.text-onSecondary {
+  color: var(--color-onSecondary);
+}
+
+.text-onAccent {
+  color: var(--color-onAccent);
+}
+
+.text-onSuccess {
+  color: var(--color-onSuccess);
+}
+
+.text-onError {
+  color: var(--color-onError);
+}
+
+.text-onWarning {
+  color: var(--color-onWarning);
 }
 
 /* Background utility classes */

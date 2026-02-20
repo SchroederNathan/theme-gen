@@ -370,7 +370,14 @@ export function generateColorPalette(
     primary,
     secondary,
     accent,
+    onPrimary: pickOnColor(primary),
+    onSecondary: pickOnColor(secondary),
+    onAccent: pickOnColor(accent),
     border,
     muted,
   };
+}
+
+export function pickOnColor(bg: string): string {
+  return chroma(bg).luminance() > 0.4 ? "#000000" : "#ffffff";
 }

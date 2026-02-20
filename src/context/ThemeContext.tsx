@@ -1,6 +1,7 @@
 "use client";
 
 import { Theme, defaultTheme, themes } from "@/lib/themes";
+import { pickOnColor } from "@/lib/colorUtils";
 import chroma from "chroma-js";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
@@ -39,6 +40,10 @@ function parseColorsFromURL(): Partial<Theme["colors"]> | null {
   const bg = colors.background!;
   colors.border = chroma.mix(text, bg, 0.82, "rgb").hex();
   colors.muted = chroma.mix(text, bg, 0.55, "rgb").hex();
+
+  if (colors.primary) colors.onPrimary = pickOnColor(colors.primary);
+  if (colors.secondary) colors.onSecondary = pickOnColor(colors.secondary);
+  if (colors.accent) colors.onAccent = pickOnColor(colors.accent);
 
   return colors;
 }

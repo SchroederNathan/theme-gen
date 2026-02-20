@@ -6,6 +6,7 @@ import {
   getContrastRatio,
   getTextColor,
   hexToRgb,
+  pickOnColor,
   rgbToHsl,
 } from "@/lib/colorUtils";
 import { themes } from "@/lib/themes";
@@ -184,6 +185,19 @@ export function ThemeCustomizer() {
     if (!lockedColors.has("muted")) {
       const newMuted = chroma.mix(currentText, currentBg, 0.55, "rgb").hex();
       updateThemeProperty(["colors", "muted"], newMuted);
+    }
+
+    // Re-derive on-color for the changed property
+    const onColorMap: Record<string, string> = {
+      primary: "onPrimary",
+      secondary: "onSecondary",
+      accent: "onAccent",
+    };
+    if (onColorMap[selectedProperty]) {
+      updateThemeProperty(
+        ["colors", onColorMap[selectedProperty]],
+        pickOnColor(newColor),
+      );
     }
   };
 

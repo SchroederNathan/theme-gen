@@ -40,7 +40,7 @@ function classNames(...classes: string[]) {
 
 export default function Pricing() {
   return (
-    <div className="relative isolate bg-background px-6 py-24 sm:py-32 lg:px-8">
+    <div className="relative isolate bg-background px-6 pt-24 sm:pt-32 pb-10 lg:px-8">
       <div
         aria-hidden="true"
         className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
@@ -139,12 +139,12 @@ export default function Pricing() {
               aria-describedby={tier.id}
               className={classNames(
                 tier.featured
-                  ? "bg-primary text-background shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  ? "bg-primary text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   : "text-primary ring-1 ring-border ring-inset hover:ring-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold sm:mt-10"
               )}
             >
-              Get started (it&apos;s free, we&apos;re not kidding)
+              Get started
             </a>
           </div>
         ))}
