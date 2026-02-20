@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { Coffee } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +28,7 @@ export default function NavHeader() {
             href="https://buymeacoffee.com"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track("buy_me_a_coffee_clicked", { location: "nav" })}
             className="inline-flex items-center gap-x-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-onPrimary shadow-sm hover:bg-primary/85 transition-colors"
           >
             <Coffee aria-hidden="true" className="size-4" />

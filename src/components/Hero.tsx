@@ -1,3 +1,4 @@
+import { track } from "@vercel/analytics";
 import { Coffee } from "lucide-react";
 import Image from "next/image";
 
@@ -46,6 +47,7 @@ const Hero = () => {
                   href="https://ko-fi.com/nathanschroeder"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track("buy_me_a_coffee_clicked", { location: "hero" })}
                   className="rounded-md bg-primary flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <Coffee aria-hidden="true" className="size-4" />
@@ -55,6 +57,7 @@ const Hero = () => {
                   href="https://github.com/SchroederNathan/theme-gen.git"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track("github_clicked")}
                   className="text-sm/6 font-semibold text-text flex items-center gap-2 bg-accent/20 px-3.5 py-2.5 rounded-md"
                 >
                   GitHub
