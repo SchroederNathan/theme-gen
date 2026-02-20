@@ -21,7 +21,10 @@
       "mcp__plugin_playwright_playwright__browser_evaluate",
       "Bash(ls:*)",
       "Bash(npx tsc:*)",
-      "WebFetch(domain:shaders.paper.design)"
+      "WebFetch(domain:shaders.paper.design)",
+      "Bash(npx skills:*)",
+      "WebFetch(domain:themegen.dev)",
+      "WebFetch(domain:pagespeed.web.dev)"
     ]
   }
 }

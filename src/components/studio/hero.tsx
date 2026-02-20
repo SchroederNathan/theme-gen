@@ -15,21 +15,16 @@ export default function Hero() {
             <p className="mt-6 text-xl/8 text-muted">
               Create color themes that won&apos;t make your users run screaming.
               Explore combinations that actually match, preview in real-time,
-              and export code that won&apos;t make other developers point and laugh.
-            </p>
-            <p className="mt-6 text-base/7 text-muted">
-              Whether you&apos;re building a corporate snooze-fest, a &quot;please buy
-              our stuff&quot; store, or a portfolio to prove you&apos;re not just a cat
-              walking on keyboards. ThemeGen helps you pick colors like someone
-              who&apos;s seen more than just the default blue.
+              and export code that won&apos;t make other developers point and
+              laugh.
             </p>
             <div className="mt-10 flex">
-              <a
-                href="#"
+              <button
+                type="button"
                 className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Start Creating <span aria-hidden="true">&rarr;</span>
-              </a>
+              </button>
             </div>
           </div>
           <div className="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">

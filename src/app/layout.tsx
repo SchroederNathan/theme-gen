@@ -17,8 +17,52 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Theme Gen",
-  description: "A visual theme generator for your next project. We help with the color thing.",
+  metadataBase: new URL("https://themegen.dev"),
+  title: {
+    default: "Theme Gen - Free Visual Theme Generator for CSS & Tailwind",
+    template: "%s | Theme Gen",
+  },
+  description:
+    "Create beautiful color themes with a free visual editor. Preview in real-time and export to CSS variables, Tailwind config, and more. No sign-up required.",
+  keywords: [
+    "theme generator",
+    "css theme generator",
+    "tailwind theme generator",
+    "color palette generator",
+    "color scheme tool",
+    "visual theme builder",
+    "css variables generator",
+    "dark mode generator",
+  ],
+  authors: [{ name: "Nathan Schroeder" }],
+  creator: "Nathan Schroeder",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://themegen.dev",
+    siteName: "Theme Gen",
+    title: "Theme Gen - Free Visual Theme Generator for CSS & Tailwind",
+    description:
+      "Create beautiful color themes with a free visual editor. Preview in real-time and export to CSS variables, Tailwind config, and more.",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Theme Gen visual editor preview showing color theme customization",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Theme Gen - Free Visual Theme Generator for CSS & Tailwind",
+    description:
+      "Create beautiful color themes with a free visual editor. Preview in real-time and export to CSS variables, Tailwind config, and more.",
+    images: ["/preview.png"],
+  },
+  alternates: {
+    canonical: "https://themegen.dev",
+  },
   icons: {
     icon: [
       { url: "/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },

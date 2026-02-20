@@ -11,8 +11,9 @@ export default function Bento() {
         <h2 className="text-base/7 font-semibold text-primary">
           Design with ease
         </h2>
-        <p className="mt-2 max-w-lg text-4xl font-semibold text-text tracking-tight text-pretty text-text sm:text-5xl">
-          Everything you need to create themes that won&apos;t make designers cry
+        <p className="mt-2 max-w-lg text-4xl font-semibold tracking-tight text-pretty text-text sm:text-5xl">
+          Everything you need to create themes that won&apos;t make designers
+          cry
         </p>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
           <div className="relative lg:col-span-3">
@@ -21,7 +22,11 @@ export default function Bento() {
               <GrainGradient
                 width={800}
                 height={320}
-                colors={[theme.colors.accent, theme.colors.primary, theme.colors.secondary]}
+                colors={[
+                  theme.colors.accent,
+                  theme.colors.primary,
+                  theme.colors.secondary,
+                ]}
                 colorBack={theme.colors.background}
                 softness={0.5}
                 intensity={0.49}
@@ -37,9 +42,10 @@ export default function Bento() {
                 <p className="mt-2 text-lg font-medium tracking-tight text-text">
                   Intuitive Color Editing
                 </p>
-                <p className="mt-2 max-w-lg text-sm/6 text-text/80">
+                <p className="mt-2 max-w-lg text-sm/6 text-muted text-pretty">
                   Easily customize every color in your theme with our visual
-                  editor. Pick colors with precision—or just guess and hope for the best.
+                  editor. Pick colors with precision—or just guess and hope for
+                  the best.
                 </p>
               </div>
             </div>
@@ -66,7 +72,7 @@ export default function Bento() {
                 <p className="mt-2 text-lg font-medium tracking-tight text-text">
                   See Changes Instantly
                 </p>
-                <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
+                <p className="mt-2 max-w-lg text-sm/6 text-muted text-pretty">
                   Watch your theme updates in real-time. See your mistakes
                   instantly, before anyone else does.
                 </p>
@@ -80,13 +86,17 @@ export default function Bento() {
               <GrainGradient
                 width={800}
                 height={320}
-                colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
+                colors={[
+                  theme.colors.secondary,
+                  theme.colors.primary,
+                  theme.colors.accent,
+                ]}
                 colorBack={theme.colors.background}
                 softness={0.5}
                 intensity={0.5}
                 noise={0.5}
                 shape="ripple"
-                speed={1}
+                speed={0}
                 scale={0.5}
               />
               <div className="p-10 pt-4">
@@ -96,7 +106,7 @@ export default function Bento() {
                 <p className="mt-2 text-lg font-medium tracking-tight text-text">
                   Toggle Light & Dark
                 </p>
-                <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
+                <p className="mt-2 max-w-lg text-sm/6 text-muted text-pretty">
                   Seamlessly switch between light and dark modes. Perfect for
                   night owls and those who work in poorly lit caves.
                 </p>
@@ -107,12 +117,14 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-secondary" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-
-
               <GodRays
                 width={800}
                 height={320}
-                colors={[theme.colors.primary, theme.colors.accent, theme.colors.secondary]}
+                colors={[
+                  theme.colors.primary,
+                  theme.colors.accent,
+                  theme.colors.secondary,
+                ]}
                 colorBack={theme.colors.background}
                 colorBloom={theme.colors.primary}
                 bloom={0.4}
@@ -121,7 +133,7 @@ export default function Bento() {
                 spotty={0.3}
                 midSize={0.2}
                 midIntensity={0.4}
-                speed={0.75}
+                speed={0}
                 offsetY={-0.55}
               />
               <div className="p-10 pt-4">
@@ -131,9 +143,9 @@ export default function Bento() {
                 <p className="mt-2 text-lg font-medium tracking-tight text-text">
                   Multiple Format Support
                 </p>
-                <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
+                <p className="mt-2 max-w-lg text-sm/6 text-muted text-pretty">
                   Export your theme to CSS variables, Tailwind config, or other
-                  formats. One click. Copy-paste. Done. (No more manual conversion.)
+                  formats. One click. Copy-paste. Done.
                 </p>
               </div>
             </div>
@@ -145,25 +157,29 @@ export default function Bento() {
               <GrainGradient
                 width={800}
                 height={320}
-                colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
+                colors={[
+                  theme.colors.secondary,
+                  theme.colors.primary,
+                  theme.colors.accent,
+                ]}
                 colorBack={theme.colors.background}
                 softness={0}
                 intensity={0.23}
                 noise={1}
                 shape="truchet"
-                speed={1.26}
+                speed={0}
                 scale={0.44}
                 rotation={80}
               />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
-                  Theme Gallery
+                  Theme Gallery *Coming Soon*
                 </h3>
                 <p className="mt-2 text-lg font-medium tracking-tight text-text">
                   Share & Discover
                 </p>
-                <p className="mt-2 max-w-lg text-sm/6 text-text/80 opacity-70">
-                  Browse themes made by others. Steal their ideas. (We call it &quot;inspiration.&quot;)
+                <p className="mt-2 max-w-lg text-sm/6 text-muted text-pretty">
+                  Browse themes made by others. Steal their ideas.
                 </p>
               </div>
             </div>

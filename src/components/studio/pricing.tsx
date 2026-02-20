@@ -4,7 +4,6 @@ const tiers = [
   {
     name: "Hobby",
     id: "tier-hobby",
-    href: "#",
     priceMonthly: "$0",
     description:
       "Totally free because we haven't figured out how to charge you yet!",
@@ -19,7 +18,6 @@ const tiers = [
   {
     name: "Enterprise",
     id: "tier-enterprise",
-    href: "#",
     priceMonthly: "$0",
     description: "Also free because this is just a demo and we're not real.",
     features: [
@@ -134,18 +132,18 @@ export default function Pricing() {
                 </li>
               ))}
             </ul>
-            <a
-              href={tier.href}
+            <button
+              type="button"
               aria-describedby={tier.id}
               className={classNames(
                 tier.featured
                   ? "bg-primary text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   : "text-primary ring-1 ring-border ring-inset hover:ring-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold sm:mt-10"
+                "mt-8 block w-full rounded-md px-3.5 py-2.5 text-center text-sm font-semibold sm:mt-10"
               )}
             >
               Get started
-            </a>
+            </button>
           </div>
         ))}
       </div>
