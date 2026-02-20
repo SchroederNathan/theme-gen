@@ -1,6 +1,6 @@
 "use client";
 import { useTheme } from "@/context/ThemeContext";
-import { Dithering, GodRays, GrainGradient, Warp } from "@paper-design/shaders-react";
+import { Dithering, GodRays, GrainGradient } from "@paper-design/shaders-react";
 
 export default function Bento() {
   const { theme } = useTheme();
@@ -77,18 +77,18 @@ export default function Bento() {
           <div className="relative lg:col-span-2">
             <div className="absolute inset-px rounded-lg bg-secondary lg:rounded-bl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-            <GrainGradient
-  width={800}
-  height={320}
-  colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
-  colorBack={theme.colors.background}
-  softness={0.5}
-  intensity={0.5}
-  noise={0.5}
-  shape="ripple"
-  speed={1}
-  scale={0.5}
-/>
+              <GrainGradient
+                width={800}
+                height={320}
+                colors={[theme.colors.secondary, theme.colors.primary, theme.colors.accent]}
+                colorBack={theme.colors.background}
+                softness={0.5}
+                intensity={0.5}
+                noise={0.5}
+                shape="ripple"
+                speed={1}
+                scale={0.5}
+              />
               <div className="p-10 pt-4">
                 <h3 className="text-sm/4 font-semibold text-primary">
                   Dark Mode

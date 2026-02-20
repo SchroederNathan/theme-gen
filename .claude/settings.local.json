@@ -20,7 +20,8 @@
       "Bash(xargs:*)",
       "mcp__plugin_playwright_playwright__browser_evaluate",
       "Bash(ls:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:shaders.paper.design)"
     ]
   }
 }
