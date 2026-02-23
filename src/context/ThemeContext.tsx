@@ -3,13 +3,18 @@
 import { Theme, defaultTheme, themes } from "@/lib/themes";
 import { pickOnColor } from "@/lib/colorUtils";
 import chroma from "chroma-js";
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 type ThemeContextType = {
   theme: Theme;
   themeName: string;
   setTheme: (themeName: string) => void;
   updateThemeProperty: (path: string[], value: string) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  pushHistory: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -68,11 +73,20 @@ function updateCSSVariables(newTheme: Theme) {
   });
 }
 
+const MAX_HISTORY = 5;
+
+type HistoryEntry = { theme: Theme; themeName: string };
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeName, setThemeName] = useState(defaultTheme);
   const [theme, setTheme] = useState<Theme>(themes[defaultTheme]);
   const themeNameRef = useRef(themeName);
   themeNameRef.current = themeName;
+
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [future, setFuture] = useState<HistoryEntry[]>([]);
+  const isRestoringRef = useRef(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     const urlColors = parseColorsFromURL();
@@ -98,10 +112,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       updateCSSVariables(themes[defaultTheme]);
     }
+    initializedRef.current = true;
   }, []);
 
   // Sync CSS variables + localStorage + URL whenever theme changes
   useEffect(() => {
+    if (isRestoringRef.current) {
+      isRestoringRef.current = false;
+    }
     updateCSSVariables(theme);
     syncURLParams(theme, themeNameRef.current);
     const savedThemes = JSON.parse(
@@ -111,8 +129,66 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("customThemes", JSON.stringify(savedThemes));
   }, [theme]);
 
+  const pushHistory = useCallback(() => {
+    if (!initializedRef.current) return;
+    setHistory((prev) => {
+      const entry: HistoryEntry = { theme: { ...theme, colors: { ...theme.colors } }, themeName: themeNameRef.current };
+      const next = [...prev, entry];
+      if (next.length > MAX_HISTORY) next.shift();
+      return next;
+    });
+    setFuture([]);
+  }, [theme]);
+
+  const undo = useCallback(() => {
+    setHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const newHistory = [...prev];
+      const entry = newHistory.pop()!;
+      setFuture((f) => [...f, { theme: { ...theme, colors: { ...theme.colors } }, themeName: themeNameRef.current }]);
+      isRestoringRef.current = true;
+      setThemeName(entry.themeName);
+      setTheme(entry.theme);
+      updateCSSVariables(entry.theme);
+      return newHistory;
+    });
+  }, [theme]);
+
+  const redo = useCallback(() => {
+    setFuture((prev) => {
+      if (prev.length === 0) return prev;
+      const newFuture = [...prev];
+      const entry = newFuture.pop()!;
+      setHistory((h) => [...h, { theme: { ...theme, colors: { ...theme.colors } }, themeName: themeNameRef.current }]);
+      isRestoringRef.current = true;
+      setThemeName(entry.themeName);
+      setTheme(entry.theme);
+      updateCSSVariables(entry.theme);
+      return newFuture;
+    });
+  }, [theme]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        redo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [undo, redo]);
+
   const handleThemeChange = (newThemeName: string) => {
     if (themes[newThemeName]) {
+      pushHistory();
       setThemeName(newThemeName);
       setTheme(themes[newThemeName]);
       localStorage.setItem("theme", newThemeName);
@@ -140,6 +216,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         themeName,
         setTheme: handleThemeChange,
         updateThemeProperty,
+        undo,
+        redo,
+        canUndo: history.length > 0,
+        canRedo: future.length > 0,
+        pushHistory,
       }}
     >
       {children}

@@ -16,9 +16,11 @@ import {
   Download,
   Lock,
   Moon,
+  Redo2,
   Shuffle,
   Sparkles,
   Sun,
+  Undo2,
   Unlock,
   X,
 } from "lucide-react";
@@ -116,7 +118,7 @@ function ColorButton({
 }
 
 export function ThemeCustomizer() {
-  const { theme, updateThemeProperty, themeName, setTheme } = useTheme();
+  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
@@ -165,6 +167,7 @@ export function ThemeCustomizer() {
       return;
     }
 
+    pushHistory();
     setSelectedColor(color);
     setSelectedProperty(property);
     setActiveButton(button);
@@ -281,6 +284,7 @@ export function ThemeCustomizer() {
   };
 
   const smartShuffle = () => {
+    pushHistory();
     const lockedColorValues: Record<string, string> = {};
 
     Object.entries(theme.colors).forEach(([property, color]) => {
@@ -810,6 +814,22 @@ export function ThemeCustomizer() {
               isCompact ? "h-12" : "h-full"
             }`}
           >
+            <button
+              onClick={undo}
+              disabled={!canUndo}
+              className={`p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center ${!canUndo ? "opacity-30 pointer-events-none" : ""}`}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 size={16} className="text-neutral-800" />
+            </button>
+            <button
+              onClick={redo}
+              disabled={!canRedo}
+              className={`p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center ${!canRedo ? "opacity-30 pointer-events-none" : ""}`}
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo2 size={16} className="text-neutral-800" />
+            </button>
             <div className="relative flex items-center h-full">
               <button
                 onClick={smartShuffle}
