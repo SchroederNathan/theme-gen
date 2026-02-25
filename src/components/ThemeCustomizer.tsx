@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/context/ThemeContext";
 import {
+  adaptColorsForMode,
   generateColorPalette,
   getContrastRatio,
   getTextColor,
@@ -323,7 +324,14 @@ export function ThemeCustomizer() {
   };
 
   const toggleTheme = () => {
-    setTheme(themeName === "light" ? "dark" : "light");
+    const targetIsDark = themeName !== "dark";
+    const targetMode = targetIsDark ? "dark" : "light";
+    const adapted = adaptColorsForMode(
+      theme.colors as Record<string, string>,
+      targetIsDark,
+      lockedColors
+    );
+    setTheme(targetMode, adapted as Partial<typeof theme.colors>);
   };
 
   // Center the popover above the button

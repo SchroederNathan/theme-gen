@@ -1,17 +1,28 @@
 'use client';
 
 import { useTheme } from '@/context/ThemeContext';
+import { adaptColorsForMode } from '@/lib/colorUtils';
 import { Switch } from '@headlessui/react';
 
 export function ThemeSwitcher() {
-  const { themeName, setTheme } = useTheme();
+  const { theme, themeName, setTheme } = useTheme();
   const isDark = themeName === 'dark';
+
+  const handleToggle = () => {
+    const targetIsDark = !isDark;
+    const targetMode = targetIsDark ? 'dark' : 'light';
+    const adapted = adaptColorsForMode(
+      theme.colors as Record<string, string>,
+      targetIsDark
+    );
+    setTheme(targetMode, adapted as Partial<typeof theme.colors>);
+  };
 
   return (
     <div className="flex items-center gap-2">
       <Switch
         checked={isDark}
-        onChange={() => setTheme(isDark ? 'light' : 'dark')}
+        onChange={handleToggle}
         className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-hidden data-checked:bg-primary"
       >
         <span className="sr-only">Toggle theme</span>

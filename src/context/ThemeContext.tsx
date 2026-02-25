@@ -8,7 +8,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 type ThemeContextType = {
   theme: Theme;
   themeName: string;
-  setTheme: (themeName: string) => void;
+  setTheme: (themeName: string, customColors?: Partial<Theme["colors"]>) => void;
   updateThemeProperty: (path: string[], value: string) => void;
   undo: () => void;
   redo: () => void;
@@ -101,6 +101,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setThemeName(mode);
       setTheme(hydrated);
       updateCSSVariables(hydrated);
+      initializedRef.current = true;
       return;
     }
 
@@ -186,11 +187,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('keydown', handler);
   }, [undo, redo]);
 
-  const handleThemeChange = (newThemeName: string) => {
+  const handleThemeChange = (newThemeName: string, customColors?: Partial<Theme["colors"]>) => {
     if (themes[newThemeName]) {
       pushHistory();
+      const base = themes[newThemeName];
+      const newTheme = customColors
+        ? { ...base, colors: { ...base.colors, ...customColors } }
+        : base;
       setThemeName(newThemeName);
-      setTheme(themes[newThemeName]);
+      setTheme(newTheme);
       localStorage.setItem("theme", newThemeName);
     }
   };

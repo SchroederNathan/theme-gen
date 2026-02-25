@@ -381,3 +381,47 @@ export function generateColorPalette(
 export function pickOnColor(bg: string): string {
   return chroma(bg).luminance() > 0.4 ? "#000000" : "#ffffff";
 }
+
+export function adaptColorsForMode(
+  currentColors: Record<string, string>,
+  targetIsDark: boolean,
+  lockedColors: Set<string> = new Set()
+): Record<string, string> {
+  const targets: Record<string, { l: number; c: number }> = {
+    text:       { l: targetIsDark ? 0.93  : 0.18,  c: 0.02 },
+    background: { l: targetIsDark ? 0.16  : 0.985, c: targetIsDark ? 0.012 : 0.01 },
+    primary:    { l: targetIsDark ? 0.65  : 0.55,  c: 0.14 },
+    secondary:  { l: targetIsDark ? 0.25  : 0.94,  c: 0.02 },
+    accent:     { l: targetIsDark ? 0.68  : 0.58,  c: 0.12 },
+  };
+
+  const adapted: Record<string, string> = {};
+
+  for (const [role, target] of Object.entries(targets)) {
+    if (lockedColors.has(role)) {
+      adapted[role] = currentColors[role];
+    } else {
+      const hue = chroma(currentColors[role]).oklch()[2] || 0;
+      adapted[role] = chroma.oklch(target.l, target.c, hue).hex();
+    }
+  }
+
+  // Contrast nudge primary and accent against background
+  adapted.primary = nudgeForContrastOklch(adapted.primary, adapted.background, 3);
+  adapted.accent = nudgeForContrastOklch(adapted.accent, adapted.background, 3);
+  adapted.text = nudgeForContrastOklch(adapted.text, adapted.background, 7);
+
+  // Derive border, muted, and on-colors
+  adapted.border = lockedColors.has("border")
+    ? currentColors.border
+    : chroma.mix(adapted.text, adapted.background, 0.82, "rgb").hex();
+  adapted.muted = lockedColors.has("muted")
+    ? currentColors.muted
+    : chroma.mix(adapted.text, adapted.background, 0.55, "rgb").hex();
+
+  adapted.onPrimary = pickOnColor(adapted.primary);
+  adapted.onSecondary = pickOnColor(adapted.secondary);
+  adapted.onAccent = pickOnColor(adapted.accent);
+
+  return adapted;
+}
