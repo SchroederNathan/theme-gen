@@ -6,28 +6,19 @@ import {
   generateColorPalette,
   getContrastRatio,
   getTextColor,
-  hexToRgb,
   pickOnColor,
-  rgbToHsl,
 } from "@/lib/colorUtils";
-import { themes } from "@/lib/themes";
-import {
-  Check,
-  Copy,
-  Download,
-  Lock,
-  Moon,
-  Redo2,
-  Shuffle,
-  Sparkles,
-  Sun,
-  Undo2,
-  Unlock,
-  X,
-} from "lucide-react";
+import { Lock, Unlock, Check, X } from "lucide-react";
 import chroma from "chroma-js";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ColorPicker, ColorPickerVariant } from "./ColorPicker";
+import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
+import { ExportModal } from "./ExportModal";
+import { ColorPickerPopover } from "./ColorPickerPopover";
+import { ToolbarButtons } from "./ToolbarButtons";
+import {
+  colorPickerReducer,
+  initialColorPickerState,
+} from "./theme-customizer-reducers";
+import { ColorButtonData } from "./theme-customizer-types";
 
 interface ColorButtonProps {
   color: string;
@@ -118,37 +109,81 @@ function ColorButton({
   );
 }
 
+const contrastAuditDefinitions = [
+  {
+    id: "text/background",
+    label: "Text on Background",
+    foreground: "text",
+    background: "background",
+    min: 7,
+    required: true,
+  },
+  {
+    id: "primary/background",
+    label: "Primary on Background",
+    foreground: "primary",
+    background: "background",
+    min: 3,
+    required: true,
+  },
+  {
+    id: "text/secondary",
+    label: "Text on Secondary",
+    foreground: "text",
+    background: "secondary",
+    min: 4.5,
+    required: true,
+  },
+  {
+    id: "accent/secondary",
+    label: "Accent on Secondary",
+    foreground: "accent",
+    background: "secondary",
+    min: 3,
+    required: true,
+  },
+  {
+    id: "accent/background",
+    label: "Accent on Background",
+    foreground: "accent",
+    background: "background",
+    min: 3,
+    required: true,
+  },
+] as const;
+
+function getContrastAudit(palette: Record<string, string>) {
+  return contrastAuditDefinitions.map((definition) => {
+    const ratio = getContrastRatio(
+      palette[definition.foreground],
+      palette[definition.background],
+    );
+    return {
+      ...definition,
+      ratio,
+      pass: ratio >= definition.min,
+    };
+  });
+}
+
+function isPaletteAccessible(palette: Record<string, string>) {
+  return getContrastAudit(palette)
+    .filter((item) => item.required)
+    .every((item) => item.pass);
+}
+
 export function ThemeCustomizer() {
   const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [activeButton, setActiveButton] = useState<HTMLButtonElement | null>(
-    null,
-  );
-  const [popoverLeft, setPopoverLeft] = useState<number>(0);
+
+  const [colorPickerState, dispatchColorPicker] = useReducer(colorPickerReducer, initialColorPickerState);
+
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
+  const [isCompact, setIsCompact] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [isCompact, setIsCompact] = useState(false);
   const horizontalWidthRef = useRef(0);
-  const [showRandomizeTooltip, setShowRandomizeTooltip] = useState(false);
-  const [showThemeTooltip, setShowThemeTooltip] = useState(false);
-  const [showDownloadTooltip, setShowDownloadTooltip] = useState(false);
-
-  // Export modal state
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [exportFormat, setExportFormat] = useState<"css" | "tailwind" | "scss">(
-    "css",
-  );
-  const [tailwindVersion, setTailwindVersion] = useState<"3" | "4">("4");
-  const [exportMode, setExportMode] = useState<"light" | "dark" | "both">(
-    "both",
-  );
-  const [colorFormat, setColorFormat] = useState<"hex" | "rgb" | "hsl">("hex");
-  const [copied, setCopied] = useState(false);
-  const [isModalClosing, setIsModalClosing] = useState(false);
-  const [isModalEntering, setIsModalEntering] = useState(false);
 
   const handleColorClick = (
     color: string,
@@ -158,29 +193,28 @@ export function ThemeCustomizer() {
     if (lockedColors.has(property)) return;
 
     const isSameButton =
-      isOpen && selectedProperty === property && activeButton === button;
+      colorPickerState.isOpen && colorPickerState.selectedProperty === property && colorPickerState.activeButton === button;
 
     if (isSameButton) {
-      setIsOpen(false);
-      setSelectedColor(null);
-      setSelectedProperty(null);
-      setActiveButton(null);
+      dispatchColorPicker({ type: 'CLOSE_COLOR_PICKER' });
       return;
     }
 
     pushHistory();
-    setSelectedColor(color);
-    setSelectedProperty(property);
-    setActiveButton(button);
-    setIsOpen(true);
+    dispatchColorPicker({
+      type: 'OPEN_COLOR_PICKER',
+      payload: { color, property, button }
+    });
   };
 
   const handleColorChange = (newColor: string) => {
-    if (!selectedProperty) return;
+    if (!colorPickerState.selectedProperty) return;
+
+    const selectedProperty = colorPickerState.selectedProperty;
 
     updateThemeProperty(["colors", selectedProperty], newColor);
+    dispatchColorPicker({ type: 'SET_COLOR', payload: newColor });
 
-    // Re-derive border and muted from text + background
     const currentText =
       selectedProperty === "text" ? newColor : theme.colors.text;
     const currentBg =
@@ -195,7 +229,6 @@ export function ThemeCustomizer() {
       updateThemeProperty(["colors", "muted"], newMuted);
     }
 
-    // Re-derive on-color for the changed property
     const onColorMap: Record<string, string> = {
       primary: "onPrimary",
       secondary: "onSecondary",
@@ -219,69 +252,6 @@ export function ThemeCustomizer() {
       }
       return newSet;
     });
-  };
-
-  const contrastAuditDefinitions = [
-    {
-      id: "text/background",
-      label: "Text on Background",
-      foreground: "text",
-      background: "background",
-      min: 7,
-      required: true,
-    },
-    {
-      id: "primary/background",
-      label: "Primary on Background",
-      foreground: "primary",
-      background: "background",
-      min: 3,
-      required: true,
-    },
-    {
-      id: "text/secondary",
-      label: "Text on Secondary",
-      foreground: "text",
-      background: "secondary",
-      min: 4.5,
-      required: true,
-    },
-    {
-      id: "accent/secondary",
-      label: "Accent on Secondary",
-      foreground: "accent",
-      background: "secondary",
-      min: 3,
-      required: true,
-    },
-    {
-      id: "accent/background",
-      label: "Accent on Background",
-      foreground: "accent",
-      background: "background",
-      min: 3,
-      required: true,
-    },
-  ] as const;
-
-  const getContrastAudit = (palette: Record<string, string>) => {
-    return contrastAuditDefinitions.map((definition) => {
-      const ratio = getContrastRatio(
-        palette[definition.foreground],
-        palette[definition.background],
-      );
-      return {
-        ...definition,
-        ratio,
-        pass: ratio >= definition.min,
-      };
-    });
-  };
-
-  const isPaletteAccessible = (palette: Record<string, string>) => {
-    return getContrastAudit(palette)
-      .filter((item) => item.required)
-      .every((item) => item.pass);
   };
 
   const smartShuffle = () => {
@@ -336,8 +306,8 @@ export function ThemeCustomizer() {
 
   // Center the popover above the button
   useLayoutEffect(() => {
-    if (isOpen && activeButton && popoverRef.current) {
-      const buttonRect = activeButton.getBoundingClientRect();
+    if (colorPickerState.isOpen && colorPickerState.activeButton && popoverRef.current) {
+      const buttonRect = colorPickerState.activeButton.getBoundingClientRect();
       const popoverRect = popoverRef.current.getBoundingClientRect();
       const containerRect = containerRef.current?.getBoundingClientRect();
       const left =
@@ -345,9 +315,9 @@ export function ThemeCustomizer() {
         (containerRect?.left || 0) +
         buttonRect.width / 2 -
         popoverRect.width / 2;
-      setPopoverLeft(left);
+      dispatchColorPicker({ type: 'SET_POPOVER_POSITION', payload: left });
     }
-  }, [isOpen, activeButton]);
+  }, [colorPickerState.isOpen, colorPickerState.activeButton]);
 
   // Detect toolbar overflow and toggle compact mode
   useLayoutEffect(() => {
@@ -388,7 +358,7 @@ export function ThemeCustomizer() {
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        dispatchColorPicker({ type: 'CLOSE_COLOR_PICKER' });
       }
     };
 
@@ -396,69 +366,45 @@ export function ThemeCustomizer() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close export modal on outside click
-  useEffect(() => {
-    if (!showExportModal) return;
-    const handleClick = (e: MouseEvent) => {
-      if (!(e.target instanceof Node)) return;
-      if ((e.target as HTMLElement).closest(".bg-white.rounded-lg.shadow-xl"))
-        return;
-      handleCloseModal();
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [showExportModal]);
-
-  // Trigger enter animation when modal opens
-  useEffect(() => {
-    if (showExportModal && !isModalClosing) {
-      setIsModalEntering(false);
-      const timer = setTimeout(() => {
-        setIsModalEntering(true);
-      }, 10);
-      return () => clearTimeout(timer);
-    }
-  }, [showExportModal, isModalClosing]);
-
-  const colorButtons = [
+  const colorButtons: ColorButtonData[] = [
     {
       color: theme.colors.text,
       label: "Text",
       property: "text",
-      fg: "text" as const,
-      bg: "background" as const,
+      fg: "text",
+      bg: "background",
       target: 7,
     },
     {
       color: theme.colors.background,
       label: "Background",
       property: "background",
-      fg: "text" as const,
-      bg: "background" as const,
+      fg: "text",
+      bg: "background",
       target: 7,
     },
     {
       color: theme.colors.primary,
       label: "Primary",
       property: "primary",
-      fg: "primary" as const,
-      bg: "background" as const,
+      fg: "primary",
+      bg: "background",
       target: 3,
     },
     {
       color: theme.colors.secondary,
       label: "Secondary",
       property: "secondary",
-      fg: "text" as const,
-      bg: "secondary" as const,
+      fg: "text",
+      bg: "secondary",
       target: 4.5,
     },
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
-      fg: "accent" as const,
-      bg: "secondary" as const,
+      fg: "accent",
+      bg: "secondary",
       target: 3,
     },
   ];
@@ -483,301 +429,9 @@ export function ThemeCustomizer() {
     (item) => item.pass,
   ).length;
 
-  const handleExportClick = () => {
-    if (showExportModal) {
-      handleCloseModal();
-    } else {
-      setShowExportModal(true);
-      setIsModalClosing(false);
-      setIsModalEntering(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalClosing(true);
-    setIsModalEntering(false);
-    setTimeout(() => {
-      setShowExportModal(false);
-      setIsModalClosing(false);
-    }, 200);
-  };
-
-  const formatColor = (
-    hexColor: string,
-    format: "hex" | "rgb" | "hsl",
-  ): string => {
-    switch (format) {
-      case "hex":
-        return hexColor;
-      case "rgb":
-        const rgb = hexToRgb(hexColor);
-        return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-      case "hsl":
-        const hsl = rgbToHsl(hexToRgb(hexColor));
-        return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
-      default:
-        return hexColor;
-    }
-  };
-
-  const getColorsForMode = (mode: "light" | "dark"): Record<string, string> => {
-    if (mode === themeName) return theme.colors as Record<string, string>;
-    const saved = JSON.parse(localStorage.getItem("customThemes") || "{}");
-    if (saved[mode]) return saved[mode].colors;
-    return themes[mode].colors as Record<string, string>;
-  };
-
-  const fmt = (colors: Record<string, string>) => {
-    const out: Record<string, string> = {};
-    Object.entries(colors).forEach(([key, value]) => {
-      out[key] = formatColor(value, colorFormat);
-    });
-    return out;
-  };
-
-  const generateExportCode = () => {
-    const light = fmt(getColorsForMode("light"));
-    const dark = fmt(getColorsForMode("dark"));
-
-    const cssVars = (colors: Record<string, string>, indent = "  ") =>
-      Object.entries(colors)
-        .map(([k, v]) => `${indent}--color-${k}: ${v};`)
-        .join("\n");
-
-    const twObj = (colors: Record<string, string>, indent: string) =>
-      Object.entries(colors)
-        .map(([k, v]) => `${indent}${k}: '${v}',`)
-        .join("\n");
-
-    const scssVars = (colors: Record<string, string>, prefix: string) =>
-      Object.entries(colors)
-        .map(([k, v]) => `$${prefix}${k}: ${v};`)
-        .join("\n");
-
-    const scssMap = (colors: Record<string, string>, indent = "  ") =>
-      Object.entries(colors)
-        .map(([k, v]) => `${indent}"${k}": ${v},`)
-        .join("\n");
-
-    switch (exportFormat) {
-      case "css": {
-        if (exportMode === "light") {
-          return `:root {\n${cssVars(light)}\n}`;
-        }
-        if (exportMode === "dark") {
-          return `:root {\n${cssVars(dark)}\n}`;
-        }
-        return `:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n${cssVars(dark, "    ")}\n  }\n}`;
-      }
-
-      case "tailwind": {
-        if (tailwindVersion === "3") {
-          if (exportMode === "light") {
-            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, "        ")}\n      }\n    }\n  }\n}`;
-          }
-          if (exportMode === "dark") {
-            return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${twObj(dark, "        ")}\n      }\n    }\n  }\n}`;
-          }
-          return `// tailwind.config.js\nmodule.exports = {\n  darkMode: 'class',\n  theme: {\n    extend: {\n      colors: {\n${twObj(light, "        ")}\n      }\n    }\n  }\n}\n\n/* Add to your global CSS: */\n:root {\n${cssVars(light)}\n}\n\n.dark {\n${cssVars(dark)}\n}`;
-        }
-        if (exportMode === "light") {
-          return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}`;
-        }
-        if (exportMode === "dark") {
-          return `@import "tailwindcss";\n\n@theme {\n${cssVars(dark)}\n}`;
-        }
-        return `@import "tailwindcss";\n\n@theme {\n${cssVars(light)}\n}\n\n@variant dark {\n  @theme {\n${cssVars(dark, "    ")}\n  }\n}`;
-      }
-
-      case "scss": {
-        if (exportMode === "light") {
-          return `${scssVars(light, "color-")}\n\n$colors: (\n${scssMap(light)}\n);`;
-        }
-        if (exportMode === "dark") {
-          return `${scssVars(dark, "color-")}\n\n$colors: (\n${scssMap(dark)}\n);`;
-        }
-        return `// Light theme\n${scssVars(light, "light-")}\n\n$light-colors: (\n${scssMap(light)}\n);\n\n// Dark theme\n${scssVars(dark, "dark-")}\n\n$dark-colors: (\n${scssMap(dark)}\n);`;
-      }
-
-      default:
-        return "";
-    }
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(generateExportCode());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
-  };
-
   return (
     <>
-      {/* Export Modal */}
-      {showExportModal && (
-        <div
-          className="relative z-10"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-        >
-          <div
-            className={`fixed inset-0 bg-gray-500/75 transition-opacity duration-300 ease-out ${
-              isModalClosing
-                ? "opacity-0 ease-in duration-200"
-                : isModalEntering
-                  ? "opacity-100"
-                  : "opacity-0"
-            }`}
-            aria-hidden="true"
-          ></div>
-
-          <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              <div
-                className={`relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out max-w-2xl w-full mx-4 max-h-[80vh] ${
-                  isModalClosing
-                    ? "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 ease-in duration-200"
-                    : isModalEntering
-                      ? "opacity-100 translate-y-0 sm:scale-100"
-                      : "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                }`}
-              >
-                <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-                  <h2
-                    id="modal-title"
-                    className="text-lg font-semibold text-neutral-900"
-                  >
-                    Export Theme
-                  </h2>
-                  <button
-                    onClick={handleCloseModal}
-                    className="p-1 rounded-md hover:bg-neutral-100 transition-colors"
-                  >
-                    <X size={20} className="text-neutral-500" />
-                  </button>
-                </div>
-
-                <div className="p-6">
-                  <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
-                    {(["css", "tailwind", "scss"] as const).map((format) => (
-                      <button
-                        key={format}
-                        onClick={() => setExportFormat(format)}
-                        className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                          exportFormat === format
-                            ? "bg-white text-neutral-900 shadow-sm"
-                            : "text-neutral-600 hover:text-neutral-900"
-                        }`}
-                      >
-                        {format === "css"
-                          ? "CSS"
-                          : format === "tailwind"
-                            ? "TailwindCSS"
-                            : "SCSS"}
-                      </button>
-                    ))}
-                  </div>
-
-                  {exportFormat === "tailwind" && (
-                    <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-4 w-fit">
-                      {(["4", "3"] as const).map((ver) => (
-                        <button
-                          key={ver}
-                          onClick={() => setTailwindVersion(ver)}
-                          className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
-                            tailwindVersion === ver
-                              ? "bg-white text-neutral-900 shadow-sm"
-                              : "text-neutral-600 hover:text-neutral-900"
-                          }`}
-                        >
-                          {ver === "4" ? "v4.2" : "v3.4"}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center space-x-4 mb-4">
-                    <span className="text-sm font-medium text-neutral-700">
-                      Mode:
-                    </span>
-                    {(["light", "dark", "both"] as const).map((mode) => (
-                      <label
-                        key={mode}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="exportMode"
-                          value={mode}
-                          checked={exportMode === mode}
-                          onChange={(e) =>
-                            setExportMode(
-                              e.target.value as "light" | "dark" | "both",
-                            )
-                          }
-                          className="text-primary focus:ring-primary"
-                        />
-                        <span className="text-sm text-neutral-700 capitalize">
-                          {mode}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="flex space-x-4 mb-6">
-                    <span className="text-sm font-medium text-neutral-700">
-                      Color Format:
-                    </span>
-                    {(["hex", "rgb", "hsl"] as const).map((format) => (
-                      <label
-                        key={format}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="colorFormat"
-                          value={format}
-                          checked={colorFormat === format}
-                          onChange={(e) =>
-                            setColorFormat(
-                              e.target.value as "hex" | "rgb" | "hsl",
-                            )
-                          }
-                          className="text-primary focus:ring-primary"
-                        />
-                        <span className="text-sm text-neutral-700 uppercase">
-                          {format}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="relative">
-                    <pre className="bg-neutral-900 text-neutral-100 p-4 rounded-lg overflow-auto max-h-96 text-sm text-left">
-                      <code>{generateExportCode()}</code>
-                    </pre>
-                    <button
-                      onClick={copyToClipboard}
-                      className="absolute top-3 right-3 p-2 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-colors"
-                      title="Copy to clipboard"
-                    >
-                      {copied ? (
-                        <Check size={16} className="text-green-400" />
-                      ) : (
-                        <Copy size={16} className="text-neutral-300" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
 
       <div
         ref={containerRef}
@@ -817,194 +471,33 @@ export function ThemeCustomizer() {
               />
             ))}
           </div>
-          <div
-            className={`flex flex-row gap-1 items-center justify-center ${
-              isCompact ? "h-12" : "h-full"
-            }`}
-          >
-            <button
-              onClick={undo}
-              disabled={!canUndo}
-              className={`p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center ${!canUndo ? "opacity-30 pointer-events-none" : ""}`}
-              title="Undo (Ctrl+Z)"
-            >
-              <Undo2 size={16} className="text-neutral-800" />
-            </button>
-            <button
-              onClick={redo}
-              disabled={!canRedo}
-              className={`p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center ${!canRedo ? "opacity-30 pointer-events-none" : ""}`}
-              title="Redo (Ctrl+Shift+Z)"
-            >
-              <Redo2 size={16} className="text-neutral-800" />
-            </button>
-            <div className="relative flex items-center h-full">
-              <button
-                onClick={smartShuffle}
-                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
-                onMouseEnter={() => setShowRandomizeTooltip(true)}
-                onMouseLeave={() => setShowRandomizeTooltip(false)}
-              >
-                <Shuffle size={16} className="text-neutral-800" />
-              </button>
-              {showRandomizeTooltip && (
-                <div
-                  role="tooltip"
-                  className="absolute bottom-4 z-100 inline-block px-3 py-2 text-sm font-medium text-neutral-800 border border-neutral-200 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg tooltip min-w-[144px] text-center"
-                  style={{
-                    bottom: "100%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <div className="flex items-center justify-center gap-2 font-semibold">
-                    Smart Shuffle
-                    <Sparkles size={16} className="text-neutral-800" />
-                  </div>
-                  <p className="mt-1 text-[11px] text-neutral-600">
-                    Accessibility checks: {requiredContrastPassCount}/
-                    {requiredContrastAudit.length} passing
-                  </p>
-                  <ul className="mt-2 space-y-1 text-left text-[11px] max-h-44 overflow-auto pr-1">
-                    {currentContrastAudit.map((item) => (
-                      <li
-                        key={item.id}
-                        className="flex items-start justify-between gap-2"
-                      >
-                        <span
-                          className={
-                            item.pass ? "text-emerald-700" : "text-red-700"
-                          }
-                        >
-                          {item.label}
-                        </span>
-                        <span className="font-semibold text-neutral-800">
-                          {item.ratio}:1
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="absolute -bottom-1 -z-10 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-                </div>
-              )}
-            </div>
-            <div className="relative h-full">
-              <button
-                onClick={toggleTheme}
-                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
-                onMouseEnter={() => setShowThemeTooltip(true)}
-                onMouseLeave={() => setShowThemeTooltip(false)}
-              >
-                {themeName === "light" ? (
-                  <Moon size={16} className="text-neutral-800" />
-                ) : (
-                  <Sun size={16} className="text-neutral-800" />
-                )}
-              </button>
-              {showThemeTooltip && (
-                <div
-                  role="tooltip"
-                  className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
-                  style={{
-                    bottom: "99%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Toggle Theme
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-                </div>
-              )}
-            </div>
-            <div className="relative h-full">
-              <button
-                onClick={handleExportClick}
-                className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
-                onMouseEnter={() => setShowDownloadTooltip(true)}
-                onMouseLeave={() => setShowDownloadTooltip(false)}
-              >
-                <Download size={16} className="text-neutral-800" />
-              </button>
-              {showDownloadTooltip && (
-                <div
-                  role="tooltip"
-                  className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
-                  style={{
-                    bottom: "99%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Export Theme
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
-                </div>
-              )}
-            </div>
-          </div>
+
+          <ToolbarButtons
+            isCompact={isCompact}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            themeName={themeName}
+            currentContrastAudit={currentContrastAudit}
+            requiredContrastPassCount={requiredContrastPassCount}
+            requiredContrastAuditLength={requiredContrastAudit.length}
+            onUndo={undo}
+            onRedo={redo}
+            onSmartShuffle={smartShuffle}
+            onToggleTheme={toggleTheme}
+            onExportClick={() => setShowExportModal(!showExportModal)}
+          />
         </div>
 
-        {isOpen && selectedColor && activeButton && (
-          <div
-            ref={popoverRef}
-            className="absolute mb-4"
-            style={{
-              bottom: "100%",
-              left: popoverLeft,
-            }}
-          >
-            <div className="relative">
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rotate-45 size-4 bg-neutral-50 border-r border-b rounded-ee-xs border-neutral-200" />
-              {selectedProperty &&
-                (() => {
-                  const btn = colorButtons.find(
-                    (b) => b.property === selectedProperty,
-                  );
-                  if (!btn) return null;
-                  const ratio = ratioByProperty[selectedProperty];
-                  const passes = ratio >= btn.target;
-                  return (
-                    <div className="mb-2 w-64 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-neutral-800">
-                          Contrast Check
-                        </p>
-                        <p className="font-semibold">{ratio}:1</p>
-                      </div>
-                      <div className="mt-2 flex items-center gap-1.5">
-                        {passes ? (
-                          <Check
-                            size={11}
-                            strokeWidth={2.75}
-                            className="text-green-600"
-                          />
-                        ) : (
-                          <X
-                            size={11}
-                            strokeWidth={2.75}
-                            className="text-red-600"
-                          />
-                        )}
-                        <span>
-                          Target {btn.target}:1 — {passes ? "Pass" : "Fail"}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-[10px] text-neutral-500">
-                        {btn.fg} vs {btn.bg}
-                      </p>
-                    </div>
-                  );
-                })()}
-              <ColorPicker
-                color={selectedColor}
-                onChange={handleColorChange}
-                variant={ColorPickerVariant.Free}
-              />
-            </div>
-          </div>
-        )}
+        <ColorPickerPopover
+          ref={popoverRef}
+          isOpen={colorPickerState.isOpen}
+          selectedColor={colorPickerState.selectedColor}
+          selectedProperty={colorPickerState.selectedProperty}
+          colorButtons={colorButtons}
+          ratioByProperty={ratioByProperty}
+          popoverLeft={colorPickerState.popoverLeft}
+          onColorChange={handleColorChange}
+        />
       </div>
     </>
   );
