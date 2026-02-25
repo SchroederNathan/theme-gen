@@ -182,6 +182,45 @@ body {
   outline-color: var(--color-primary);
 }
 
+/* Color tooltip copied expand/collapse */
+@keyframes tooltip-expand {
+  from {
+    max-width: 0;
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-6px);
+  }
+  to {
+    max-width: 5rem;
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+}
+
+@keyframes tooltip-collapse {
+  from {
+    max-width: 5rem;
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+  to {
+    max-width: 0;
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-6px);
+  }
+}
+
+.color-tooltip-expand {
+  animation: tooltip-expand 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.color-tooltip-collapse {
+  animation: tooltip-collapse 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
 .ai-badge {
   position: relative;
   overflow: hidden;

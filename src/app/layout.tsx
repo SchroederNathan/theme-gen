@@ -1,3 +1,4 @@
+import { ColorTooltipProvider } from "@/components/ColorTooltip";
 import Footer from "@/components/Footer";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -95,9 +96,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <ThemeProvider>
-          {children}
+          <ColorTooltipProvider>
+            {children}
+            <Footer />
+          </ColorTooltipProvider>
           <ThemeCustomizer />
-          <Footer />
         </ThemeProvider>
         <Analytics />
 

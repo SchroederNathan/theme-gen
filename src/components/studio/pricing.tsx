@@ -38,7 +38,7 @@ function classNames(...classes: string[]) {
 
 export default function Pricing() {
   return (
-    <div className="relative isolate bg-background px-6 pt-24 sm:pt-32 pb-10 lg:px-8">
+    <div data-color="background" className="relative isolate bg-background px-6 pt-24 sm:pt-32 pb-10 lg:px-8">
       <div
         aria-hidden="true"
         className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
@@ -52,12 +52,12 @@ export default function Pricing() {
         />
       </div>
       <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-base/7 font-semibold text-primary">Pricing</h2>
-        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-text sm:text-6xl">
+        <h2 data-color="primary" className="text-base/7 font-semibold text-primary">Pricing</h2>
+        <p data-color="text" className="mt-2 text-5xl font-semibold tracking-tight text-balance text-text sm:text-6xl">
           Choose the right imaginary plan for you
         </p>
       </div>
-      <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-muted sm:text-xl/8">
+      <p data-color="muted" className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-muted sm:text-xl/8">
         Choose a plan packed with imaginary features for your fictional audience. 
         Perfect for pretend customers and non-existent sales.
       </p>
@@ -65,6 +65,7 @@ export default function Pricing() {
         {tiers.map((tier, tierIdx) => (
           <div
             key={tier.id}
+            data-color={tier.featured ? "secondary" : "background"}
             className={classNames(
               tier.featured
                 ? "relative bg-secondary shadow-2xl"
@@ -79,6 +80,7 @@ export default function Pricing() {
           >
             <h3
               id={tier.id}
+              data-color={tier.featured ? "accent" : "primary"}
               className={classNames(
                 tier.featured ? "text-accent" : "text-primary",
                 "text-base/7 font-semibold"
@@ -88,6 +90,7 @@ export default function Pricing() {
             </h3>
             <p className="mt-4 flex items-baseline gap-x-2">
               <span
+                data-color="text"
                 className={classNames(
                   tier.featured ? "text-text" : "text-text",
                   "text-5xl font-semibold tracking-tight"
@@ -105,6 +108,7 @@ export default function Pricing() {
               </span>
             </p>
             <p
+              data-color="muted"
               className={classNames(
                 tier.featured ? "text-muted" : "text-muted",
                 "mt-6 text-base/7"
@@ -114,6 +118,7 @@ export default function Pricing() {
             </p>
             <ul
               role="list"
+              data-color="muted"
               className={classNames(
                 tier.featured ? "text-muted" : "text-muted",
                 "mt-8 space-y-3 text-sm/6 sm:mt-10"
@@ -123,6 +128,7 @@ export default function Pricing() {
                 <li key={feature} className="flex gap-x-3">
                   <CheckIcon
                     aria-hidden="true"
+                    data-color={tier.featured ? "accent" : "primary"}
                     className={classNames(
                       tier.featured ? "text-accent" : "text-primary",
                       "h-6 w-5 flex-none"
@@ -135,6 +141,7 @@ export default function Pricing() {
             <button
               type="button"
               aria-describedby={tier.id}
+              data-color="primary"
               className={classNames(
                 tier.featured
                   ? "bg-primary text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"

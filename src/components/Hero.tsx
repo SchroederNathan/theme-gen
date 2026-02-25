@@ -19,13 +19,13 @@ const Hero = () => {
               />
               <div className="mt-24 sm:mt-32 lg:mt-16">
                 <span className="inline-flex space-x-6">
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm/6 font-semibold text-primary ring-1 ring-primary/10 ring-inset">
+                  <span data-color="primary" className="rounded-full bg-primary/10 px-3 py-1 text-sm/6 font-semibold text-primary ring-1 ring-primary/10 ring-inset">
                     🎉 Now with Tailwind V4 support!
                   </span>
                 </span>
               </div>
               <h1 className="mx-auto mt-10 max-w-4xl font-display text-5xl font-medium tracking-tight sm:text-7xl">
-                <span className="relative whitespace-nowrap text-primary">
+                <span data-color="primary" className="relative whitespace-nowrap text-primary">
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 418 42"
@@ -37,7 +37,7 @@ const Hero = () => {
                   <span className="relative">Theme Gen</span>
                 </span>
               </h1>
-              <p className="mt-8 text-lg font-medium text-pretty text-muted sm:text-xl/8">
+              <p data-color="muted" className="mt-8 text-lg font-medium text-pretty text-muted sm:text-xl/8">
                 Create and preview themes in real time. Export to CSS, Tailwind,
                 and more with just a click.
               </p>
@@ -47,6 +47,7 @@ const Hero = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track("buy_me_a_coffee_clicked", { location: "hero" })}
+                  data-color="primary"
                   className="rounded-md bg-primary flex items-center gap-2 px-3.5 py-2.5 text-sm font-semibold text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <Coffee aria-hidden="true" className="size-4" />
@@ -57,6 +58,7 @@ const Hero = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => track("github_clicked")}
+                  data-color="accent"
                   className="text-sm/6 font-semibold text-text flex items-center gap-2 bg-accent/20 px-3.5 py-2.5 rounded-md"
                 >
                   GitHub
@@ -82,7 +84,7 @@ const Hero = () => {
             aria-hidden="true"
           />
           <div className="shadow-lg md:rounded-3xl">
-            <div className="bg-primary [clip-path:inset(0)] md:[clip-path:inset(0_round_var(--radius-3xl))]">
+            <div data-color="primary" className="bg-primary [clip-path:inset(0)] md:[clip-path:inset(0_round_var(--radius-3xl))]">
               <div
                 className="absolute -inset-y-px left-1/2 -z-10 ml-10 w-[200%] skew-x-[-30deg] bg-primary/20 opacity-20 ring-1 ring-background ring-inset md:ml-20 lg:ml-36"
                 aria-hidden="true"

@@ -20,7 +20,7 @@ export default function Login() {
             height={100}
             className="mx-auto h-10 w-auto"
           />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-text">
+          <h2 data-color="text" className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-text">
             Super real login form
           </h2>
         </div>
@@ -30,6 +30,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="email"
+                data-color="text"
                 className="block text-sm/6 font-medium text-text"
               >
                 Email address
@@ -41,6 +42,7 @@ export default function Login() {
                   type="email"
                   required
                   autoComplete="email"
+                  data-color="secondary"
                   className="block w-full rounded-md bg-secondary px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-border placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
                 />
               </div>
@@ -50,14 +52,16 @@ export default function Login() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm/6 font-medium text-text"
+                  data-color="text"
+                className="block text-sm/6 font-medium text-text"
                 >
                   Password
                 </label>
                 <div className="text-sm">
                   <a
                     href="#"
-                    className="font-semibold text-primary hover:text-primary/90"
+                    data-color="primary"
+              className="font-semibold text-primary hover:text-primary/90"
                   > 
                     Forgot Password?
                   </a>
@@ -70,6 +74,7 @@ export default function Login() {
                   type="password"
                   required
                   autoComplete="current-password"
+                  data-color="secondary"
                   className="block w-full rounded-md bg-secondary px-3 py-1.5 text-base text-text outline-1 -outline-offset-1 outline-border placeholder:text-muted focus:outline-2 focus:-outline-offset-2 focus:outline-primary sm:text-sm/6"
                 />
               </div>
@@ -78,6 +83,7 @@ export default function Login() {
             <div>
               <button
                 type="submit"
+                data-color="primary"
                 className="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm/6 font-semibold text-onPrimary shadow-xs hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Sign in
@@ -85,10 +91,11 @@ export default function Login() {
             </div>
           </form>
 
-          <p className="mt-10 text-center text-sm/6 text-muted">
+          <p data-color="muted" className="mt-10 text-center text-sm/6 text-muted">
             Not a member?{" "}
             <a
               href="#"
+              data-color="primary"
               className="font-semibold text-primary hover:text-primary/90"
             >
               Start a 14 day free trial

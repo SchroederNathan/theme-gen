@@ -9,12 +9,12 @@ const people = [
   export default function Checklist() {
     return (
       <fieldset>
-        <legend className="text-base font-semibold text-text px-4">Color suspects</legend>
-        <div className="mt-4 divide-y divide-border border-t border-b border-border">
+        <legend data-color="text" className="text-base font-semibold text-text px-4">Color suspects</legend>
+        <div data-color="border" className="mt-4 divide-y divide-border border-t border-b border-border">
           {people.map((person, personIdx) => (
             <div key={personIdx} className="relative flex gap-3 py-4">
               <div className="min-w-0 flex-1 text-sm/6">
-                <label htmlFor={`person-${person.id}`} className="font-medium px-4 text-text select-none">
+                <label htmlFor={`person-${person.id}`} data-color="text" className="font-medium px-4 text-text select-none">
                   {person.name}
                 </label>
               </div>
@@ -25,6 +25,7 @@ const people = [
                     id={`person-${person.id}`}
                     name={`person-${person.id}`}
                     type="checkbox"
+                    data-color="secondary"
                     className="col-start-1 row-start-1 appearance-none rounded-sm border border-border bg-secondary checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:border-border disabled:bg-background disabled:checked:bg-background forced-colors:appearance-auto"
                   />
                   <svg
