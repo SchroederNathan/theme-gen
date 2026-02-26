@@ -1,6 +1,6 @@
 import Bento from "../components/Bento";
 import Hero from "../components/Hero";
-import PreviewHero from "@/components/studio/hero";
+import PreviewToggle from "@/components/studio/PreviewToggle";
 import Pricing from "@/components/studio/pricing";
 
 export default function Home() {
@@ -32,7 +32,7 @@ export default function Home() {
       <Hero />
       <Bento />
       <main className="relative">
-        <PreviewHero />
+        <PreviewToggle />
         <Pricing />
       </main>
     </div>
