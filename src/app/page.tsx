@@ -26,15 +26,24 @@ function PageContent() {
           </main>
         </>
       ) : (
-        <div className="pt-20">
-          <div data-color="background" className="overflow-hidden bg-background py-16">
+        <div className="relative pt-20 min-h-screen">
+          {/* Background gradient accent */}
+          <div
+            className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full blur-[120px] opacity-15 -translate-x-1/3 -translate-y-1/4 pointer-events-none"
+            style={{ background: `linear-gradient(135deg, var(--color-primary), var(--color-accent))` }}
+            aria-hidden="true"
+          />
+          <div className="relative overflow-hidden bg-background py-20 sm:py-28">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
-              <div className="mx-auto max-w-2xl text-center mb-12">
-                <h2 data-color="text" className="text-4xl font-semibold tracking-tight text-text sm:text-5xl">
+              <div className="mx-auto max-w-2xl text-center mb-16 sm:mb-20">
+                <p data-color="primary" className="text-sm font-semibold text-primary mb-3 uppercase tracking-wider">
                   Mobile Preview
+                </p>
+                <h2 data-color="text" className="text-4xl font-semibold tracking-tight text-pretty text-text sm:text-5xl">
+                  Your Theme, Pocket&nbsp;Sized
                 </h2>
-                <p data-color="muted" className="mt-4 text-lg text-muted">
-                  See how your theme looks on mobile — because if it looks bad on a phone, it looks bad everywhere.
+                <p data-color="muted" className="mt-4 text-lg text-muted text-pretty">
+                  Preview how your palette translates to native mobile patterns — feeds, settings, navigation and&nbsp;more.
                 </p>
               </div>
               <MobilePreview />
