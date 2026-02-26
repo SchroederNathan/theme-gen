@@ -27,7 +27,7 @@ function PageContent() {
         </>
       ) : (
         <div className="pt-20">
-          <div className="overflow-hidden bg-background py-20 sm:py-28">
+          <div className="overflow-hidden bg-background py-16 sm:py-20">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center mb-16 sm:mb-20">
                 <p data-color="primary" className="text-sm font-semibold text-primary mb-3 uppercase tracking-wider">
@@ -37,7 +37,7 @@ function PageContent() {
                   Your Theme, Pocket&nbsp;Sized
                 </h2>
                 <p data-color="muted" className="mt-4 text-lg text-muted text-pretty">
-                  Preview how your palette translates to native mobile patterns — feeds, settings, navigation and&nbsp;more.
+                  See how your palette looks on real app patterns — portfolios, market&nbsp;data, and&nbsp;more.
                 </p>
               </div>
               <MobilePreview />
