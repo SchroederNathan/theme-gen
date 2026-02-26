@@ -58,16 +58,21 @@ function MobilePortfolioScreen() {
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
       {/* Full gradient top area */}
-      <div
-        className="relative flex-shrink-0"
-        style={{
-          background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
-        }}
-      >
+      <div className="relative flex-shrink-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
+            maskImage: "linear-gradient(to bottom, black 70%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 70%, transparent 100%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10">
         <StatusBar light />
 
         {/* Top bar */}
-        <div className="flex items-center justify-between px-5 pt-1 pb-3">
+        <div className="flex items-center justify-between px-5 pt-3 pb-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold"
             style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
@@ -111,7 +116,7 @@ function MobilePortfolioScreen() {
         </div>
 
         {/* Quick actions */}
-        <div className="flex items-center justify-around px-8 pb-5">
+        <div className="flex items-center justify-around px-8 pb-6">
           {[
             { icon: Plus, label: "Add money" },
             { icon: Send, label: "Move" },
@@ -129,6 +134,7 @@ function MobilePortfolioScreen() {
             </button>
           ))}
         </div>
+        </div>{/* close relative z-10 */}
       </div>
 
       {/* Transaction sheet */}
@@ -172,7 +178,7 @@ function MobilePortfolioScreen() {
 
       {/* Bottom nav */}
       <nav
-        className="flex items-center justify-around py-2.5 border-t"
+        className="flex items-center justify-around pt-2 pb-4 border-t"
         style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}
       >
         {[
@@ -210,20 +216,25 @@ function MobileMarketScreen() {
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
       {/* Gradient top */}
-      <div
-        className="relative flex-shrink-0"
-        style={{
-          background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
-        }}
-      >
+      <div className="relative flex-shrink-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
+            maskImage: "linear-gradient(to bottom, black 65%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 65%, transparent 100%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10">
         <StatusBar light />
-        <div className="px-5 pt-1 pb-5">
+        <div className="px-5 pt-3 pb-5">
           <h1 className="text-[17px] font-bold text-white">Markets</h1>
           <p className="text-[10px] text-white/50 mt-0.5">Live prices</p>
         </div>
 
         {/* Index cards on gradient */}
-        <div className="flex gap-2 px-5 pb-5">
+        <div className="flex gap-2 px-5 pb-6">
           {[
             { name: "S&P 500", value: "5,218", change: "+0.87%", up: true },
             { name: "NASDAQ", value: "16,340", change: "+1.14%", up: true },
@@ -254,6 +265,7 @@ function MobileMarketScreen() {
             </div>
           ))}
         </div>
+        </div>{/* close relative z-10 */}
       </div>
 
       {/* Watchlist sheet */}
@@ -301,7 +313,7 @@ function MobileMarketScreen() {
 
       {/* Bottom nav */}
       <nav
-        className="flex items-center justify-around py-2.5 border-t"
+        className="flex items-center justify-around pt-2 pb-4 border-t"
         style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}
       >
         {[
