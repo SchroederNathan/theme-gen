@@ -58,28 +58,32 @@ function MobilePortfolioScreen() {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      {/* Gradient header */}
-      <div
-        className="relative"
-        style={{
-          background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
-        }}
-      >
-        <StatusBar light />
-        <div className="px-4 pt-1 pb-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-white/60 font-medium">Total Balance</p>
-              <p className="text-2xl font-bold text-white mt-0.5">$48,291.57</p>
+      {/* Gradient header — fades into background */}
+      <div className="relative">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 50%, ${theme.colors.background} 100%)`,
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10">
+          <StatusBar light />
+          <div className="px-4 pt-1 pb-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-white/60 font-medium">Total Balance</p>
+                <p className="text-2xl font-bold text-white mt-0.5">$48,291.57</p>
+              </div>
+              <button aria-label="Notifications" className="relative">
+                <Bell size={18} className="text-white/80" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: theme.colors.error }} />
+              </button>
             </div>
-            <button aria-label="Notifications" className="relative">
-              <Bell size={18} className="text-white/80" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: theme.colors.error }} />
-            </button>
-          </div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <ArrowUpRight size={12} className="text-white/90" aria-hidden="true" />
-            <span className="text-[11px] text-white/90 font-medium">+$1,243.80 (2.64%) today</span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <ArrowUpRight size={12} className="text-white/90" aria-hidden="true" />
+              <span className="text-[11px] text-white/90 font-medium">+$1,243.80 (2.64%) today</span>
+            </div>
           </div>
         </div>
       </div>
@@ -185,16 +189,20 @@ function MobileMarketScreen() {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      {/* Gradient header */}
-      <div
-        className="relative"
-        style={{
-          background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
-        }}
-      >
-        <StatusBar light />
-        <div className="px-4 pt-1 pb-4">
-          <h1 className="text-lg font-bold text-white">Markets</h1>
+      {/* Gradient header — fades into background */}
+      <div className="relative">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 50%, ${theme.colors.background} 100%)`,
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10">
+          <StatusBar light />
+          <div className="px-4 pt-1 pb-4">
+            <h1 className="text-lg font-bold text-white">Markets</h1>
+          </div>
         </div>
       </div>
 

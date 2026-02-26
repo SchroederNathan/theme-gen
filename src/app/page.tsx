@@ -26,16 +26,8 @@ function PageContent() {
           </main>
         </>
       ) : (
-        <div className="relative pt-20 min-h-screen">
-          {/* Background gradient — fades from top-left into background */}
-          <div
-            className="absolute top-0 left-0 w-[800px] h-[800px] pointer-events-none -translate-x-1/4 -translate-y-1/4"
-            style={{
-              background: `radial-gradient(ellipse at top left, color-mix(in srgb, var(--color-primary) 15%, transparent), color-mix(in srgb, var(--color-accent) 8%, transparent) 40%, transparent 70%)`,
-            }}
-            aria-hidden="true"
-          />
-          <div className="relative overflow-hidden bg-background py-20 sm:py-28">
+        <div className="pt-20">
+          <div className="overflow-hidden bg-background py-20 sm:py-28">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center mb-16 sm:mb-20">
                 <p data-color="primary" className="text-sm font-semibold text-primary mb-3 uppercase tracking-wider">
