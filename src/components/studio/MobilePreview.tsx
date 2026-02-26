@@ -7,7 +7,6 @@ import {
   Signal,
   Search,
   Home,
-  Bell,
   User,
   TrendingUp,
   ArrowUpRight,
@@ -17,12 +16,13 @@ import {
   Send,
   Plus,
   MoreHorizontal,
+  BarChart3,
 } from "lucide-react";
 
 function StatusBar({ light }: { light?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between px-5 py-1.5 text-[10px] font-semibold relative z-10"
+      className="flex items-center justify-between px-6 pt-2 pb-1 text-[10px] font-semibold relative z-10"
       style={{ color: light ? "rgba(255,255,255,0.9)" : "var(--color-text)" }}
     >
       <span>9:41</span>
@@ -49,6 +49,157 @@ function MiniChart({ up, color }: { up: boolean; color: string }) {
 function MobilePortfolioScreen() {
   const { theme } = useTheme();
 
+  const transactions = [
+    { label: "AAPL · Buy", detail: "Today, 2:34 PM", amount: "-$189.84", positive: false },
+    { label: "Dividend · MSFT", detail: "Today, 9:00 AM", amount: "+$12.50", positive: true },
+    { label: "TSLA · Sell", detail: "Yesterday", amount: "+$248.42", positive: true },
+  ];
+
+  return (
+    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
+      {/* Full gradient top area */}
+      <div
+        className="relative flex-shrink-0"
+        style={{
+          background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
+        }}
+      >
+        <StatusBar light />
+
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-5 pt-1 pb-3">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold"
+            style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+          >
+            <User size={14} className="text-white" aria-hidden="true" />
+          </div>
+          <div
+            className="flex-1 mx-3 h-8 rounded-full flex items-center gap-2 px-3"
+            style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+          >
+            <Search size={12} className="text-white/60" aria-hidden="true" />
+            <span className="text-[10px] text-white/50">Search</span>
+          </div>
+          <button aria-label="Analytics">
+            <BarChart3 size={18} className="text-white/80" />
+          </button>
+        </div>
+
+        {/* Balance area */}
+        <div className="text-center px-5 pt-4 pb-6">
+          <p className="text-[10px] text-white/50 font-medium tracking-wide">Personal · All Accounts</p>
+          <p className="text-[32px] font-bold text-white mt-1" style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>
+            $48,291<span className="text-[20px] text-white/70">.57</span>
+          </p>
+          <div className="flex items-center justify-center gap-1.5 mt-1">
+            <ArrowUpRight size={12} className="text-white/80" aria-hidden="true" />
+            <span className="text-[10px] text-white/70 font-medium">+$1,243.80 (2.64%) today</span>
+          </div>
+          <button
+            className="mt-3 px-4 py-1.5 rounded-full text-[10px] font-semibold"
+            style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+          >
+            Accounts
+          </button>
+          {/* Dots */}
+          <div className="flex items-center justify-center gap-1 mt-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+          </div>
+        </div>
+
+        {/* Quick actions */}
+        <div className="flex items-center justify-around px-8 pb-5">
+          {[
+            { icon: Plus, label: "Add money" },
+            { icon: Send, label: "Move" },
+            { icon: CreditCard, label: "Details" },
+            { icon: MoreHorizontal, label: "More" },
+          ].map(({ icon: Icon, label }) => (
+            <button key={label} className="flex flex-col items-center gap-1.5" aria-label={label}>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+              >
+                <Icon size={16} className="text-white" aria-hidden="true" />
+              </div>
+              <span className="text-[8px] text-white/60 font-medium">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Transaction sheet */}
+      <div
+        className="flex-1 -mt-3 rounded-t-2xl overflow-hidden"
+        style={{ backgroundColor: theme.colors.background }}
+      >
+        <div className="pt-4 px-5">
+          {transactions.map((tx, i) => (
+            <article
+              key={i}
+              className="flex items-center gap-3 py-2.5"
+              style={{ borderBottom: i < transactions.length - 1 ? `1px solid ${theme.colors.border}` : undefined }}
+            >
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: theme.colors.secondary }}
+              >
+                <TrendingUp size={13} aria-hidden="true" style={{ color: theme.colors.primary }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold truncate" style={{ color: theme.colors.text }}>{tx.label}</p>
+                <p className="text-[9px]" style={{ color: theme.colors.muted }}>{tx.detail}</p>
+              </div>
+              <p
+                className="text-[11px] font-semibold flex-shrink-0"
+                style={{
+                  color: tx.positive ? theme.colors.success : theme.colors.text,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {tx.amount}
+              </p>
+            </article>
+          ))}
+          <button className="w-full text-center py-2.5">
+            <span className="text-[10px] font-semibold" style={{ color: theme.colors.primary }}>See all</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom nav */}
+      <nav
+        className="flex items-center justify-around py-2.5 border-t"
+        style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}
+      >
+        {[
+          { icon: Home, label: "Home", active: true },
+          { icon: PieChart, label: "Invest", active: false },
+          { icon: Send, label: "Payments", active: false },
+          { icon: CreditCard, label: "Cards", active: false },
+          { icon: User, label: "Profile", active: false },
+        ].map(({ icon: Icon, label, active }) => (
+          <button key={label} className="flex flex-col items-center gap-0.5" aria-label={label}>
+            <Icon size={16} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
+            <span
+              className={`text-[7px] ${active ? "font-semibold" : ""}`}
+              style={{ color: active ? theme.colors.primary : theme.colors.muted }}
+            >
+              {label}
+            </span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function MobileMarketScreen() {
+  const { theme } = useTheme();
+
   const holdings = [
     { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+2.34%", up: true },
     { symbol: "TSLA", name: "Tesla Inc.", price: "$248.42", change: "-1.12%", up: false },
@@ -58,79 +209,69 @@ function MobilePortfolioScreen() {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      {/* Gradient header — tall with smooth fade */}
-      <div className="relative" style={{ height: 140 }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(180deg, ${theme.colors.primary} 0%, ${theme.colors.accent}88 45%, ${theme.colors.background}00 100%)`,
-            maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
-          }}
-          aria-hidden="true"
-        />
-        {/* Overlay for content on gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(160deg, ${theme.colors.primary}dd 0%, ${theme.colors.accent}aa 50%, transparent 100%)`,
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10">
-          <StatusBar light />
-          <div className="px-4 pt-1 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] text-white/60 font-medium">Total Balance</p>
-                <p className="text-[22px] font-bold text-white mt-0.5" style={{ fontVariantNumeric: "tabular-nums" }}>$48,291.57</p>
-              </div>
-              <button aria-label="Notifications" className="relative">
-                <Bell size={18} className="text-white/80" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: theme.colors.error }} />
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <ArrowUpRight size={12} className="text-white/90" aria-hidden="true" />
-              <span className="text-[11px] text-white/90 font-medium">+$1,243.80 (2.64%) today</span>
-            </div>
-          </div>
+      {/* Gradient top */}
+      <div
+        className="relative flex-shrink-0"
+        style={{
+          background: `linear-gradient(160deg, ${theme.colors.primary} 0%, ${theme.colors.accent} 100%)`,
+        }}
+      >
+        <StatusBar light />
+        <div className="px-5 pt-1 pb-5">
+          <h1 className="text-[17px] font-bold text-white">Markets</h1>
+          <p className="text-[10px] text-white/50 mt-0.5">Live prices</p>
         </div>
-      </div>
 
-      {/* Quick actions */}
-      <div className="flex items-center justify-around px-4 py-3 border-b" style={{ borderColor: theme.colors.border }}>
-        {[
-          { icon: Plus, label: "Buy" },
-          { icon: Send, label: "Send" },
-          { icon: CreditCard, label: "Deposit" },
-          { icon: MoreHorizontal, label: "More" },
-        ].map(({ icon: Icon, label }) => (
-          <button key={label} className="flex flex-col items-center gap-1.5" aria-label={label}>
+        {/* Index cards on gradient */}
+        <div className="flex gap-2 px-5 pb-5">
+          {[
+            { name: "S&P 500", value: "5,218", change: "+0.87%", up: true },
+            { name: "NASDAQ", value: "16,340", change: "+1.14%", up: true },
+            { name: "DOW", value: "38,503", change: "-0.22%", up: false },
+          ].map((idx) => (
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: theme.colors.secondary }}
+              key={idx.name}
+              className="flex-1 p-2.5 rounded-xl min-w-0"
+              style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
             >
-              <Icon size={15} aria-hidden="true" style={{ color: theme.colors.primary }} />
+              <p className="text-[8px] font-medium truncate text-white/50">{idx.name}</p>
+              <p className="text-[11px] font-bold text-white mt-0.5" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {idx.value}
+              </p>
+              <div className="flex items-center gap-0.5 mt-0.5">
+                {idx.up ? (
+                  <ArrowUpRight size={8} className="text-green-300" aria-hidden="true" />
+                ) : (
+                  <ArrowDownRight size={8} className="text-red-300" aria-hidden="true" />
+                )}
+                <span
+                  className="text-[8px] font-semibold"
+                  style={{ color: idx.up ? "#86efac" : "#fca5a5", fontVariantNumeric: "tabular-nums" }}
+                >
+                  {idx.change}
+                </span>
+              </div>
             </div>
-            <span className="text-[9px] font-medium" style={{ color: theme.colors.muted }}>{label}</span>
-          </button>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Watchlist */}
-      <div className="flex-1 overflow-hidden">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          <p className="text-[11px] font-semibold" style={{ color: theme.colors.text }}>Watchlist</p>
+      {/* Watchlist sheet */}
+      <div
+        className="flex-1 -mt-3 rounded-t-2xl overflow-hidden"
+        style={{ backgroundColor: theme.colors.background }}
+      >
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <p className="text-[12px] font-bold" style={{ color: theme.colors.text }}>Watchlist</p>
           <button aria-label="Search stocks">
-            <Search size={13} aria-hidden="true" style={{ color: theme.colors.muted }} />
+            <Search size={14} aria-hidden="true" style={{ color: theme.colors.muted }} />
           </button>
         </div>
-        {holdings.map((stock) => (
+        {holdings.map((stock, i) => (
           <article
             key={stock.symbol}
-            className="flex items-center gap-2.5 px-4 py-2 border-b"
-            style={{ borderColor: theme.colors.border }}
+            className="flex items-center gap-2.5 px-5 py-2"
+            style={{ borderBottom: i < holdings.length - 1 ? `1px solid ${theme.colors.border}` : undefined }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -159,162 +300,21 @@ function MobilePortfolioScreen() {
       </div>
 
       {/* Bottom nav */}
-      <nav className="flex items-center justify-around py-2.5 border-t" style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}>
-        {[
-          { icon: Home, label: "Home", active: true },
-          { icon: PieChart, label: "Portfolio", active: false },
-          { icon: TrendingUp, label: "Markets", active: false },
-          { icon: User, label: "Account", active: false },
-        ].map(({ icon: Icon, label, active }) => (
-          <button key={label} className="flex flex-col items-center gap-0.5" aria-label={label}>
-            <Icon size={17} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
-            <span
-              className={`text-[8px] ${active ? "font-medium" : ""}`}
-              style={{ color: active ? theme.colors.primary : theme.colors.muted }}
-            >
-              {label}
-            </span>
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-}
-
-function MobileMarketScreen() {
-  const { theme } = useTheme();
-
-  const indices = [
-    { name: "S&P 500", value: "5,218.19", change: "+0.87%", up: true },
-    { name: "NASDAQ", value: "16,340.87", change: "+1.14%", up: true },
-    { name: "DOW", value: "38,503.69", change: "-0.22%", up: false },
-  ];
-
-  const movers = [
-    { symbol: "SMCI", change: "+12.4%", up: true },
-    { symbol: "AMD", change: "+5.8%", up: true },
-    { symbol: "RIVN", change: "-8.3%", up: false },
-    { symbol: "PLTR", change: "+3.2%", up: true },
-  ];
-
-  return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      {/* Gradient header — smooth fade */}
-      <div className="relative" style={{ height: 120 }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(160deg, ${theme.colors.primary}dd 0%, ${theme.colors.accent}aa 50%, transparent 100%)`,
-            maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10">
-          <StatusBar light />
-          <div className="px-4 pt-1 pb-4">
-            <h1 className="text-[17px] font-bold text-white">Markets</h1>
-          </div>
-        </div>
-      </div>
-
-      {/* Indices */}
-      <div className="flex gap-2 px-4 py-2.5 overflow-hidden">
-        {indices.map((idx) => (
-          <div
-            key={idx.name}
-            className="flex-1 p-2.5 rounded-xl min-w-0"
-            style={{ backgroundColor: theme.colors.secondary }}
-          >
-            <p className="text-[8px] font-medium truncate" style={{ color: theme.colors.muted }}>{idx.name}</p>
-            <p className="text-[10px] font-bold mt-0.5" style={{ color: theme.colors.text, fontVariantNumeric: "tabular-nums" }}>
-              {idx.value}
-            </p>
-            <div className="flex items-center gap-0.5 mt-0.5">
-              {idx.up ? (
-                <ArrowUpRight size={9} aria-hidden="true" style={{ color: theme.colors.success }} />
-              ) : (
-                <ArrowDownRight size={9} aria-hidden="true" style={{ color: theme.colors.error }} />
-              )}
-              <span
-                className="text-[8px] font-semibold"
-                style={{ color: idx.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
-              >
-                {idx.change}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Top movers */}
-      <div className="px-4 pt-2 pb-1.5">
-        <p className="text-[11px] font-semibold" style={{ color: theme.colors.text }}>Top Movers</p>
-      </div>
-      <div className="flex gap-2 px-4 pb-2.5 overflow-hidden">
-        {movers.map((m) => (
-          <div
-            key={m.symbol}
-            className="flex-1 py-2 px-1.5 rounded-lg text-center min-w-0"
-            style={{
-              backgroundColor: m.up ? theme.colors.success + "12" : theme.colors.error + "12",
-            }}
-          >
-            <p className="text-[9px] font-bold" style={{ color: theme.colors.text }}>{m.symbol}</p>
-            <p
-              className="text-[8px] font-semibold mt-0.5"
-              style={{ color: m.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
-            >
-              {m.change}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* News */}
-      <div className="flex-1 overflow-hidden border-t" style={{ borderColor: theme.colors.border }}>
-        <div className="px-4 pt-2.5 pb-1.5">
-          <p className="text-[11px] font-semibold" style={{ color: theme.colors.text }}>News</p>
-        </div>
-        {[
-          { title: "Fed Signals Potential Rate Cut in September Meeting", source: "Reuters", time: "32m" },
-          { title: "NVIDIA Surpasses $2T Market Cap on AI Demand", source: "Bloomberg", time: "1h" },
-          { title: "Tech Earnings Season Kicks Off Strong", source: "CNBC", time: "3h" },
-        ].map((news, i) => (
-          <article
-            key={i}
-            className="flex items-start gap-2.5 px-4 py-2 border-b"
-            style={{ borderColor: theme.colors.border }}
-          >
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-medium leading-snug line-clamp-2" style={{ color: theme.colors.text }}>
-                {news.title}
-              </p>
-              <p className="text-[8px] mt-0.5" style={{ color: theme.colors.muted }}>
-                {news.source} · {news.time}
-              </p>
-            </div>
-            <div
-              className="w-9 h-9 rounded-lg flex-shrink-0"
-              style={{ backgroundColor: theme.colors.secondary }}
-              aria-hidden="true"
-            />
-          </article>
-        ))}
-      </div>
-
-      {/* Bottom nav */}
-      <nav className="flex items-center justify-around py-2.5 border-t" style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}>
+      <nav
+        className="flex items-center justify-around py-2.5 border-t"
+        style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}
+      >
         {[
           { icon: Home, label: "Home", active: false },
-          { icon: PieChart, label: "Portfolio", active: false },
+          { icon: PieChart, label: "Invest", active: false },
           { icon: TrendingUp, label: "Markets", active: true },
-          { icon: User, label: "Account", active: false },
+          { icon: CreditCard, label: "Cards", active: false },
+          { icon: User, label: "Profile", active: false },
         ].map(({ icon: Icon, label, active }) => (
           <button key={label} className="flex flex-col items-center gap-0.5" aria-label={label}>
-            <Icon size={17} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
+            <Icon size={16} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
             <span
-              className={`text-[8px] ${active ? "font-medium" : ""}`}
+              className={`text-[7px] ${active ? "font-semibold" : ""}`}
               style={{ color: active ? theme.colors.primary : theme.colors.muted }}
             >
               {label}
