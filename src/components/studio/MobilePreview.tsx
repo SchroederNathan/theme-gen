@@ -9,14 +9,14 @@ import {
   Home,
   Bell,
   User,
-  Settings,
-  ChevronRight,
-  Heart,
-  MessageCircle,
-  Share2,
-  Star,
-  MapPin,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  CreditCard,
+  PieChart,
+  Send,
   Plus,
+  MoreHorizontal,
 } from "lucide-react";
 
 function StatusBar({ light }: { light?: boolean }) {
@@ -35,33 +35,30 @@ function StatusBar({ light }: { light?: boolean }) {
   );
 }
 
-function MobileHomeScreen() {
+function MiniChart({ up, color }: { up: boolean; color: string }) {
+  const d = up
+    ? "M0 14 L4 11 L8 12 L12 8 L16 9 L20 5 L24 3 L28 1"
+    : "M0 2 L4 4 L8 3 L12 7 L16 9 L20 11 L24 12 L28 14";
+  return (
+    <svg width={28} height={16} viewBox="0 0 28 16" fill="none" aria-hidden="true">
+      <path d={d} stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MobilePortfolioScreen() {
   const { theme } = useTheme();
 
-  const feedItems = [
-    {
-      user: "Sarah Chen",
-      handle: "@sarachen",
-      time: "2h",
-      text: "Just shipped the new dashboard redesign! The team really pulled through on this one 🚀",
-      likes: 42,
-      comments: 8,
-      avatar: "SC",
-    },
-    {
-      user: "Alex Rivera",
-      handle: "@alexr",
-      time: "5h",
-      text: "Hot take: dark mode should be the default for every app.",
-      likes: 128,
-      comments: 34,
-      avatar: "AR",
-    },
+  const holdings = [
+    { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+2.34%", up: true },
+    { symbol: "TSLA", name: "Tesla Inc.", price: "$248.42", change: "-1.12%", up: false },
+    { symbol: "NVDA", name: "NVIDIA Corp.", price: "$875.28", change: "+4.67%", up: true },
+    { symbol: "MSFT", name: "Microsoft", price: "$378.91", change: "+0.89%", up: true },
   ];
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      {/* Gradient header area */}
+      {/* Gradient header */}
       <div
         className="relative"
         style={{
@@ -69,91 +66,79 @@ function MobileHomeScreen() {
         }}
       >
         <StatusBar light />
-        <div className="flex items-center justify-between px-4 pt-1 pb-4">
-          <h1 className="text-lg font-bold text-white">Feed</h1>
-          <div className="flex items-center gap-3">
-            <button aria-label="Search">
-              <Search size={18} className="text-white/80" />
+        <div className="px-4 pt-1 pb-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] text-white/60 font-medium">Total Balance</p>
+              <p className="text-2xl font-bold text-white mt-0.5">$48,291.57</p>
+            </div>
+            <button aria-label="Notifications" className="relative">
+              <Bell size={18} className="text-white/80" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: theme.colors.error }} />
             </button>
-            <button aria-label="Notifications">
-              <div className="relative">
-                <Bell size={18} className="text-white/80" />
-                <span
-                  className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
-                  style={{ backgroundColor: theme.colors.error }}
-                />
-              </div>
-            </button>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1">
+            <ArrowUpRight size={12} className="text-white/90" aria-hidden="true" />
+            <span className="text-[11px] text-white/90 font-medium">+$1,243.80 (2.64%) today</span>
           </div>
         </div>
       </div>
 
-      {/* Stories row */}
-      <div className="flex gap-3 px-4 py-3 border-b overflow-hidden" style={{ borderColor: theme.colors.border }}>
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <div
-            className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-dashed"
-            style={{ borderColor: theme.colors.muted }}
-          >
-            <Plus size={14} aria-hidden="true" style={{ color: theme.colors.muted }} />
-          </div>
-          <span className="text-[9px]" style={{ color: theme.colors.muted }}>You</span>
-        </div>
-        {["JD", "MK", "TP", "LW"].map((initials, i) => (
-          <div key={initials} className="flex flex-col items-center gap-1 flex-shrink-0">
+      {/* Quick actions */}
+      <div className="flex items-center justify-around px-4 py-3 border-b" style={{ borderColor: theme.colors.border }}>
+        {[
+          { icon: Plus, label: "Buy" },
+          { icon: Send, label: "Send" },
+          { icon: CreditCard, label: "Deposit" },
+          { icon: MoreHorizontal, label: "More" },
+        ].map(({ icon: Icon, label }) => (
+          <button key={label} className="flex flex-col items-center gap-1.5" aria-label={label}>
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center text-[10px] font-bold"
-              style={{
-                backgroundColor: i % 2 === 0 ? theme.colors.primary : theme.colors.accent,
-                color: i % 2 === 0 ? theme.colors.onPrimary : theme.colors.onAccent,
-                boxShadow: `0 0 0 2px ${theme.colors.background}, 0 0 0 4px ${i % 2 === 0 ? theme.colors.primary : theme.colors.accent}`,
-              }}
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: theme.colors.secondary }}
             >
-              {initials}
+              <Icon size={16} aria-hidden="true" style={{ color: theme.colors.primary }} />
             </div>
-            <span className="text-[9px]" style={{ color: theme.colors.muted }}>Story</span>
-          </div>
+            <span className="text-[9px] font-medium" style={{ color: theme.colors.muted }}>{label}</span>
+          </button>
         ))}
       </div>
 
-      {/* Feed */}
+      {/* Watchlist */}
       <div className="flex-1 overflow-hidden">
-        {feedItems.map((item, i) => (
-          <article key={i} className="px-4 py-3 border-b" style={{ borderColor: theme.colors.border }}>
-            <div className="flex gap-2.5">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-                style={{
-                  backgroundColor: i === 0 ? theme.colors.primary : theme.colors.accent,
-                  color: i === 0 ? theme.colors.onPrimary : theme.colors.onAccent,
-                }}
+        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          <p className="text-xs font-semibold" style={{ color: theme.colors.text }}>Watchlist</p>
+          <button aria-label="Search stocks">
+            <Search size={14} aria-hidden="true" style={{ color: theme.colors.muted }} />
+          </button>
+        </div>
+        {holdings.map((stock) => (
+          <article
+            key={stock.symbol}
+            className="flex items-center gap-3 px-4 py-2.5 border-b"
+            style={{ borderColor: theme.colors.border }}
+          >
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+              style={{ backgroundColor: theme.colors.secondary, color: theme.colors.text }}
+            >
+              {stock.symbol.slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: theme.colors.text }}>{stock.symbol}</p>
+              <p className="text-[10px] truncate" style={{ color: theme.colors.muted }}>{stock.name}</p>
+            </div>
+            <MiniChart up={stock.up} color={stock.up ? theme.colors.success : theme.colors.error} />
+            <div className="text-right flex-shrink-0">
+              <p className="text-xs font-semibold" style={{ color: theme.colors.text, fontVariantNumeric: "tabular-nums" }}>
+                {stock.price}
+              </p>
+              <p
+                className="text-[10px] font-medium"
+                style={{ color: stock.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
               >
-                {item.avatar}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xs font-semibold truncate" style={{ color: theme.colors.text }}>
-                    {item.user}
-                  </span>
-                  <span className="text-[10px] flex-shrink-0" style={{ color: theme.colors.muted }}>
-                    {item.handle} · {item.time}
-                  </span>
-                </div>
-                <p className="text-[11px] mt-1 leading-relaxed" style={{ color: theme.colors.text }}>
-                  {item.text}
-                </p>
-                <div className="flex items-center gap-5 mt-2">
-                  <button className="flex items-center gap-1 text-[10px]" style={{ color: theme.colors.muted }} aria-label={`Like, ${item.likes} likes`}>
-                    <Heart size={12} aria-hidden="true" /> {item.likes}
-                  </button>
-                  <button className="flex items-center gap-1 text-[10px]" style={{ color: theme.colors.muted }} aria-label={`Comment, ${item.comments} comments`}>
-                    <MessageCircle size={12} aria-hidden="true" /> {item.comments}
-                  </button>
-                  <button className="flex items-center gap-1 text-[10px]" style={{ color: theme.colors.muted }} aria-label="Share">
-                    <Share2 size={12} aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+                {stock.change}
+              </p>
             </div>
           </article>
         ))}
@@ -163,9 +148,9 @@ function MobileHomeScreen() {
       <nav className="flex items-center justify-around py-2 border-t" style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}>
         {[
           { icon: Home, label: "Home", active: true },
-          { icon: Search, label: "Explore", active: false },
-          { icon: Bell, label: "Alerts", active: false },
-          { icon: User, label: "Profile", active: false },
+          { icon: PieChart, label: "Portfolio", active: false },
+          { icon: TrendingUp, label: "Markets", active: false },
+          { icon: User, label: "Account", active: false },
         ].map(({ icon: Icon, label, active }) => (
           <button key={label} className="flex flex-col items-center gap-0.5" aria-label={label}>
             <Icon size={18} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
@@ -182,29 +167,24 @@ function MobileHomeScreen() {
   );
 }
 
-function MobileSettingsScreen() {
+function MobileMarketScreen() {
   const { theme } = useTheme();
 
-  const settingsGroups = [
-    {
-      title: "Account",
-      items: [
-        { icon: User, label: "Profile", detail: "Sarah Chen" },
-        { icon: Bell, label: "Notifications", detail: "On" },
-        { icon: MapPin, label: "Location", detail: "Windsor, ON" },
-      ],
-    },
-    {
-      title: "Preferences",
-      items: [
-        { icon: Star, label: "Appearance", detail: "Auto" },
-        { icon: Settings, label: "Privacy", detail: "" },
-      ],
-    },
+  const indices = [
+    { name: "S&P 500", value: "5,218.19", change: "+0.87%", up: true },
+    { name: "NASDAQ", value: "16,340.87", change: "+1.14%", up: true },
+    { name: "DOW", value: "38,503.69", change: "-0.22%", up: false },
+  ];
+
+  const movers = [
+    { symbol: "SMCI", change: "+12.4%", up: true },
+    { symbol: "AMD", change: "+5.8%", up: true },
+    { symbol: "RIVN", change: "-8.3%", up: false },
+    { symbol: "PLTR", change: "+3.2%", up: true },
   ];
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.secondary, color: theme.colors.text }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
       {/* Gradient header */}
       <div
         className="relative"
@@ -213,80 +193,103 @@ function MobileSettingsScreen() {
         }}
       >
         <StatusBar light />
-        <div className="px-4 pt-1 pb-5">
-          <h1 className="text-lg font-bold text-white">Settings</h1>
+        <div className="px-4 pt-1 pb-4">
+          <h1 className="text-lg font-bold text-white">Markets</h1>
         </div>
       </div>
 
-      {/* Profile card — overlaps the gradient */}
-      <div
-        className="mx-4 -mt-2 p-3 rounded-xl flex items-center gap-3 shadow-sm relative z-10"
-        style={{ backgroundColor: theme.colors.background }}
-      >
-        <div
-          className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold"
-          style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
-        >
-          SC
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate" style={{ color: theme.colors.text }}>Sarah Chen</p>
-          <p className="text-[11px]" style={{ color: theme.colors.muted }}>Premium Member</p>
-        </div>
-        <ChevronRight size={16} aria-hidden="true" style={{ color: theme.colors.muted }} />
-      </div>
-
-      {/* Settings groups */}
-      <div className="flex-1 overflow-hidden mt-3">
-        {settingsGroups.map((group) => (
-          <div key={group.title} className="mt-2">
-            <p className="px-4 text-[10px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: theme.colors.muted }}>
-              {group.title}
+      {/* Indices */}
+      <div className="flex gap-2 px-4 py-3 overflow-hidden">
+        {indices.map((idx) => (
+          <div
+            key={idx.name}
+            className="flex-1 p-2.5 rounded-xl min-w-0"
+            style={{ backgroundColor: theme.colors.secondary }}
+          >
+            <p className="text-[9px] font-medium truncate" style={{ color: theme.colors.muted }}>{idx.name}</p>
+            <p className="text-[11px] font-bold mt-0.5" style={{ color: theme.colors.text, fontVariantNumeric: "tabular-nums" }}>
+              {idx.value}
             </p>
-            <div className="mx-4 rounded-xl overflow-hidden shadow-sm" style={{ backgroundColor: theme.colors.background }}>
-              {group.items.map((item, i) => (
-                <button
-                  key={item.label}
-                  className="flex items-center gap-3 px-3 py-2.5 w-full text-left"
-                  style={{
-                    borderTop: i > 0 ? `1px solid ${theme.colors.border}` : undefined,
-                  }}
-                  aria-label={`${item.label}${item.detail ? `, ${item.detail}` : ""}`}
-                >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: theme.colors.primary + "18" }}
-                  >
-                    <item.icon size={14} aria-hidden="true" style={{ color: theme.colors.primary }} />
-                  </div>
-                  <span className="flex-1 text-xs truncate" style={{ color: theme.colors.text }}>{item.label}</span>
-                  {item.detail && (
-                    <span className="text-[10px] flex-shrink-0" style={{ color: theme.colors.muted }}>{item.detail}</span>
-                  )}
-                  <ChevronRight size={14} aria-hidden="true" style={{ color: theme.colors.muted }} />
-                </button>
-              ))}
+            <div className="flex items-center gap-0.5 mt-0.5">
+              {idx.up ? (
+                <ArrowUpRight size={10} aria-hidden="true" style={{ color: theme.colors.success }} />
+              ) : (
+                <ArrowDownRight size={10} aria-hidden="true" style={{ color: theme.colors.error }} />
+              )}
+              <span
+                className="text-[9px] font-semibold"
+                style={{ color: idx.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
+              >
+                {idx.change}
+              </span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Sign out */}
-      <div className="px-4 pb-3">
-        <button
-          className="w-full py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-80"
-          style={{ backgroundColor: theme.colors.error + "15", color: theme.colors.error }}
-        >
-          Sign Out
-        </button>
+      {/* Top movers */}
+      <div className="px-4 pt-1 pb-2">
+        <p className="text-xs font-semibold" style={{ color: theme.colors.text }}>Top Movers</p>
+      </div>
+      <div className="flex gap-2 px-4 pb-3 overflow-hidden">
+        {movers.map((m) => (
+          <div
+            key={m.symbol}
+            className="flex-1 p-2 rounded-lg text-center min-w-0"
+            style={{
+              backgroundColor: m.up ? theme.colors.success + "12" : theme.colors.error + "12",
+            }}
+          >
+            <p className="text-[10px] font-bold" style={{ color: theme.colors.text }}>{m.symbol}</p>
+            <p
+              className="text-[9px] font-semibold mt-0.5"
+              style={{ color: m.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
+            >
+              {m.change}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* News */}
+      <div className="flex-1 overflow-hidden border-t" style={{ borderColor: theme.colors.border }}>
+        <div className="px-4 pt-3 pb-2">
+          <p className="text-xs font-semibold" style={{ color: theme.colors.text }}>News</p>
+        </div>
+        {[
+          { title: "Fed Signals Potential Rate Cut in September Meeting", source: "Reuters", time: "32m" },
+          { title: "NVIDIA Surpasses $2T Market Cap on AI Demand", source: "Bloomberg", time: "1h" },
+          { title: "Tech Earnings Season Kicks Off Strong", source: "CNBC", time: "3h" },
+        ].map((news, i) => (
+          <article
+            key={i}
+            className="flex items-start gap-3 px-4 py-2 border-b"
+            style={{ borderColor: theme.colors.border }}
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-medium leading-snug line-clamp-2" style={{ color: theme.colors.text }}>
+                {news.title}
+              </p>
+              <p className="text-[9px] mt-1" style={{ color: theme.colors.muted }}>
+                {news.source} · {news.time}
+              </p>
+            </div>
+            <div
+              className="w-10 h-10 rounded-lg flex-shrink-0"
+              style={{ backgroundColor: theme.colors.secondary }}
+              aria-hidden="true"
+            />
+          </article>
+        ))}
       </div>
 
       {/* Bottom nav */}
       <nav className="flex items-center justify-around py-2 border-t" style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.background }}>
         {[
           { icon: Home, label: "Home", active: false },
-          { icon: Search, label: "Explore", active: false },
-          { icon: Settings, label: "Settings", active: true },
+          { icon: PieChart, label: "Portfolio", active: false },
+          { icon: TrendingUp, label: "Markets", active: true },
+          { icon: User, label: "Account", active: false },
         ].map(({ icon: Icon, label, active }) => (
           <button key={label} className="flex flex-col items-center gap-0.5" aria-label={label}>
             <Icon size={18} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
@@ -308,11 +311,6 @@ function PhoneFrame({ children, label }: { children: React.ReactNode; label: str
     <div className="flex flex-col items-center">
       <p className="text-xs font-medium text-muted mb-4 uppercase tracking-widest">{label}</p>
       <div className="relative" style={{ width: 272, height: 556 }}>
-        {/* Shadow glow */}
-        <div
-          className="absolute -inset-4 rounded-[52px] blur-2xl opacity-20 motion-safe:animate-pulse"
-          style={{ background: `linear-gradient(135deg, var(--color-primary), var(--color-accent))` }}
-        />
         {/* Frame */}
         <div className="absolute inset-0 rounded-[40px] bg-neutral-950 shadow-2xl ring-1 ring-white/10" />
         {/* Screen */}
@@ -331,11 +329,11 @@ function PhoneFrame({ children, label }: { children: React.ReactNode; label: str
 export default function MobilePreview() {
   return (
     <div className="flex flex-col items-center gap-16 lg:flex-row lg:items-start lg:justify-center lg:gap-20">
-      <PhoneFrame label="Social Feed">
-        <MobileHomeScreen />
+      <PhoneFrame label="Portfolio">
+        <MobilePortfolioScreen />
       </PhoneFrame>
-      <PhoneFrame label="Settings">
-        <MobileSettingsScreen />
+      <PhoneFrame label="Markets">
+        <MobileMarketScreen />
       </PhoneFrame>
     </div>
   );
