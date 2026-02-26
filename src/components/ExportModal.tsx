@@ -144,6 +144,58 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
         return `// Light theme\n${scssVars(light, "light-")}\n\n$light-colors: (\n${scssMap(light)}\n);\n\n// Dark theme\n${scssVars(dark, "dark-")}\n\n$dark-colors: (\n${scssMap(dark)}\n);`;
       }
 
+      case "swiftui": {
+        const hexInit = `\n// Color hex initializer\nextension Color {\n    init(hex: String) {\n        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)\n        var int: UInt64 = 0\n        Scanner(string: hex).scanHexInt64(&int)\n        let a, r, g, b: UInt64\n        switch hex.count {\n        case 6:\n            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)\n        default:\n            (a, r, g, b) = (255, 0, 0, 0)\n        }\n        self.init(\n            .sRGB,\n            red: Double(r) / 255,\n            green: Double(g) / 255,\n            blue: Double(b) / 255,\n            opacity: Double(a) / 255\n        )\n    }\n}`;
+
+        const swiftColor = (hex: string): string => {
+          if (state.colorFormat === "rgb" || state.colorFormat === "hsl") {
+            const rgb = hexToRgb(hex);
+            return `Color(red: ${(rgb.r / 255).toFixed(3)}, green: ${(rgb.g / 255).toFixed(3)}, blue: ${(rgb.b / 255).toFixed(3)})`;
+          }
+          return `Color(hex: "${hex}")`;
+        };
+
+        const swiftProps = (colors: Record<string, string>, indent = "    ") =>
+          Object.entries(colors)
+            .map(([k, v]) => `${indent}static let ${k} = ${swiftColor(v)}`)
+            .join("\n");
+
+        const swiftStructProps = (colors: Record<string, string>) =>
+          Object.keys(colors)
+            .map((k) => `    let ${k}: Color`)
+            .join("\n");
+
+        const swiftStructInit = (colors: Record<string, string>, indent = "        ") =>
+          Object.entries(colors)
+            .map(([k, v]) => `${indent}${k}: ${swiftColor(v)}`)
+            .join(",\n");
+
+        const needsHexInit = state.colorFormat === "hex";
+
+        if (state.exportMode === "light") {
+          return `import SwiftUI\n\nextension Color {\n${swiftProps(light)}\n}${needsHexInit ? hexInit : ""}`;
+        }
+        if (state.exportMode === "dark") {
+          return `import SwiftUI\n\nextension Color {\n${swiftProps(dark)}\n}${needsHexInit ? hexInit : ""}`;
+        }
+        return `import SwiftUI\n\nstruct AppColors {\n${swiftStructProps(light)}\n}\n\nextension AppColors {\n    static let light = AppColors(\n${swiftStructInit(light)}\n    )\n\n    static let dark = AppColors(\n${swiftStructInit(dark)}\n    )\n}${needsHexInit ? "\n" + hexInit : ""}`;
+      }
+
+      case "reactnative": {
+        const rnObj = (colors: Record<string, string>, indent = "  ") =>
+          Object.entries(colors)
+            .map(([k, v]) => `${indent}${k}: '${v}',`)
+            .join("\n");
+
+        if (state.exportMode === "light") {
+          return `// theme.ts\nexport const colors = {\n${rnObj(light)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
+        }
+        if (state.exportMode === "dark") {
+          return `// theme.ts\nexport const colors = {\n${rnObj(dark)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
+        }
+        return `// theme.ts\nexport const lightColors = {\n${rnObj(light)}\n} as const;\n\nexport const darkColors = {\n${rnObj(dark)}\n} as const;\n\nexport type ColorName = keyof typeof lightColors;\n\n// Usage:\n// import { useColorScheme } from 'react-native';\n// const colors = useColorScheme() === 'dark' ? darkColors : lightColors;`;
+      }
+
       default:
         return "";
     }
@@ -206,24 +258,29 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             </div>
 
             <div className="p-6">
-              <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6">
-                {(["css", "tailwind", "scss"] as const).map((format) => (
-                  <button
-                    key={format}
-                    onClick={() => dispatch({ type: 'SET_EXPORT_FORMAT', payload: format })}
-                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                      state.exportFormat === format
-                        ? "bg-white text-neutral-900 shadow-sm"
-                        : "text-neutral-600 hover:text-neutral-900"
-                    }`}
-                  >
-                    {format === "css"
-                      ? "CSS"
-                      : format === "tailwind"
-                        ? "TailwindCSS"
-                        : "SCSS"}
-                  </button>
-                ))}
+              <div className="flex space-x-1 bg-neutral-100 p-1 rounded-lg mb-6 overflow-x-auto">
+                {(["css", "tailwind", "scss", "swiftui", "reactnative"] as const).map((format) => {
+                  const labels: Record<string, string> = {
+                    css: "CSS",
+                    tailwind: "Tailwind",
+                    scss: "SCSS",
+                    swiftui: "SwiftUI",
+                    reactnative: "React Native",
+                  };
+                  return (
+                    <button
+                      key={format}
+                      onClick={() => dispatch({ type: 'SET_EXPORT_FORMAT', payload: format })}
+                      className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+                        state.exportFormat === format
+                          ? "bg-white text-neutral-900 shadow-sm"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      }`}
+                    >
+                      {labels[format]}
+                    </button>
+                  );
+                })}
               </div>
 
               {state.exportFormat === "tailwind" && (

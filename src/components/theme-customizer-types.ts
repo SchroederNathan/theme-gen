@@ -16,7 +16,7 @@ export type ColorPickerAction =
 
 export interface ExportModalState {
   showExportModal: boolean;
-  exportFormat: 'css' | 'tailwind' | 'scss';
+  exportFormat: 'css' | 'tailwind' | 'scss' | 'swiftui' | 'reactnative';
   tailwindVersion: '3' | '4';
   exportMode: 'light' | 'dark' | 'both';
   colorFormat: 'hex' | 'rgb' | 'hsl';
@@ -30,7 +30,7 @@ export type ExportModalAction =
   | { type: 'CLOSE_EXPORT_MODAL' }
   | { type: 'START_MODAL_CLOSING' }
   | { type: 'SET_MODAL_ENTERING'; payload: boolean }
-  | { type: 'SET_EXPORT_FORMAT'; payload: 'css' | 'tailwind' | 'scss' }
+  | { type: 'SET_EXPORT_FORMAT'; payload: 'css' | 'tailwind' | 'scss' | 'swiftui' | 'reactnative' }
   | { type: 'SET_TAILWIND_VERSION'; payload: '3' | '4' }
   | { type: 'SET_EXPORT_MODE'; payload: 'light' | 'dark' | 'both' }
   | { type: 'SET_COLOR_FORMAT'; payload: 'hex' | 'rgb' | 'hsl' }
