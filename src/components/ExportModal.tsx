@@ -173,10 +173,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
         const needsHexInit = state.colorFormat === "hex";
 
         if (state.exportMode === "light") {
-          return `import SwiftUI\n\nextension Color {\n${swiftProps(light)}\n}${needsHexInit ? hexInit : ""}`;
+          return `import SwiftUI\n\nstruct Theme {\n${swiftProps(light)}\n}${needsHexInit ? hexInit : ""}`;
         }
         if (state.exportMode === "dark") {
-          return `import SwiftUI\n\nextension Color {\n${swiftProps(dark)}\n}${needsHexInit ? hexInit : ""}`;
+          return `import SwiftUI\n\nstruct Theme {\n${swiftProps(dark)}\n}${needsHexInit ? hexInit : ""}`;
         }
         return `import SwiftUI\n\nstruct AppColors {\n${swiftStructProps(light)}\n}\n\nextension AppColors {\n    static let light = AppColors(\n${swiftStructInit(light)}\n    )\n\n    static let dark = AppColors(\n${swiftStructInit(dark)}\n    )\n}${needsHexInit ? "\n" + hexInit : ""}`;
       }
