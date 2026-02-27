@@ -72,7 +72,7 @@ function updateCSSVariables(newTheme: Theme) {
   });
 }
 
-const MAX_HISTORY = 5;
+const MAX_HISTORY = 15;
 
 type HistoryEntry = { theme: Theme; themeName: string };
 
