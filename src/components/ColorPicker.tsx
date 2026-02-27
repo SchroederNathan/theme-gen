@@ -43,15 +43,15 @@ export const ColorPicker = (props: ColorPickerProps) => {
   } = props;
   // Use HSV for all state and logic
   const [currentColor, setCurrentColor] = useState(color);
-  const [hsv, setHsv] = useState<HSV>(rgbToHsv(hexToRgb(color)));
-  const [rgb, setRgb] = useState<RGB>(hexToRgb(color));
+  const [hsv, setHsv] = useState<HSV>(() => rgbToHsv(hexToRgb(color)));
+  const [rgb, setRgb] = useState<RGB>(() => hexToRgb(color));
   const [currentFormat, setCurrentFormat] = useState<ColorFormat>(format);
   const [isDraggingSV, setIsDraggingSV] = useState(false);
   const [isDraggingHue, setIsDraggingHue] = useState(false);
   const svRef = useRef<HTMLDivElement>(null);
   const hueRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
-  const [eyeDropperSupported, setEyeDropperSupported] = useState(false);
+  const eyeDropperSupported = typeof window !== "undefined" && "EyeDropper" in window;
 
   // Keep state in sync with props
   useEffect(() => {
@@ -60,12 +60,6 @@ export const ColorPicker = (props: ColorPickerProps) => {
     setRgb(newRgb);
     setHsv(rgbToHsv(newRgb));
   }, [color]);
-
-  useEffect(() => {
-    setEyeDropperSupported(
-      typeof window !== "undefined" && "EyeDropper" in window
-    );
-  }, []);
 
   // Update color from HSV
   const updateColorFromHSV = useCallback((newHsv: HSV) => {
@@ -197,6 +191,12 @@ export const ColorPicker = (props: ColorPickerProps) => {
       {/* SV Square */}
       <div
         ref={svRef}
+        role="slider"
+        aria-label="Saturation and brightness"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(hsv.s)}
+        tabIndex={0}
         className={`relative w-full aspect-square rounded-lg overflow-hidden border border-neutral-200 ${
           isDraggingSV ? "cursor-none" : "cursor-crosshair"
         }`}
@@ -217,6 +217,12 @@ export const ColorPicker = (props: ColorPickerProps) => {
       {/* Hue Bar */}
       <div
         ref={hueRef}
+        role="slider"
+        aria-label="Hue"
+        aria-valuemin={0}
+        aria-valuemax={360}
+        aria-valuenow={Math.round(hsv.h)}
+        tabIndex={0}
         className="relative h-3 w-full mt-2 rounded-full cursor-pointer border border-neutral-200 "
         style={{
           background:

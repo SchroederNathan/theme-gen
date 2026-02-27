@@ -74,15 +74,21 @@ export function WalletScreen() {
 
       {/* Action buttons */}
       <div className="flex gap-2.5 px-5 pt-3 pb-3">
-        {[CreditCard, Send, Download, ScanLine].map((Icon, i) => (
+        {[
+          { Icon: CreditCard, id: "buy" },
+          { Icon: Send, id: "send" },
+          { Icon: Download, id: "receive" },
+          { Icon: ScanLine, id: "scan" },
+        ].map(({ Icon, id }) => (
           <button
-            key={i}
+            key={id}
             className="flex-1 flex items-center justify-center py-3.5 rounded-2xl"
             style={{ backgroundColor: `${theme.colors.primary}15` }}
           >
             <Icon size={18} style={{ color: theme.colors.primary }} />
           </button>
-        ))}
+        ))
+        }
       </div>
 
       {/* Welcome banner */}

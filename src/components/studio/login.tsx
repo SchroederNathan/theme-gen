@@ -58,13 +58,13 @@ export default function Login() {
                   Password
                 </label>
                 <div className="text-sm">
-                  <a
-                    href="#"
+                  <button
+                    type="button"
                     data-color="primary"
-              className="font-semibold text-primary hover:text-primary/90"
-                  > 
+                    className="font-semibold text-primary hover:text-primary/90"
+                  >
                     Forgot Password?
-                  </a>
+                  </button>
                 </div>
               </div>
               <div className="mt-2">
@@ -93,13 +93,13 @@ export default function Login() {
 
           <p data-color="muted" className="mt-10 text-center text-sm/6 text-muted">
             Not a member?{" "}
-            <a
-              href="#"
+            <button
+              type="button"
               data-color="primary"
               className="font-semibold text-primary hover:text-primary/90"
             >
               Start a 14 day free trial
-            </a>
+            </button>
           </p>
         </div>
       </div>

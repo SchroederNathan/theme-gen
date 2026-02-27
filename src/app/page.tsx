@@ -6,6 +6,7 @@ import PreviewHero from "@/components/studio/hero";
 import Pricing from "@/components/studio/pricing";
 import PreviewToggle, { PreviewModeProvider, usePreviewMode } from "@/components/studio/PreviewToggle";
 import MobilePreview from "@/components/studio/MobilePreview";
+import Script from "next/script";
 
 function PageContent() {
   const { mode } = usePreviewMode();
@@ -51,29 +52,30 @@ function PageContent() {
 export default function Home() {
   return (
     <PreviewModeProvider>
-      <script
+      <Script
+        id="jsonld-webapp"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Theme Gen",
-            url: "https://themegen.dev",
-            description:
-              "Create beautiful color themes with a free visual editor. Preview in real-time and export to CSS variables, Tailwind config, and more.",
-            applicationCategory: "DesignApplication",
-            operatingSystem: "Any",
-            featureList: [
-              "Visual color theme editor",
-              "Real-time preview",
-              "CSS variables export",
-              "Tailwind config export",
-              "WCAG contrast auditing",
-              "Dark/Light mode support",
-            ],
-          }),
-        }}
-      />
+        strategy="beforeInteractive"
+      >
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: "Theme Gen",
+          url: "https://themegen.dev",
+          description:
+            "Create beautiful color themes with a free visual editor. Preview in real-time and export to CSS variables, Tailwind config, and more.",
+          applicationCategory: "DesignApplication",
+          operatingSystem: "Any",
+          featureList: [
+            "Visual color theme editor",
+            "Real-time preview",
+            "CSS variables export",
+            "Tailwind config export",
+            "WCAG contrast auditing",
+            "Dark/Light mode support",
+          ],
+        })}
+      </Script>
       <PageContent />
     </PreviewModeProvider>
   );

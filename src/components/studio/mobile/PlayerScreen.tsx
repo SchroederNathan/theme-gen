@@ -46,6 +46,7 @@ export function PlayerScreen() {
             src="/mobile/mary-song-cover.png"
             alt="Album cover"
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
           />
         </div>
@@ -112,6 +113,7 @@ export function PlayerScreen() {
                 src={song.image}
                 alt={song.title}
                 fill
+                sizes="36px"
                 className="object-cover"
               />
             </div>

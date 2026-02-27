@@ -1,5 +1,7 @@
 # Theme Gen
 
+[![React Doctor](https://www.react.doctor/share/badge?p=theme-gen&s=96&w=14&f=6)](https://www.react.doctor/share?p=theme-gen&s=96&w=14&f=6)
+
 A visual theme generator for creating accessible, shareable color palettes. Pick colors, check contrast ratios against WCAG standards, and export production-ready theme code.
 
 ## Features

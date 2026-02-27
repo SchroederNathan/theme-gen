@@ -24,7 +24,8 @@
       "WebFetch(domain:shaders.paper.design)",
       "Bash(npx skills:*)",
       "WebFetch(domain:themegen.dev)",
-      "WebFetch(domain:pagespeed.web.dev)"
+      "WebFetch(domain:pagespeed.web.dev)",
+      "Bash(npx:*)"
     ]
   }
 }

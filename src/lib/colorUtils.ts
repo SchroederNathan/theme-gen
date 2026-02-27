@@ -8,7 +8,7 @@ export interface RGB {
   b: number;
 }
 
-export interface HSL {
+interface HSL {
   h: number;
   s: number;
   l: number;
@@ -20,7 +20,7 @@ export interface HSV {
   v: number; // 0-100
 }
 
-export const colors = (
+const colors = (
   namedColors as Array<{ name: string; hex: string }>
 ).reduce(
   (o: Record<string, string>, { name, hex }: { name: string; hex: string }) =>
