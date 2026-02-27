@@ -97,7 +97,7 @@ export function WalletScreen() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-bold">Welcome to ThemeGen</p>
-              <span className="text-[9px]" style={{ color: theme.colors.muted }}>Swipe</span>
+
             </div>
             <p className="text-[9px] mt-0.5 leading-relaxed" style={{ color: theme.colors.muted }}>
               Preview your palette across real UI components.
