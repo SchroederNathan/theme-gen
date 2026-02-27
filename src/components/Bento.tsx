@@ -17,7 +17,7 @@ export default function Bento() {
         </p>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
           <div className="relative lg:col-span-3">
-            <div data-color="secondary" className="absolute inset-px rounded-lg bg-secondary max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
+            <div data-color="secondary" className="absolute inset-px rounded-lg bg-container max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
               <GrainGradient
                 width={800}
@@ -25,7 +25,7 @@ export default function Bento() {
                 colors={[
                   theme.colors.accent,
                   theme.colors.primary,
-                  theme.colors.secondary,
+                  theme.colors.container,
                 ]}
                 colorBack={theme.colors.background}
                 softness={0.5}
@@ -52,7 +52,7 @@ export default function Bento() {
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm ring-1 ring-border/5 max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
           </div>
           <div className="relative lg:col-span-3">
-            <div data-color="secondary" className="absolute inset-px rounded-lg bg-secondary lg:rounded-tr-[2rem]" />
+            <div data-color="secondary" className="absolute inset-px rounded-lg bg-container lg:rounded-tr-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
               <Dithering
                 width={800}
@@ -81,13 +81,13 @@ export default function Bento() {
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm ring-1 ring-border/5 lg:rounded-tr-[2rem]" />
           </div>
           <div className="relative lg:col-span-2">
-            <div data-color="secondary" className="absolute inset-px rounded-lg bg-secondary lg:rounded-bl-[2rem]" />
+            <div data-color="secondary" className="absolute inset-px rounded-lg bg-container lg:rounded-bl-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
               <GrainGradient
                 width={800}
                 height={320}
                 colors={[
-                  theme.colors.secondary,
+                  theme.colors.container,
                   theme.colors.primary,
                   theme.colors.accent,
                 ]}
@@ -115,7 +115,7 @@ export default function Bento() {
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm ring-1 ring-border/5 lg:rounded-bl-[2rem]" />
           </div>
           <div className="relative lg:col-span-2">
-            <div data-color="secondary" className="absolute inset-px rounded-lg bg-secondary" />
+            <div data-color="secondary" className="absolute inset-px rounded-lg bg-container" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
               <GodRays
                 width={800}
@@ -123,7 +123,7 @@ export default function Bento() {
                 colors={[
                   theme.colors.primary,
                   theme.colors.accent,
-                  theme.colors.secondary,
+                  theme.colors.container,
                 ]}
                 colorBack={theme.colors.background}
                 colorBloom={theme.colors.primary}
@@ -152,13 +152,13 @@ export default function Bento() {
             <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm ring-1 ring-border/5" />
           </div>
           <div className="relative lg:col-span-2">
-            <div data-color="secondary" className="absolute inset-px rounded-lg bg-secondary max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
+            <div data-color="secondary" className="absolute inset-px rounded-lg bg-container max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
               <GrainGradient
                 width={800}
                 height={320}
                 colors={[
-                  theme.colors.secondary,
+                  theme.colors.container,
                   theme.colors.primary,
                   theme.colors.accent,
                 ]}

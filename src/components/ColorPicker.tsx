@@ -8,6 +8,7 @@ import {
   rgbToHsl,
   rgbToHsv,
 } from "@/lib/colorUtils";
+import chroma from "chroma-js";
 import { Check, Copy, Pipette } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 
@@ -17,6 +18,7 @@ export enum ColorPickerVariant {
 }
 
 export enum ColorFormat {
+  OKLCH = "oklch",
   HEX = "hex",
   RGB = "rgb",
   HSL = "hsl",
@@ -38,7 +40,7 @@ export const ColorPicker = (props: ColorPickerProps) => {
   const {
     color,
     onChange,
-    format = ColorFormat.HEX,
+    format = ColorFormat.OKLCH,
     variant,
   } = props;
   // Use HSV for all state and logic
@@ -132,7 +134,10 @@ export const ColorPicker = (props: ColorPickerProps) => {
   // Copy to clipboard handler
   const handleCopy = async () => {
     let valueToCopy = currentColor;
-    if (currentFormat === ColorFormat.RGB) {
+    if (currentFormat === ColorFormat.OKLCH) {
+      const [l, c, h] = chroma(currentColor).oklch();
+      valueToCopy = `oklch(${(l * 100).toFixed(1)}% ${c.toFixed(3)} ${(isNaN(h) ? 0 : h).toFixed(1)})`;
+    } else if (currentFormat === ColorFormat.RGB) {
       valueToCopy = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
     } else if (currentFormat === ColorFormat.HSL) {
       const hsl = rgbToHsl(rgb);
@@ -242,6 +247,74 @@ export const ColorPicker = (props: ColorPickerProps) => {
 
       {/* Color Inputs */}
       <div className="space-y-2 mt-2">
+        {currentFormat === ColorFormat.OKLCH && (() => {
+          const [l, c, h] = chroma(currentColor).oklch();
+          const oklchL = Math.round(l * 100);
+          const oklchC = parseFloat(c.toFixed(3));
+          const oklchH = Math.round(isNaN(h) ? 0 : h);
+          return (
+            <div className="flex gap-2">
+              <div className="w-1/3">
+                <label className="text-[10px] text-neutral-500 mb-0.5 block">L %</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={oklchL}
+                  onChange={(e) => {
+                    const newL = clamp(Number(e.target.value), 0, 100) / 100;
+                    const newHex = chroma.oklch(newL, c, isNaN(h) ? 0 : h).hex();
+                    setCurrentColor(newHex);
+                    const newRgb = hexToRgb(newHex);
+                    setRgb(newRgb);
+                    setHsv(rgbToHsv(newRgb));
+                    onChange(newHex);
+                  }}
+                  className="w-full rounded-md border border-neutral-100 px-2 py-1 text-sm text-neutral-800 focus:outline-none focus:border-neutral-200 hover:border-neutral-200 transition-all"
+                />
+              </div>
+              <div className="w-1/3">
+                <label className="text-[10px] text-neutral-500 mb-0.5 block">C</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="0.4"
+                  step="0.005"
+                  value={oklchC}
+                  onChange={(e) => {
+                    const newC = clamp(Number(e.target.value), 0, 0.4);
+                    const newHex = chroma.oklch(l, newC, isNaN(h) ? 0 : h).hex();
+                    setCurrentColor(newHex);
+                    const newRgb = hexToRgb(newHex);
+                    setRgb(newRgb);
+                    setHsv(rgbToHsv(newRgb));
+                    onChange(newHex);
+                  }}
+                  className="w-full rounded-md border border-neutral-100 px-2 py-1 text-sm text-neutral-800 focus:outline-none focus:border-neutral-200 hover:border-neutral-200 transition-all"
+                />
+              </div>
+              <div className="w-1/3">
+                <label className="text-[10px] text-neutral-500 mb-0.5 block">H</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="360"
+                  value={oklchH}
+                  onChange={(e) => {
+                    const newH = clamp(Number(e.target.value), 0, 360);
+                    const newHex = chroma.oklch(l, c, newH).hex();
+                    setCurrentColor(newHex);
+                    const newRgb = hexToRgb(newHex);
+                    setRgb(newRgb);
+                    setHsv(rgbToHsv(newRgb));
+                    onChange(newHex);
+                  }}
+                  className="w-full rounded-md border border-neutral-100 px-2 py-1 text-sm text-neutral-800 focus:outline-none focus:border-neutral-200 hover:border-neutral-200 transition-all"
+                />
+              </div>
+            </div>
+          );
+        })()}
         {currentFormat === ColorFormat.HEX && (
           <div className="flex items-center gap-2">
             <span className="w-8 text-sm font-medium text-neutral-800">

@@ -5,7 +5,7 @@
   --color-text: #1a1625;
   --color-background: #faf9fc;
   --color-primary: #4F46E5;
-  --color-secondary: #eeedf2;
+  --color-container: #eeedf2;
   --color-accent: #0EA5E9;
 
   /* State colors */
@@ -15,7 +15,7 @@
 
   /* On-surface colors */
   --color-onPrimary: #ffffff;
-  --color-onSecondary: #1a1625;
+  --color-onContainer: #1a1625;
   --color-onAccent: #ffffff;
   --color-onSuccess: #ffffff;
   --color-onError: #ffffff;
@@ -81,12 +81,12 @@ body {
   color: var(--color-primary);
 }
 
-.bg-secondary {
-  background-color: var(--color-secondary);
+.bg-container {
+  background-color: var(--color-container);
 }
 
-.text-secondary {
-  color: var(--color-secondary);
+.text-container {
+  color: var(--color-container);
 }
 
 .bg-accent {
@@ -102,8 +102,8 @@ body {
   color: var(--color-onPrimary);
 }
 
-.text-onSecondary {
-  color: var(--color-onSecondary);
+.text-onContainer {
+  color: var(--color-onContainer);
 }
 
 .text-onAccent {
@@ -174,8 +174,8 @@ body {
   background-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
 }
 
-.hover\:bg-secondary\/90:hover {
-  background-color: color-mix(in srgb, var(--color-secondary) 90%, transparent);
+.hover\:bg-container\/90:hover {
+  background-color: color-mix(in srgb, var(--color-container) 90%, transparent);
 }
 
 .focus\:outline-primary:focus {

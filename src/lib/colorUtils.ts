@@ -34,21 +34,12 @@ export const getIconColor = (color: string): string =>
   chroma(color).luminance() < 0.05 ? "#ddd" : "#222";
 
 export const getTextColor = (color: string): string => {
-  const hsl = hexToHsl(color);
-  const luminance = chroma(color).luminance();
-
-  if (luminance < 0.45) {
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(30, hsl.s),
-      l: 90
-    });
+  const [l, , h] = chroma(color).oklch();
+  const hue = isNaN(h) ? 0 : h;
+  if (l < 0.5) {
+    return chroma.oklch(0.9, 0.02, hue).hex();
   } else {
-    return hslToHex({
-      h: hsl.h,
-      s: Math.min(30, hsl.s),
-      l: 15
-    });
+    return chroma.oklch(0.15, 0.02, hue).hex();
   }
 };
 
@@ -293,62 +284,130 @@ function nudgeForContrastOklch(
   return chroma.oklch(Math.max(0, Math.min(1, currentL)), c, h).hex();
 }
 
-const ACCENT_OFFSETS = [150, 180, 120, 210, 60, 240];
+export type HarmonyMode = "complementary" | "monochromatic";
 
-function pickAccentOffset(): number {
-  return ACCENT_OFFSETS[Math.floor(Math.random() * ACCENT_OFFSETS.length)];
+function getAccentOffset(mode: HarmonyMode): number {
+  return mode === "complementary" ? 180 : 0;
+}
+
+export function maxChromaInGamut(l: number, h: number): number {
+  if (isNaN(h) || l <= 0 || l >= 1) return 0;
+  let lo = 0;
+  let hi = 0.4;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    if (chroma.oklch(l, mid, h).clipped()) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+  return lo;
+}
+
+export function safeChroma(l: number, h: number, vibrancy: number): number {
+  return maxChromaInGamut(l, h) * Math.max(0, Math.min(1, vibrancy));
+}
+
+export function mixOklch(c1: string, c2: string, ratio: number): string {
+  return chroma.mix(c1, c2, ratio, "oklch").hex();
 }
 
 function remapHue(hue: number): number {
   const h = ((hue % 360) + 360) % 360;
-  if (h > 70 && h < 150) {
-    return h < 110 ? 60 : 160;
+  const center = 110;
+  const halfWidth = 40;
+  const maxDeflection = 25;
+  const dist = Math.abs(h - center);
+  if (dist >= halfWidth) return h;
+  const t = 1 - dist / halfWidth;
+  const deflection = maxDeflection * 0.5 * (1 + Math.cos(Math.PI * (1 - t)));
+  return h < center ? h - deflection : h + deflection;
+}
+
+export function deriveBaseColorFromLocks(
+  lockedColors: Record<string, string>,
+  harmonyMode: HarmonyMode
+): string | null {
+  const jitter = (range: number) => (Math.random() - 0.5) * 2 * range;
+
+  // Primary locked — use its hue directly
+  if (lockedColors.primary) {
+    const [, c, h] = chroma(lockedColors.primary).oklch();
+    if (c > 0.01 && !isNaN(h)) {
+      const hue = ((h + jitter(15)) % 360 + 360) % 360;
+      return chroma.oklch(0.5, 0.15, hue).hex();
+    }
   }
-  return h;
+
+  // Accent locked — reverse-engineer primary hue via harmony offset
+  if (lockedColors.accent) {
+    const [, c, h] = chroma(lockedColors.accent).oklch();
+    if (c > 0.01 && !isNaN(h)) {
+      const offset = getAccentOffset(harmonyMode);
+      const hue = ((h - offset + jitter(25)) % 360 + 360) % 360;
+      return chroma.oklch(0.5, 0.15, hue).hex();
+    }
+  }
+
+  // Background / text / container — extract hue tint if chromatic
+  for (const key of ["background", "text", "container"] as const) {
+    if (lockedColors[key]) {
+      const [, c, h] = chroma(lockedColors[key]).oklch();
+      if (c > 0.01 && !isNaN(h)) {
+        const hue = ((h + jitter(25)) % 360 + 360) % 360;
+        return chroma.oklch(0.5, 0.15, hue).hex();
+      }
+    }
+  }
+
+  return null;
 }
 
 export function generateColorPalette(
   baseColor: string,
   isDarkMode: boolean = false,
-  lockedColors: Record<string, string> = {}
+  lockedColors: Record<string, string> = {},
+  harmonyMode: HarmonyMode = "complementary"
 ): Record<string, string> {
+  console.log("generateColorPalette baseColor:", baseColor);
   const rawHue = chroma(baseColor).oklch()[2] || 0;
 
   const primaryHue = remapHue(rawHue);
-  const accentOffset = pickAccentOffset();
+  const accentOffset = getAccentOffset(harmonyMode);
   const accentHue = remapHue((primaryHue + accentOffset) % 360);
 
-  const primaryC = isDarkMode ? 0.14 : 0.14;
-  const accentC = isDarkMode ? 0.12 : 0.12;
+  const primaryL = isDarkMode ? 0.75 : 0.50;
+  const accentL = isDarkMode ? 0.78 : 0.52;
 
   const text =
     lockedColors.text ||
     chroma
-      .oklch(isDarkMode ? 0.93 : 0.18, 0.02, primaryHue)
+      .oklch(isDarkMode ? 0.93 : 0.18, safeChroma(isDarkMode ? 0.93 : 0.18, primaryHue, 0.15), primaryHue)
       .hex();
 
   const background =
     lockedColors.background ||
     chroma
-      .oklch(isDarkMode ? 0.16 : 0.985, isDarkMode ? 0.012 : 0.01, primaryHue)
+      .oklch(isDarkMode ? 0.16 : 0.985, safeChroma(isDarkMode ? 0.16 : 0.985, primaryHue, 0.08), primaryHue)
       .hex();
 
   let primary =
     lockedColors.primary ||
     chroma
-      .oklch(isDarkMode ? 0.65 : 0.55, primaryC, primaryHue)
+      .oklch(primaryL, safeChroma(primaryL, primaryHue, 0.85), primaryHue)
       .hex();
 
-  const secondary =
-    lockedColors.secondary ||
+  const container =
+    lockedColors.container ||
     chroma
-      .oklch(isDarkMode ? 0.25 : 0.94, isDarkMode ? 0.02 : 0.02, primaryHue)
+      .oklch(isDarkMode ? 0.25 : 0.94, safeChroma(isDarkMode ? 0.25 : 0.94, primaryHue, 0.15), primaryHue)
       .hex();
 
   let accent =
     lockedColors.accent ||
     chroma
-      .oklch(isDarkMode ? 0.68 : 0.58, accentC, accentHue)
+      .oklch(accentL, safeChroma(accentL, accentHue, 0.75), accentHue)
       .hex();
 
   primary = nudgeForContrastOklch(primary, background, 3);
@@ -357,29 +416,75 @@ export function generateColorPalette(
   const finalText = nudgeForContrastOklch(text, background, 7);
 
   const border =
-    lockedColors.border ||
-    chroma.mix(finalText, background, 0.82, "rgb").hex();
+    lockedColors.border || mixOklch(finalText, background, 0.82);
 
   const muted =
-    lockedColors.muted ||
-    chroma.mix(finalText, background, 0.55, "rgb").hex();
+    lockedColors.muted || mixOklch(finalText, background, 0.55);
+
+  // State colors — fixed hues, matched lightness to primary
+  const successHue = 155;
+  const errorHue = 25;
+  const warningHue = 70;
+
+  let success =
+    lockedColors.success ||
+    chroma.oklch(primaryL, safeChroma(primaryL, successHue, 0.75), successHue).hex();
+  let error =
+    lockedColors.error ||
+    chroma.oklch(primaryL, safeChroma(primaryL, errorHue, 0.75), errorHue).hex();
+  let warning =
+    lockedColors.warning ||
+    chroma.oklch(primaryL, safeChroma(primaryL, warningHue, 0.75), warningHue).hex();
+
+  success = nudgeForContrastOklch(success, background, 3);
+  error = nudgeForContrastOklch(error, background, 3);
+  warning = nudgeForContrastOklch(warning, background, 3);
+
+  const ring = lockedColors.ring || primary;
 
   return {
     text: finalText,
     background,
     primary,
-    secondary,
+    container,
     accent,
+    success,
+    error,
+    warning,
     onPrimary: pickOnColor(primary),
-    onSecondary: pickOnColor(secondary),
+    onContainer: pickOnColor(container),
     onAccent: pickOnColor(accent),
+    onSuccess: pickOnColor(success),
+    onError: pickOnColor(error),
+    onWarning: pickOnColor(warning),
     border,
     muted,
+    ring,
   };
 }
 
 export function pickOnColor(bg: string): string {
-  return chroma(bg).luminance() > 0.4 ? "#000000" : "#ffffff";
+  const [, , h] = chroma(bg).oklch();
+  const hue = isNaN(h) ? 0 : h;
+
+  // Determine direction based on which extreme has better contrast
+  const whiteContrast = getContrastRatio("#ffffff", bg);
+  const blackContrast = getContrastRatio("#000000", bg);
+  const goLight = whiteContrast >= blackContrast;
+
+  // Start near the extreme with a visible hue tint, walk inward
+  let l = goLight ? 0.97 : 0.06;
+  const step = goLight ? -0.02 : 0.02;
+
+  for (let i = 0; i < 30; i++) {
+    const c = safeChroma(l, hue, 0.25);
+    const candidate = chroma.oklch(l, c, hue).hex();
+    if (getContrastRatio(candidate, bg) >= 4.5) return candidate;
+    l += step;
+  }
+
+  // Fallback: pure white or black
+  return goLight ? "#ffffff" : "#000000";
 }
 
 export function adaptColorsForMode(
@@ -387,22 +492,30 @@ export function adaptColorsForMode(
   targetIsDark: boolean,
   lockedColors: Set<string> = new Set()
 ): Record<string, string> {
-  const targets: Record<string, { l: number; c: number }> = {
-    text:       { l: targetIsDark ? 0.93  : 0.18,  c: 0.02 },
-    background: { l: targetIsDark ? 0.16  : 0.985, c: targetIsDark ? 0.012 : 0.01 },
-    primary:    { l: targetIsDark ? 0.65  : 0.55,  c: 0.14 },
-    secondary:  { l: targetIsDark ? 0.25  : 0.94,  c: 0.02 },
-    accent:     { l: targetIsDark ? 0.68  : 0.58,  c: 0.12 },
+  const vibrancyMap: Record<string, number> = {
+    text: 0.15,
+    background: 0.08,
+    primary: 0.85,
+    container: 0.15,
+    accent: 0.75,
+  };
+
+  const targetL: Record<string, number> = {
+    text:       targetIsDark ? 0.93  : 0.18,
+    background: targetIsDark ? 0.16  : 0.985,
+    primary:    targetIsDark ? 0.65  : 0.55,
+    container:  targetIsDark ? 0.25  : 0.94,
+    accent:     targetIsDark ? 0.68  : 0.58,
   };
 
   const adapted: Record<string, string> = {};
 
-  for (const [role, target] of Object.entries(targets)) {
+  for (const [role, l] of Object.entries(targetL)) {
     if (lockedColors.has(role)) {
       adapted[role] = currentColors[role];
     } else {
       const hue = chroma(currentColors[role]).oklch()[2] || 0;
-      adapted[role] = chroma.oklch(target.l, target.c, hue).hex();
+      adapted[role] = chroma.oklch(l, safeChroma(l, hue, vibrancyMap[role]), hue).hex();
     }
   }
 
@@ -411,17 +524,43 @@ export function adaptColorsForMode(
   adapted.accent = nudgeForContrastOklch(adapted.accent, adapted.background, 3);
   adapted.text = nudgeForContrastOklch(adapted.text, adapted.background, 7);
 
-  // Derive border, muted, and on-colors
+  // Derive border and muted via OKLCH mixing
   adapted.border = lockedColors.has("border")
     ? currentColors.border
-    : chroma.mix(adapted.text, adapted.background, 0.82, "rgb").hex();
+    : mixOklch(adapted.text, adapted.background, 0.82);
   adapted.muted = lockedColors.has("muted")
     ? currentColors.muted
-    : chroma.mix(adapted.text, adapted.background, 0.55, "rgb").hex();
+    : mixOklch(adapted.text, adapted.background, 0.55);
 
+  // State colors — preserve hue, adjust L for target mode
+  const primaryL = targetL.primary;
+  const stateHues: Record<string, number> = {
+    success: currentColors.success ? (chroma(currentColors.success).oklch()[2] || 155) : 155,
+    error: currentColors.error ? (chroma(currentColors.error).oklch()[2] || 25) : 25,
+    warning: currentColors.warning ? (chroma(currentColors.warning).oklch()[2] || 70) : 70,
+  };
+
+  for (const [role, hue] of Object.entries(stateHues)) {
+    if (lockedColors.has(role)) {
+      adapted[role] = currentColors[role];
+    } else {
+      adapted[role] = chroma.oklch(primaryL, safeChroma(primaryL, hue, 0.75), hue).hex();
+      adapted[role] = nudgeForContrastOklch(adapted[role], adapted.background, 3);
+    }
+  }
+
+  // Ring
+  adapted.ring = lockedColors.has("ring")
+    ? currentColors.ring
+    : adapted.primary;
+
+  // On-colors
   adapted.onPrimary = pickOnColor(adapted.primary);
-  adapted.onSecondary = pickOnColor(adapted.secondary);
+  adapted.onContainer = pickOnColor(adapted.container);
   adapted.onAccent = pickOnColor(adapted.accent);
+  adapted.onSuccess = pickOnColor(adapted.success);
+  adapted.onError = pickOnColor(adapted.error);
+  adapted.onWarning = pickOnColor(adapted.warning);
 
   return adapted;
 }

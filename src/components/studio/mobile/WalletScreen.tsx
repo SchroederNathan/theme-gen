@@ -55,7 +55,7 @@ export function WalletScreen() {
           <p className="text-[12px] font-bold">schroedernathan</p>
           <span
             className="text-[8px] px-1.5 py-0.5 rounded"
-            style={{ backgroundColor: theme.colors.secondary, color: theme.colors.muted }}
+            style={{ backgroundColor: theme.colors.container, color: theme.colors.muted }}
           >
             0x7094...2242
           </span>
@@ -92,7 +92,7 @@ export function WalletScreen() {
       </div>
 
       {/* Welcome banner */}
-      <div className="mx-5 mb-3 p-3 rounded-2xl" style={{ backgroundColor: theme.colors.secondary }}>
+      <div className="mx-5 mb-3 p-3 rounded-2xl" style={{ backgroundColor: theme.colors.container }}>
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
@@ -157,7 +157,7 @@ export function WalletScreen() {
       <div className="flex items-center gap-2 px-4 pb-5 pt-2">
         <div
           className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-full"
-          style={{ backgroundColor: theme.colors.secondary }}
+          style={{ backgroundColor: theme.colors.container }}
         >
           <Search size={14} style={{ color: theme.colors.muted }} />
           <span className="text-[10px] font-medium" style={{ color: theme.colors.muted }}>Search</span>

@@ -1,5 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import { hexToRgb, rgbToHsl } from "@/lib/colorUtils";
+import chroma from "chroma-js";
 import { themes } from "@/lib/themes";
 import { Check, Copy, X } from "lucide-react";
 import { useReducer, useEffect } from "react";
@@ -49,17 +50,21 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
   const formatColor = (
     hexColor: string,
-    format: "hex" | "rgb" | "hsl",
+    format: "hex" | "rgb" | "hsl" | "oklch",
   ): string => {
     switch (format) {
       case "hex":
         return hexColor;
-      case "rgb":
+      case "rgb": {
         const rgb = hexToRgb(hexColor);
         return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-      case "hsl":
+      }
+      case "hsl": {
         const hsl = rgbToHsl(hexToRgb(hexColor));
         return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+      }
+      case "oklch":
+        return chroma(hexColor).css("oklch");
       default:
         return hexColor;
     }
@@ -72,10 +77,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     return themes[mode].colors as Record<string, string>;
   };
 
-  const fmt = (colors: Record<string, string>) => {
+  const fmt = (colors: Record<string, string>, overrideFormat?: typeof state.colorFormat) => {
+    const format = overrideFormat ?? state.colorFormat;
     const out: Record<string, string> = {};
     Object.entries(colors).forEach(([key, value]) => {
-      out[key] = formatColor(value, state.colorFormat);
+      out[key] = formatColor(value, format);
     });
     return out;
   };
@@ -148,7 +154,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
         const hexInit = `\n// Color hex initializer\nextension Color {\n    init(hex: String) {\n        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)\n        var int: UInt64 = 0\n        Scanner(string: hex).scanHexInt64(&int)\n        let a, r, g, b: UInt64\n        switch hex.count {\n        case 6:\n            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)\n        default:\n            (a, r, g, b) = (255, 0, 0, 0)\n        }\n        self.init(\n            .sRGB,\n            red: Double(r) / 255,\n            green: Double(g) / 255,\n            blue: Double(b) / 255,\n            opacity: Double(a) / 255\n        )\n    }\n}`;
 
         const swiftColor = (hex: string): string => {
-          if (state.colorFormat === "rgb" || state.colorFormat === "hsl") {
+          if (state.colorFormat === "rgb" || state.colorFormat === "hsl" || state.colorFormat === "oklch") {
             const rgb = hexToRgb(hex);
             return `Color(red: ${(rgb.r / 255).toFixed(3)}, green: ${(rgb.g / 255).toFixed(3)}, blue: ${(rgb.b / 255).toFixed(3)})`;
           }
@@ -182,18 +188,22 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
       }
 
       case "reactnative": {
+        // React Native doesn't support OKLCH natively, fall back to rgb
+        const rnFallback = state.colorFormat === "oklch" ? "rgb" : undefined;
+        const rnLight = rnFallback ? fmt(getColorsForMode("light"), rnFallback) : light;
+        const rnDark = rnFallback ? fmt(getColorsForMode("dark"), rnFallback) : dark;
         const rnObj = (colors: Record<string, string>, indent = "  ") =>
           Object.entries(colors)
             .map(([k, v]) => `${indent}${k}: '${v}',`)
             .join("\n");
 
         if (state.exportMode === "light") {
-          return `// theme.ts\nexport const colors = {\n${rnObj(light)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
+          return `// theme.ts\nexport const colors = {\n${rnObj(rnLight)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
         }
         if (state.exportMode === "dark") {
-          return `// theme.ts\nexport const colors = {\n${rnObj(dark)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
+          return `// theme.ts\nexport const colors = {\n${rnObj(rnDark)}\n} as const;\n\nexport type ColorName = keyof typeof colors;`;
         }
-        return `// theme.ts\nexport const lightColors = {\n${rnObj(light)}\n} as const;\n\nexport const darkColors = {\n${rnObj(dark)}\n} as const;\n\nexport type ColorName = keyof typeof lightColors;\n\n// Usage:\n// import { useColorScheme } from 'react-native';\n// const colors = useColorScheme() === 'dark' ? darkColors : lightColors;`;
+        return `// theme.ts\nexport const lightColors = {\n${rnObj(rnLight)}\n} as const;\n\nexport const darkColors = {\n${rnObj(rnDark)}\n} as const;\n\nexport type ColorName = keyof typeof lightColors;\n\n// Usage:\n// import { useColorScheme } from 'react-native';\n// const colors = useColorScheme() === 'dark' ? darkColors : lightColors;`;
       }
 
       default:
@@ -334,7 +344,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 <span className="text-sm font-medium text-neutral-700">
                   Color Format:
                 </span>
-                {(["hex", "rgb", "hsl"] as const).map((format) => (
+                {(["hex", "rgb", "hsl", "oklch"] as const).map((format) => (
                   <label
                     key={format}
                     className="flex items-center space-x-2 cursor-pointer"
@@ -347,7 +357,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       onChange={(e) =>
                         dispatch({
                           type: 'SET_COLOR_FORMAT',
-                          payload: e.target.value as "hex" | "rgb" | "hsl"
+                          payload: e.target.value as "hex" | "rgb" | "hsl" | "oklch"
                         })
                       }
                       className="text-primary focus:ring-primary"

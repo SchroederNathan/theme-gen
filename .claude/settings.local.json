@@ -25,7 +25,10 @@
       "Bash(npx skills:*)",
       "WebFetch(domain:themegen.dev)",
       "WebFetch(domain:pagespeed.web.dev)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "WebFetch(domain:oklch.fyi)",
+      "WebFetch(domain:www.newline.co)",
+      "WebFetch(domain:ui.shadcn.com)"
     ]
   }
 }

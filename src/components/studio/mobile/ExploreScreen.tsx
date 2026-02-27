@@ -57,7 +57,7 @@ export function ExploreScreen() {
       <div className="px-5 pb-3">
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-xl"
-          style={{ backgroundColor: theme.colors.secondary }}
+          style={{ backgroundColor: theme.colors.container }}
         >
           <Search size={13} style={{ color: theme.colors.muted }} />
           <span className="text-[10px]" style={{ color: theme.colors.muted }}>Search tokens</span>
@@ -145,14 +145,14 @@ export function ExploreScreen() {
       <div className="flex items-center gap-2 px-4 pb-5 pt-2">
         <div
           className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-full"
-          style={{ backgroundColor: theme.colors.secondary }}
+          style={{ backgroundColor: theme.colors.container }}
         >
           <Search size={14} style={{ color: theme.colors.muted }} />
           <span className="text-[10px] font-medium" style={{ color: theme.colors.muted }}>Search</span>
         </div>
         <button
           className="px-5 py-2.5 rounded-full text-[11px] font-bold"
-          style={{ backgroundColor: theme.colors.accent, color: theme.colors.onAccent }}
+          style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
         >
           Trade
         </button>

@@ -65,7 +65,7 @@ export function PlayerScreen() {
 
       {/* Progress bar */}
       <div className="px-5 pb-2">
-        <div className="w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: theme.colors.secondary }}>
+        <div className="w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: theme.colors.container }}>
           <div className="h-full rounded-full" style={{ width: "35%", backgroundColor: theme.colors.primary }} />
         </div>
         <div className="flex items-center justify-between mt-1">

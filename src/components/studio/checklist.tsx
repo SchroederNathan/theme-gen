@@ -25,8 +25,8 @@ const people = [
                     id={`person-${person.id}`}
                     name={`person-${person.id}`}
                     type="checkbox"
-                    data-color="secondary"
-                    className="col-start-1 row-start-1 appearance-none rounded-sm border border-border bg-secondary checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:border-border disabled:bg-background disabled:checked:bg-background forced-colors:appearance-auto"
+                    data-color="container"
+                    className="col-start-1 row-start-1 appearance-none rounded-sm border border-border bg-container checked:border-primary checked:bg-primary indeterminate:border-primary indeterminate:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:border-border disabled:bg-background disabled:checked:bg-background forced-colors:appearance-auto"
                   />
                   <svg
                     fill="none"

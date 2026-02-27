@@ -65,10 +65,10 @@ export default function Pricing() {
         {tiers.map((tier, tierIdx) => (
           <div
             key={tier.id}
-            data-color={tier.featured ? "secondary" : "background"}
+            data-color={tier.featured ? "container" : "background"}
             className={classNames(
               tier.featured
-                ? "relative bg-secondary shadow-2xl"
+                ? "relative bg-container shadow-2xl"
                 : "bg-background sm:mx-8 lg:mx-0",
               tier.featured
                 ? ""

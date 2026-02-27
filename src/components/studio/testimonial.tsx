@@ -4,7 +4,7 @@ export default function Testimonial() {
     return (
       <section data-color="background" className="relative isolate overflow-hidden bg-background px-6 lg:px-8 min-h-full flex items-center">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,var(--color-primary-100),white)] opacity-20" />
-        <div data-color="secondary" className="absolute inset-y-0 right-1/2 -z-10 mr-16 w-[200%] origin-bottom-left skew-x-[-30deg] bg-secondary shadow-xl ring-1 shadow-primary/10 ring-border sm:mr-28 lg:mr-0 xl:mr-16 xl:origin-center" />
+        <div data-color="container" className="absolute inset-y-0 right-1/2 -z-10 mr-16 w-[200%] origin-bottom-left skew-x-[-30deg] bg-container shadow-xl ring-1 shadow-primary/10 ring-border sm:mr-28 lg:mr-0 xl:mr-16 xl:origin-center" />
         <div className="mx-auto max-w-2xl lg:max-w-4xl">
           <Image src="/logos/logo.svg" alt="Testimonial" width={400} height={400} className="mx-auto h-12" />
           <figure className="mt-10">

@@ -28,7 +28,7 @@ export default function PreviewToggle() {
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-      <div className="inline-flex items-center gap-1 bg-secondary p-1 rounded-lg shadow-lg border border-border">
+      <div className="inline-flex items-center gap-1 bg-container p-1 rounded-lg shadow-lg border border-border">
         <button
           onClick={() => setMode("web")}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${

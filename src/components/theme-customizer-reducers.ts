@@ -58,7 +58,7 @@ export const initialExportModalState: ExportModalState = {
   exportFormat: 'css',
   tailwindVersion: '4',
   exportMode: 'both',
-  colorFormat: 'hex',
+  colorFormat: 'oklch',
   copied: false,
   isModalClosing: false,
   isModalEntering: false,
@@ -128,6 +128,7 @@ export const initialTooltipState: TooltipState = {
   showRandomizeTooltip: false,
   showThemeTooltip: false,
   showDownloadTooltip: false,
+  harmonyDropdownOpen: false,
 };
 
 export function tooltipReducer(
@@ -149,6 +150,17 @@ export function tooltipReducer(
       return {
         ...state,
         showDownloadTooltip: action.payload,
+      };
+    case 'TOGGLE_HARMONY_DROPDOWN':
+      return {
+        ...state,
+        harmonyDropdownOpen: !state.harmonyDropdownOpen,
+        showRandomizeTooltip: false,
+      };
+    case 'CLOSE_HARMONY_DROPDOWN':
+      return {
+        ...state,
+        harmonyDropdownOpen: false,
       };
     default:
       return state;

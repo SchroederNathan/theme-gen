@@ -19,7 +19,7 @@ export interface ExportModalState {
   exportFormat: 'css' | 'tailwind' | 'scss' | 'swiftui' | 'reactnative';
   tailwindVersion: '3' | '4';
   exportMode: 'light' | 'dark' | 'both';
-  colorFormat: 'hex' | 'rgb' | 'hsl';
+  colorFormat: 'hex' | 'rgb' | 'hsl' | 'oklch';
   copied: boolean;
   isModalClosing: boolean;
   isModalEntering: boolean;
@@ -33,25 +33,29 @@ export type ExportModalAction =
   | { type: 'SET_EXPORT_FORMAT'; payload: 'css' | 'tailwind' | 'scss' | 'swiftui' | 'reactnative' }
   | { type: 'SET_TAILWIND_VERSION'; payload: '3' | '4' }
   | { type: 'SET_EXPORT_MODE'; payload: 'light' | 'dark' | 'both' }
-  | { type: 'SET_COLOR_FORMAT'; payload: 'hex' | 'rgb' | 'hsl' }
+  | { type: 'SET_COLOR_FORMAT'; payload: 'hex' | 'rgb' | 'hsl' | 'oklch' }
   | { type: 'SET_COPIED'; payload: boolean };
 
 export interface TooltipState {
   showRandomizeTooltip: boolean;
   showThemeTooltip: boolean;
   showDownloadTooltip: boolean;
+  harmonyDropdownOpen: boolean;
 }
 
 export type TooltipAction =
   | { type: 'SHOW_RANDOMIZE_TOOLTIP'; payload: boolean }
   | { type: 'SHOW_THEME_TOOLTIP'; payload: boolean }
-  | { type: 'SHOW_DOWNLOAD_TOOLTIP'; payload: boolean };
+  | { type: 'SHOW_DOWNLOAD_TOOLTIP'; payload: boolean }
+  | { type: 'TOGGLE_HARMONY_DROPDOWN' }
+  | { type: 'CLOSE_HARMONY_DROPDOWN' };
 
 export interface ColorButtonData {
   color: string;
   label: string;
   property: string;
   fg: 'text' | 'primary' | 'accent';
-  bg: 'background' | 'secondary';
+  bg: 'background' | 'container';
   target: number;
+  onColor?: string;
 }

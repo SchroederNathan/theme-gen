@@ -6,6 +6,8 @@ declare module "chroma-js" {
     brighten(amount?: number): ChromaColor;
     set(channel: string, value: number): ChromaColor;
     oklch(): [number, number, number];
+    clipped(): boolean;
+    css(mode?: string): string;
   }
 
   interface Chroma {

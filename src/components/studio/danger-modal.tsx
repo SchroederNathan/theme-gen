@@ -36,8 +36,8 @@ export default function DangerModal() {
               type="button"
               data-autofocus
               //   onClick={() => setOpen(false)}
-              data-color="secondary"
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-onSecondary ring-1 ring-border ring-inset hover:bg-secondary/90 sm:mt-0 sm:w-auto"
+              data-color="container"
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-container px-3 py-2 text-sm font-semibold text-onContainer ring-1 ring-border ring-inset hover:bg-container/90 sm:mt-0 sm:w-auto"
             >
               Cancel
             </button>

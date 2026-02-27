@@ -1,8 +1,7 @@
 "use client";
 
 import { Theme, defaultTheme, themes } from "@/lib/themes";
-import { pickOnColor } from "@/lib/colorUtils";
-import chroma from "chroma-js";
+import { mixOklch, pickOnColor } from "@/lib/colorUtils";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 type ThemeContextType = {
@@ -23,7 +22,7 @@ type NestedTheme = {
   [key: string]: string | NestedTheme;
 };
 
-const URL_COLOR_KEYS = ["text", "background", "primary", "secondary", "accent"] as const;
+const URL_COLOR_KEYS = ["text", "background", "primary", "container", "accent"] as const;
 
 function parseColorsFromURL(): Partial<Theme["colors"]> | null {
   const params = new URLSearchParams(window.location.search);
@@ -43,11 +42,11 @@ function parseColorsFromURL(): Partial<Theme["colors"]> | null {
 
   const text = colors.text!;
   const bg = colors.background!;
-  colors.border = chroma.mix(text, bg, 0.82, "rgb").hex();
-  colors.muted = chroma.mix(text, bg, 0.55, "rgb").hex();
+  colors.border = mixOklch(text, bg, 0.82);
+  colors.muted = mixOklch(text, bg, 0.55);
 
   if (colors.primary) colors.onPrimary = pickOnColor(colors.primary);
-  if (colors.secondary) colors.onSecondary = pickOnColor(colors.secondary);
+  if (colors.container) colors.onContainer = pickOnColor(colors.container);
   if (colors.accent) colors.onAccent = pickOnColor(colors.accent);
 
   return colors;

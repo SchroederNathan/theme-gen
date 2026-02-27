@@ -3,13 +3,15 @@
 import { useTheme } from "@/context/ThemeContext";
 import {
   adaptColorsForMode,
+  deriveBaseColorFromLocks,
   generateColorPalette,
   getContrastRatio,
   getTextColor,
+  mixOklch,
   pickOnColor,
+  HarmonyMode,
 } from "@/lib/colorUtils";
 import { Lock, Unlock, Check, X } from "lucide-react";
-import chroma from "chroma-js";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
 import { ExportModal } from "./ExportModal";
 import { ColorPickerPopover } from "./ColorPickerPopover";
@@ -31,6 +33,7 @@ interface ColorButtonProps {
   target: number;
   isDarkTheme: boolean;
   isCompact: boolean;
+  onColor?: string;
 }
 
 type BadgeStage = "pass" | "warn" | "fail";
@@ -52,6 +55,7 @@ function ColorButton({
   target,
   isDarkTheme,
   isCompact,
+  onColor,
 }: ColorButtonProps) {
   const stage = getBadgeStage(ratio, target);
   return (
@@ -81,7 +85,7 @@ function ColorButton({
         className={`${isCompact ? "w-full" : "w-32"} h-full rounded-md flex items-center justify-center hover:cursor-pointer border-1 border-neutral-50 hover:border-neutral-200 transition-colors`}
         style={{ backgroundColor: color }}
       >
-        <p className="text-lg font-bold" style={{ color: getTextColor(color) }}>
+        <p className="text-lg font-bold" style={{ color: onColor || getTextColor(color) }}>
           {label}
         </p>
       </button>
@@ -127,18 +131,18 @@ const contrastAuditDefinitions = [
     required: true,
   },
   {
-    id: "text/secondary",
-    label: "Text on Secondary",
+    id: "text/container",
+    label: "Text on Container",
     foreground: "text",
-    background: "secondary",
+    background: "container",
     min: 4.5,
     required: true,
   },
   {
-    id: "accent/secondary",
-    label: "Accent on Secondary",
+    id: "accent/container",
+    label: "Accent on Container",
     foreground: "accent",
-    background: "secondary",
+    background: "container",
     min: 3,
     required: true,
   },
@@ -178,6 +182,7 @@ export function ThemeCustomizer() {
   const [colorPickerState, dispatchColorPicker] = useReducer(colorPickerReducer, initialColorPickerState);
 
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
+  const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>("complementary");
   const [isCompact, setIsCompact] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
 
@@ -221,18 +226,21 @@ export function ThemeCustomizer() {
       selectedProperty === "background" ? newColor : theme.colors.background;
 
     if (!lockedColors.has("border")) {
-      const newBorder = chroma.mix(currentText, currentBg, 0.82, "rgb").hex();
+      const newBorder = mixOklch(currentText, currentBg, 0.82);
       updateThemeProperty(["colors", "border"], newBorder);
     }
     if (!lockedColors.has("muted")) {
-      const newMuted = chroma.mix(currentText, currentBg, 0.55, "rgb").hex();
+      const newMuted = mixOklch(currentText, currentBg, 0.55);
       updateThemeProperty(["colors", "muted"], newMuted);
     }
 
     const onColorMap: Record<string, string> = {
       primary: "onPrimary",
-      secondary: "onSecondary",
+      container: "onContainer",
       accent: "onAccent",
+      success: "onSuccess",
+      error: "onError",
+      warning: "onWarning",
     };
     if (onColorMap[selectedProperty]) {
       updateThemeProperty(
@@ -264,12 +272,16 @@ export function ThemeCustomizer() {
       }
     });
 
-    let palette = generateColorPalette(
+    const randomHex = () =>
       `#${Math.floor(Math.random() * 16777215)
         .toString(16)
-        .padStart(6, "0")}`,
+        .padStart(6, "0")}`;
+
+    let palette = generateColorPalette(
+      deriveBaseColorFromLocks(lockedColorValues, harmonyMode) || randomHex(),
       themeName === "dark",
       lockedColorValues,
+      harmonyMode,
     );
 
     for (
@@ -278,11 +290,10 @@ export function ThemeCustomizer() {
       index += 1
     ) {
       palette = generateColorPalette(
-        `#${Math.floor(Math.random() * 16777215)
-          .toString(16)
-          .padStart(6, "0")}`,
+        deriveBaseColorFromLocks(lockedColorValues, harmonyMode) || randomHex(),
         themeName === "dark",
         lockedColorValues,
+        harmonyMode,
       );
     }
 
@@ -390,22 +401,25 @@ export function ThemeCustomizer() {
       fg: "primary",
       bg: "background",
       target: 3,
+      onColor: theme.colors.onPrimary,
     },
     {
-      color: theme.colors.secondary,
-      label: "Secondary",
-      property: "secondary",
+      color: theme.colors.container,
+      label: "Container",
+      property: "container",
       fg: "text",
-      bg: "secondary",
+      bg: "container",
       target: 4.5,
+      onColor: theme.colors.onContainer,
     },
     {
       color: theme.colors.accent,
       label: "Accent",
       property: "accent",
       fg: "accent",
-      bg: "secondary",
+      bg: "container",
       target: 3,
+      onColor: theme.colors.onAccent,
     },
   ];
 
@@ -455,7 +469,7 @@ export function ThemeCustomizer() {
                 : "flex-row gap-4 w-auto h-full"
             }`}
           >
-            {colorButtons.map(({ color, label, property, target }) => (
+            {colorButtons.map(({ color, label, property, target, onColor }) => (
               <ColorButton
                 key={property}
                 color={color}
@@ -468,6 +482,7 @@ export function ThemeCustomizer() {
                 target={target}
                 isDarkTheme={themeName === "dark"}
                 isCompact={isCompact}
+                onColor={onColor}
               />
             ))}
           </div>
@@ -480,6 +495,8 @@ export function ThemeCustomizer() {
             currentContrastAudit={currentContrastAudit}
             requiredContrastPassCount={requiredContrastPassCount}
             requiredContrastAuditLength={requiredContrastAudit.length}
+            harmonyMode={harmonyMode}
+            onHarmonyModeChange={setHarmonyMode}
             onUndo={undo}
             onRedo={redo}
             onSmartShuffle={smartShuffle}
