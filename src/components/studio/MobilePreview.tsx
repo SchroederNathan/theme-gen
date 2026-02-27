@@ -1,23 +1,30 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
+import Image from "next/image";
 import {
   Wifi,
   Battery,
   Signal,
   Search,
-  Home,
-  User,
-  TrendingUp,
+  Settings,
   ArrowUpRight,
   ArrowDownRight,
   CreditCard,
-  PieChart,
   Send,
-  Plus,
-  BarChart3,
-  Bell,
+  Download,
+  ScanLine,
+  Star,
   ChevronRight,
+  Flame,
+  ChevronDown,
+  MoreHorizontal,
+  Play,
+  SkipBack,
+  SkipForward,
+  Shuffle,
+  Repeat,
+  Heart,
 } from "lucide-react";
 
 function StatusBar() {
@@ -29,379 +36,437 @@ function StatusBar() {
     >
       <span>9:41</span>
       <div className="flex items-center gap-1">
-        <Signal size={10} aria-hidden="true" />
-        <Wifi size={10} aria-hidden="true" />
-        <Battery size={12} aria-hidden="true" />
+        <Signal size={10} />
+        <Wifi size={10} />
+        <Battery size={12} />
       </div>
     </div>
-  );
-}
-
-function MeshGradient({ id, primary, accent }: { id: string; primary: string; accent: string }) {
-  return (
-    <>
-      {/* Radial gradient blobs anchored to top-left */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: [
-            `radial-gradient(ellipse 70% 55% at 10% 5%, ${primary} 0%, transparent 55%)`,
-            `radial-gradient(ellipse 45% 60% at 0% 20%, ${accent}cc 0%, transparent 45%)`,
-            `radial-gradient(ellipse 35% 30% at 35% 0%, ${accent}88 0%, transparent 40%)`,
-            `radial-gradient(ellipse 25% 35% at 5% 45%, ${primary}66 0%, transparent 35%)`,
-          ].join(", "),
-          maskImage: "radial-gradient(ellipse 85% 65% at 0% 0%, black 15%, transparent 65%)",
-          WebkitMaskImage: "radial-gradient(ellipse 85% 65% at 0% 0%, black 15%, transparent 65%)",
-        }}
-        aria-hidden="true"
-      />
-      {/* Noise texture — breaks up the smooth gradient into organic mesh */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: 0.18, mixBlendMode: "overlay" }}
-        aria-hidden="true"
-      >
-        <filter id={`mesh-${id}`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="2" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#mesh-${id})`} />
-      </svg>
-    </>
   );
 }
 
 function MiniChart({ up, color }: { up: boolean; color: string }) {
   const d = up
-    ? "M0 14 L4 11 L8 12 L12 8 L16 9 L20 5 L24 3 L28 1"
-    : "M0 2 L4 4 L8 3 L12 7 L16 9 L20 11 L24 12 L28 14";
+    ? "M0 12 L3 10 L6 11 L9 8 L12 9 L15 6 L18 5 L21 4 L24 2"
+    : "M0 3 L3 5 L6 3 L9 6 L12 8 L15 7 L18 10 L21 11 L24 13";
   return (
-    <svg width={28} height={16} viewBox="0 0 28 16" fill="none" aria-hidden="true">
-      <path d={d} stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={28} height={14} viewBox="0 0 28 14" fill="none" aria-hidden="true">
+      <path d={d} stroke={color} strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function MobilePortfolioScreen() {
+function MobileWalletScreen() {
   const { theme } = useTheme();
 
-  const allocations = [
-    { name: "Stocks", value: "$32.4k", pct: "67%", color: theme.colors.primary },
-    { name: "Crypto", value: "$8.2k", pct: "17%", color: theme.colors.accent },
-    { name: "Bonds", value: "$7.7k", pct: "16%", color: theme.colors.success },
+  const tokens = [
+    { symbol: "ETH", name: "Ethereum", price: "$3,718.71", change: "+4.66%", up: true },
+    { symbol: "USDC", name: "USD Coin", price: "$1.00", change: "-0.01%", up: false },
+    { symbol: "SOL", name: "Solana", price: "$148.32", change: "+6.57%", up: true },
+    { symbol: "MATIC", name: "Polygon", price: "$0.724", change: "+7.43%", up: true },
   ];
 
-  const transactions = [
-    { label: "Apple Inc.", detail: "Buy · 2 shares", amount: "-$379.68", positive: false },
-    { label: "Dividend", detail: "MSFT · Quarterly", amount: "+$12.50", positive: true },
-    { label: "Tesla Inc.", detail: "Sell · 1 share", amount: "+$248.42", positive: true },
+  const tokenColors = [
+    theme.colors.primary,
+    theme.colors.accent,
+    theme.colors.success,
+    theme.colors.warning,
   ];
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <MeshGradient id="portfolio" primary={theme.colors.primary} accent={theme.colors.accent} />
+    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
+      <StatusBar />
+
+      {/* Profile + settings */}
+      <div className="flex items-center justify-between px-5 pt-1">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold"
+          style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
+        >
+          A
+        </div>
+        <button aria-label="Settings">
+          <Settings size={18} style={{ color: theme.colors.muted }} />
+        </button>
       </div>
 
-      <div className="relative z-10 flex flex-col h-full">
-        <StatusBar />
-
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-5 pt-2 pb-1">
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
-            style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
+      {/* Username + balance */}
+      <div className="px-5 pt-2">
+        <div className="flex items-center gap-2">
+          <p className="text-[12px] font-bold">schroedernathan</p>
+          <span
+            className="text-[8px] px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: theme.colors.secondary, color: theme.colors.muted }}
           >
-            N
-          </div>
-          <button aria-label="Notifications">
-            <Bell size={16} style={{ color: theme.colors.muted }} />
-          </button>
+            0x7094...2242
+          </span>
         </div>
-
-        {/* Balance */}
-        <div className="px-5 pt-3 pb-2">
-          <p className="text-[10px] font-medium" style={{ color: theme.colors.muted }}>Total Balance</p>
-          <p
-            className="text-[28px] font-bold mt-0.5"
-            style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}
-          >
-            $48,291<span className="text-[18px]" style={{ color: theme.colors.muted }}>.57</span>
-          </p>
-          <div
-            className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: `${theme.colors.success}15` }}
-          >
-            <ArrowUpRight size={10} style={{ color: theme.colors.success }} aria-hidden="true" />
-            <span className="text-[9px] font-semibold" style={{ color: theme.colors.success }}>
-              +$1,243.80 (2.64%)
-            </span>
-          </div>
+        <p
+          className="text-[30px] font-bold mt-1"
+          style={{ fontVariantNumeric: "tabular-nums", letterSpacing: "-0.03em" }}
+        >
+          $4,829<span style={{ color: theme.colors.muted }}>.15</span>
+        </p>
+        <div className="flex items-center gap-1 mt-0.5">
+          <ArrowUpRight size={10} style={{ color: theme.colors.success }} />
+          <span className="text-[10px] font-medium" style={{ color: theme.colors.success }}>3.42%</span>
         </div>
+      </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 px-5 py-3">
+      {/* Action buttons */}
+      <div className="flex gap-2.5 px-5 pt-3 pb-3">
+        {[CreditCard, Send, Download, ScanLine].map((Icon, i) => (
           <button
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-semibold"
-            style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
+            key={i}
+            className="flex-1 flex items-center justify-center py-3.5 rounded-2xl"
+            style={{ backgroundColor: `${theme.colors.primary}15` }}
           >
-            <Plus size={12} /> Deposit
+            <Icon size={18} style={{ color: theme.colors.primary }} />
           </button>
-          <button
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-semibold border"
-            style={{ borderColor: theme.colors.border, color: theme.colors.text }}
-          >
-            <Send size={12} /> Send
-          </button>
-        </div>
+        ))}
+      </div>
 
-        {/* Allocation cards */}
-        <div className="flex gap-2 px-5 py-2">
-          {allocations.map((a) => (
-            <div
-              key={a.name}
-              className="flex-1 p-2.5 rounded-xl min-w-0 border"
-              style={{ borderColor: theme.colors.border }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: a.color }} />
-                <span className="text-[8px] font-medium truncate" style={{ color: theme.colors.muted }}>{a.name}</span>
-              </div>
-              <p className="text-[12px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
-                {a.value}
-              </p>
-              <p className="text-[8px] font-semibold mt-0.5" style={{ color: a.color }}>{a.pct}</p>
+      {/* Welcome banner */}
+      <div className="mx-5 mb-3 p-3 rounded-2xl" style={{ backgroundColor: theme.colors.secondary }}>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: `${theme.colors.accent}18` }}
+          >
+            <Star size={14} style={{ color: theme.colors.accent }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold">Welcome to ThemeGen</p>
+              <span className="text-[9px]" style={{ color: theme.colors.muted }}>Swipe</span>
             </div>
-          ))}
-        </div>
-
-        {/* Activity */}
-        <div className="flex-1 overflow-hidden mt-1">
-          <div className="flex items-center justify-between px-5 mb-1.5">
-            <p className="text-[11px] font-bold">Activity</p>
-            <button className="flex items-center gap-0.5">
-              <span className="text-[9px] font-semibold" style={{ color: theme.colors.primary }}>See all</span>
-              <ChevronRight size={10} style={{ color: theme.colors.primary }} />
-            </button>
+            <p className="text-[9px] mt-0.5 leading-relaxed" style={{ color: theme.colors.muted }}>
+              Preview your palette across real UI components.
+            </p>
           </div>
-          <div className="px-5">
-            {transactions.map((tx, i) => (
-              <article
-                key={i}
-                className="flex items-center gap-2.5 py-2"
-                style={{ borderBottom: i < transactions.length - 1 ? `1px solid ${theme.colors.border}` : undefined }}
-              >
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+        </div>
+      </div>
+
+      {/* Token list */}
+      <div className="flex-1 overflow-hidden">
+        <p className="text-[13px] font-bold px-5 mb-2">Explore tokens</p>
+        {tokens.map((token, i) => (
+          <article key={token.symbol} className="flex items-center gap-2.5 px-5 py-2">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0"
+              style={{ backgroundColor: `${tokenColors[i]}15`, color: tokenColors[i] }}
+            >
+              {token.symbol.slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold">{token.name}</p>
+              <p className="text-[9px]" style={{ color: theme.colors.muted }}>{token.symbol}</p>
+            </div>
+            <MiniChart up={token.up} color={token.up ? `${theme.colors.success}88` : `${theme.colors.error}88`} />
+            <div className="text-right flex-shrink-0 ml-1">
+              <p className="text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {token.price}
+              </p>
+              <div className="flex items-center justify-end gap-0.5">
+                {token.up ? (
+                  <ArrowUpRight size={8} style={{ color: theme.colors.success }} />
+                ) : (
+                  <ArrowDownRight size={8} style={{ color: theme.colors.error }} />
+                )}
+                <span
+                  className="text-[9px] font-medium"
                   style={{
-                    backgroundColor: tx.positive ? `${theme.colors.success}12` : `${theme.colors.primary}12`,
-                  }}
-                >
-                  {tx.positive ? (
-                    <ArrowUpRight size={14} style={{ color: theme.colors.success }} />
-                  ) : (
-                    <ArrowDownRight size={14} style={{ color: theme.colors.primary }} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold truncate">{tx.label}</p>
-                  <p className="text-[9px]" style={{ color: theme.colors.muted }}>{tx.detail}</p>
-                </div>
-                <p
-                  className="text-[11px] font-bold flex-shrink-0"
-                  style={{
-                    color: tx.positive ? theme.colors.success : theme.colors.text,
+                    color: token.up ? theme.colors.success : theme.colors.error,
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
-                  {tx.amount}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
+                  {token.change}
+                </span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
 
-        {/* Tab bar */}
-        <nav className="flex items-center justify-around pt-2 pb-4" style={{ borderTop: `1px solid ${theme.colors.border}` }}>
-          {[
-            { icon: Home, label: "Home", active: true },
-            { icon: BarChart3, label: "Invest", active: false },
-            { icon: Send, label: "Send", active: false },
-            { icon: CreditCard, label: "Cards", active: false },
-            { icon: User, label: "Profile", active: false },
-          ].map(({ icon: Icon, label, active }) => (
-            <button key={label} className="flex flex-col items-center gap-1 relative" aria-label={label}>
-              {active && (
-                <div
-                  className="absolute -top-2 w-8 h-0.5 rounded-full"
-                  style={{ backgroundColor: theme.colors.primary }}
-                />
-              )}
-              <Icon size={16} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
-              <span
-                className={`text-[7px] ${active ? "font-bold" : "font-medium"}`}
-                style={{ color: active ? theme.colors.primary : theme.colors.muted }}
-              >
-                {label}
-              </span>
-            </button>
-          ))}
-        </nav>
+      {/* Bottom bar */}
+      <div className="flex items-center gap-2 px-4 pb-5 pt-2">
+        <div
+          className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-full"
+          style={{ backgroundColor: theme.colors.secondary }}
+        >
+          <Search size={14} style={{ color: theme.colors.muted }} />
+          <span className="text-[10px] font-medium" style={{ color: theme.colors.muted }}>Search</span>
+        </div>
+        <button
+          className="px-5 py-2.5 rounded-full text-[11px] font-bold"
+          style={{ backgroundColor: theme.colors.primary, color: theme.colors.onPrimary }}
+        >
+          Swap
+        </button>
       </div>
     </div>
   );
 }
 
-function MobileMarketScreen() {
+function MobileExploreScreen() {
   const { theme } = useTheme();
 
-  const indices = [
-    { name: "S&P 500", value: "5,218", change: "+0.87%", up: true },
-    { name: "NASDAQ", value: "16,340", change: "+1.14%", up: true },
-    { name: "DOW", value: "38,503", change: "-0.22%", up: false },
+  const trending = [
+    { symbol: "PEPE", change: "+24.5%", up: true },
+    { symbol: "ARB", change: "+12.3%", up: true },
+    { symbol: "DOGE", change: "-3.2%", up: false },
   ];
 
-  const holdings = [
-    { symbol: "AAPL", name: "Apple Inc.", price: "$189.84", change: "+2.34%", up: true },
-    { symbol: "TSLA", name: "Tesla Inc.", price: "$248.42", change: "-1.12%", up: false },
-    { symbol: "NVDA", name: "NVIDIA Corp.", price: "$875.28", change: "+4.67%", up: true },
-    { symbol: "MSFT", name: "Microsoft", price: "$378.91", change: "+0.89%", up: true },
-  ];
-
-  const symbolColors = [
-    theme.colors.primary,
-    theme.colors.error,
+  const trendingColors = [
     theme.colors.success,
     theme.colors.accent,
+    theme.colors.primary,
+  ];
+
+  const tokens = [
+    { symbol: "BTC", name: "Bitcoin", price: "$67,432", change: "+1.82%", up: true, rank: 1 },
+    { symbol: "ETH", name: "Ethereum", price: "$3,718", change: "+4.66%", up: true, rank: 2 },
+    { symbol: "SOL", name: "Solana", price: "$148.32", change: "+6.57%", up: true, rank: 3 },
+    { symbol: "BNB", name: "BNB Chain", price: "$612.48", change: "-0.34%", up: false, rank: 4 },
+    { symbol: "AVAX", name: "Avalanche", price: "$38.92", change: "+3.21%", up: true, rank: 5 },
+  ];
+
+  const tokenColors = [
+    theme.colors.warning,
+    theme.colors.primary,
+    theme.colors.success,
+    theme.colors.accent,
+    theme.colors.error,
   ];
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <MeshGradient id="markets" primary={theme.colors.primary} accent={theme.colors.accent} />
+    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
+      <StatusBar />
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-1 pb-2">
+        <h1 className="text-[17px] font-bold">Explore</h1>
+        <button aria-label="Settings">
+          <Settings size={18} style={{ color: theme.colors.muted }} />
+        </button>
       </div>
 
-      <div className="relative z-10 flex flex-col h-full">
-        <StatusBar />
-
-        {/* Header */}
-        <div className="px-5 pt-2 pb-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[17px] font-bold">Markets</h1>
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: theme.colors.secondary }}
-            >
-              <Search size={13} style={{ color: theme.colors.muted }} />
-            </div>
-          </div>
+      {/* Search bar */}
+      <div className="px-5 pb-3">
+        <div
+          className="flex items-center gap-2 px-3 py-2 rounded-xl"
+          style={{ backgroundColor: theme.colors.secondary }}
+        >
+          <Search size={13} style={{ color: theme.colors.muted }} />
+          <span className="text-[10px]" style={{ color: theme.colors.muted }}>Search tokens</span>
         </div>
+      </div>
 
-        {/* Index cards */}
-        <div className="flex gap-2 px-4 pb-3">
-          {indices.map((idx) => (
+      {/* Trending */}
+      <div className="px-5 pb-3">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Flame size={12} style={{ color: theme.colors.primary }} />
+          <p className="text-[11px] font-bold">Trending</p>
+        </div>
+        <div className="flex gap-2">
+          {trending.map((t, i) => (
             <div
-              key={idx.name}
-              className="flex-1 p-2.5 rounded-xl min-w-0 border"
-              style={{ borderColor: theme.colors.border }}
+              key={t.symbol}
+              className="flex-1 p-2.5 rounded-xl"
+              style={{ backgroundColor: `${trendingColors[i]}0a` }}
             >
-              <p className="text-[8px] font-medium truncate" style={{ color: theme.colors.muted }}>{idx.name}</p>
-              <p
-                className="text-[10px] font-bold mt-0.5"
-                style={{ fontVariantNumeric: "tabular-nums" }}
-              >
-                {idx.value}
-              </p>
               <div
-                className="inline-flex items-center gap-0.5 mt-1 px-1.5 py-0.5 rounded-full"
-                style={{ backgroundColor: idx.up ? `${theme.colors.success}12` : `${theme.colors.error}12` }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[8px] font-bold mb-1.5"
+                style={{ backgroundColor: `${trendingColors[i]}15`, color: trendingColors[i] }}
               >
-                {idx.up ? (
-                  <ArrowUpRight size={7} style={{ color: theme.colors.success }} aria-hidden="true" />
-                ) : (
-                  <ArrowDownRight size={7} style={{ color: theme.colors.error }} aria-hidden="true" />
-                )}
-                <span
-                  className="text-[7px] font-bold"
-                  style={{ color: idx.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
-                >
-                  {idx.change}
-                </span>
+                {t.symbol.slice(0, 2)}
               </div>
+              <p className="text-[10px] font-bold">{t.symbol}</p>
+              <p
+                className="text-[9px] font-semibold mt-0.5"
+                style={{ color: t.up ? theme.colors.success : theme.colors.error }}
+              >
+                {t.change}
+              </p>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Watchlist */}
-        <div className="flex-1 overflow-hidden">
-          <div className="flex items-center justify-between px-5 pt-1 pb-2">
-            <p className="text-[11px] font-bold">Watchlist</p>
-            <button className="flex items-center gap-0.5">
-              <span className="text-[9px] font-semibold" style={{ color: theme.colors.accent }}>See all</span>
-              <ChevronRight size={10} style={{ color: theme.colors.accent }} />
-            </button>
-          </div>
-          {holdings.map((stock, i) => (
-            <article
-              key={stock.symbol}
-              className="flex items-center gap-2.5 px-5 py-2"
-              style={{ borderBottom: i < holdings.length - 1 ? `1px solid ${theme.colors.border}` : undefined }}
+      {/* Top tokens */}
+      <div className="flex-1 overflow-hidden">
+        <div className="flex items-center justify-between px-5 mb-2">
+          <p className="text-[13px] font-bold">Top tokens</p>
+          <button className="flex items-center gap-0.5">
+            <span className="text-[9px] font-semibold" style={{ color: theme.colors.primary }}>See all</span>
+            <ChevronRight size={10} style={{ color: theme.colors.primary }} />
+          </button>
+        </div>
+        {tokens.map((token, i) => (
+          <article key={token.symbol} className="flex items-center gap-2 px-5 py-1.5">
+            <span
+              className="text-[8px] font-medium w-3 text-right"
+              style={{ color: theme.colors.muted }}
             >
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-[9px] font-bold flex-shrink-0"
+              {token.rank}
+            </span>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0"
+              style={{ backgroundColor: `${tokenColors[i]}12`, color: tokenColors[i] }}
+            >
+              {token.symbol.slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold">{token.name}</p>
+              <p className="text-[9px]" style={{ color: theme.colors.muted }}>{token.symbol}</p>
+            </div>
+            <MiniChart up={token.up} color={token.up ? `${theme.colors.success}88` : `${theme.colors.error}88`} />
+            <div className="text-right flex-shrink-0 ml-1">
+              <p className="text-[10px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {token.price}
+              </p>
+              <p
+                className="text-[9px] font-medium"
                 style={{
-                  backgroundColor: `${symbolColors[i]}12`,
-                  color: symbolColors[i],
+                  color: token.up ? theme.colors.success : theme.colors.error,
+                  fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {stock.symbol.slice(0, 2)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold truncate">{stock.symbol}</p>
-                <p className="text-[9px] truncate" style={{ color: theme.colors.muted }}>{stock.name}</p>
-              </div>
-              <MiniChart up={stock.up} color={stock.up ? theme.colors.success : theme.colors.error} />
-              <div className="text-right flex-shrink-0">
-                <p className="text-[11px] font-semibold" style={{ fontVariantNumeric: "tabular-nums" }}>
-                  {stock.price}
-                </p>
-                <p
-                  className="text-[9px] font-semibold"
-                  style={{ color: stock.up ? theme.colors.success : theme.colors.error, fontVariantNumeric: "tabular-nums" }}
-                >
-                  {stock.change}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
+                {token.change}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
 
-        {/* Tab bar */}
-        <nav className="flex items-center justify-around pt-2 pb-4" style={{ borderTop: `1px solid ${theme.colors.border}` }}>
-          {[
-            { icon: Home, label: "Home", active: false },
-            { icon: PieChart, label: "Invest", active: false },
-            { icon: TrendingUp, label: "Markets", active: true },
-            { icon: CreditCard, label: "Cards", active: false },
-            { icon: User, label: "Profile", active: false },
-          ].map(({ icon: Icon, label, active }) => (
-            <button key={label} className="flex flex-col items-center gap-1 relative" aria-label={label}>
-              {active && (
-                <div
-                  className="absolute -top-2 w-8 h-0.5 rounded-full"
-                  style={{ backgroundColor: theme.colors.primary }}
-                />
-              )}
-              <Icon size={16} style={{ color: active ? theme.colors.primary : theme.colors.muted }} aria-hidden="true" />
-              <span
-                className={`text-[7px] ${active ? "font-bold" : "font-medium"}`}
-                style={{ color: active ? theme.colors.primary : theme.colors.muted }}
-              >
-                {label}
-              </span>
+      {/* Bottom bar */}
+      <div className="flex items-center gap-2 px-4 pb-5 pt-2">
+        <div
+          className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-full"
+          style={{ backgroundColor: theme.colors.secondary }}
+        >
+          <Search size={14} style={{ color: theme.colors.muted }} />
+          <span className="text-[10px] font-medium" style={{ color: theme.colors.muted }}>Search</span>
+        </div>
+        <button
+          className="px-5 py-2.5 rounded-full text-[11px] font-bold"
+          style={{ backgroundColor: theme.colors.accent, color: theme.colors.onAccent }}
+        >
+          Trade
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MobilePlayerScreen() {
+  const { theme } = useTheme();
+
+  const queue = [
+    { title: "Breathe (In The Air)", artist: "Pink Floyd", image: "/mobile/breathe-song-cover.png" },
+    { title: "Are You Looking Up", artist: "Mk.Gee", image: "/mobile/mkgee-song-cover.png" },
+    { title: "Golden Hour", artist: "JVKE", image: "/mobile/song-cover.png" },
+  ];
+
+  return (
+    <div className="flex flex-col h-full" style={{ backgroundColor: theme.colors.background, color: theme.colors.text }}>
+      <StatusBar />
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-2 pb-1">
+        <button aria-label="Minimize">
+          <ChevronDown size={18} style={{ color: theme.colors.muted }} />
+        </button>
+        <p className="text-[11px] font-bold">Now Playing</p>
+        <button aria-label="More options">
+          <MoreHorizontal size={18} style={{ color: theme.colors.muted }} />
+        </button>
+      </div>
+
+      {/* Album art */}
+      <div className="px-5 pt-2 pb-3">
+        <div className="relative aspect-square rounded-md overflow-hidden shadow-lg">
+          <Image
+            src="/mobile/mary-song-cover.png"
+            alt="Album cover"
+            fill
+            className="object-cover"
+          />
+        </div>
+      </div>
+
+      {/* Song info */}
+      <div className="flex items-center justify-between px-5 pb-1">
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-bold truncate">Mary</p>
+          <p className="text-[11px] " style={{ color: theme.colors.muted }}>Black Country, New Road</p>
+        </div>
+        <button aria-label="Like">
+          <Heart size={16} fill={theme.colors.primary} style={{ color: theme.colors.primary }} />
+        </button>
+      </div>
+
+      {/* Progress bar */}
+      <div className="px-5 pb-2">
+        <div className="w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: theme.colors.secondary }}>
+          <div className="h-full rounded-full" style={{ width: "35%", backgroundColor: theme.colors.primary }} />
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-[9px]" style={{ color: theme.colors.muted, fontVariantNumeric: "tabular-nums" }}>1:24</span>
+          <span className="text-[9px]" style={{ color: theme.colors.muted, fontVariantNumeric: "tabular-nums" }}>3:48</span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-between px-8 pb-3">
+        <button aria-label="Shuffle">
+          <Shuffle size={16} style={{ color: theme.colors.muted }} />
+        </button>
+        <button aria-label="Previous">
+          <SkipBack size={20} fill={theme.colors.text} style={{ color: theme.colors.text }} />
+        </button>
+        <button
+          className="w-12 h-12 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: theme.colors.primary }}
+          aria-label="Play"
+        >
+          <Play size={20} fill={theme.colors.onPrimary} style={{ color: theme.colors.onPrimary, marginLeft: 2 }} />
+        </button>
+        <button aria-label="Next">
+          <SkipForward size={20} fill={theme.colors.text} style={{ color: theme.colors.text }} />
+        </button>
+        <button aria-label="Repeat">
+          <Repeat size={16} style={{ color: theme.colors.primary }} />
+        </button>
+      </div>
+
+      {/* Up next */}
+      <div className="flex-1 overflow-hidden">
+        <div className="flex items-center justify-between px-5 mb-2">
+          <p className="text-[13px] font-bold">Up Next</p>
+          <button className="flex items-center gap-0.5">
+            <span className="text-[9px] font-semibold" style={{ color: theme.colors.primary }}>Queue</span>
+            <ChevronRight size={10} style={{ color: theme.colors.primary }} />
+          </button>
+        </div>
+        {queue.map((song) => (
+          <article key={song.title} className="flex items-center gap-2.5 px-5 py-1.5">
+            <div className="relative w-9 h-9 rounded-sm overflow-hidden flex-shrink-0">
+              <Image
+                src={song.image}
+                alt={song.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold truncate">{song.title}</p>
+              <p className="text-[9px]" style={{ color: theme.colors.muted }}>{song.artist}</p>
+            </div>
+            <button aria-label="More">
+              <MoreHorizontal size={14} style={{ color: theme.colors.muted }} />
             </button>
-          ))}
-        </nav>
+          </article>
+        ))}
       </div>
     </div>
   );
@@ -425,12 +490,15 @@ function PhoneFrame({ children, label }: { children: React.ReactNode; label: str
 
 export default function MobilePreview() {
   return (
-    <div className="flex flex-col items-center gap-16 lg:flex-row lg:items-start lg:justify-center lg:gap-16">
-      <PhoneFrame label="Portfolio">
-        <MobilePortfolioScreen />
+    <div className="flex flex-col items-center gap-16 lg:flex-row lg:flex-wrap lg:items-start lg:justify-center lg:gap-12">
+      <PhoneFrame label="Wallet">
+        <MobileWalletScreen />
       </PhoneFrame>
-      <PhoneFrame label="Markets">
-        <MobileMarketScreen />
+      <PhoneFrame label="Explore">
+        <MobileExploreScreen />
+      </PhoneFrame>
+      <PhoneFrame label="Player">
+        <MobilePlayerScreen />
       </PhoneFrame>
     </div>
   );
