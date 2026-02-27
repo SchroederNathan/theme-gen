@@ -1,13 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Bento from "../components/Bento";
 import Hero from "../components/Hero";
 import PreviewHero from "@/components/studio/hero";
 import Pricing from "@/components/studio/pricing";
 import PreviewToggle, { PreviewModeProvider, usePreviewMode } from "@/components/studio/PreviewToggle";
-
-const MobilePreview = dynamic(() => import("@/components/studio/MobilePreview"), { ssr: false });
+import MobilePreview from "@/components/studio/MobilePreview";
 
 function PageContent() {
   const { mode } = usePreviewMode();
@@ -16,16 +14,17 @@ function PageContent() {
     <div className="min-h-screen bg-background text-text pb-24">
       <PreviewToggle />
 
-      {mode === "web" ? (
-        <>
-          <Hero />
-          <Bento />
-          <main className="relative">
-            <PreviewHero />
-            <Pricing />
-          </main>
-        </>
-      ) : (
+      {/* Both views stay mounted — hidden via CSS to preserve state */}
+      <div style={{ display: mode === "web" ? "contents" : "none" }}>
+        <Hero />
+        <Bento />
+        <main className="relative">
+          <PreviewHero />
+          <Pricing />
+        </main>
+      </div>
+
+      <div style={{ display: mode === "mobile" ? "block" : "none" }}>
         <div className="pt-20">
           <div className="overflow-hidden bg-background py-16 sm:py-20">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -44,7 +43,7 @@ function PageContent() {
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
