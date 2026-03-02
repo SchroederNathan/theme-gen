@@ -1,5 +1,6 @@
 import {
   Download,
+  Link2,
   Moon,
   Redo2,
   Shuffle,
@@ -31,6 +32,7 @@ interface ToolbarButtonsProps {
   onSmartShuffle: () => void;
   onToggleTheme: () => void;
   onExportClick: () => void;
+  onShareClick: () => void;
 }
 
 export function ToolbarButtons({
@@ -46,6 +48,7 @@ export function ToolbarButtons({
   onSmartShuffle,
   onToggleTheme,
   onExportClick,
+  onShareClick,
 }: ToolbarButtonsProps) {
   const [tooltipState, dispatchTooltip] = useReducer(tooltipReducer, initialTooltipState);
 
@@ -150,6 +153,15 @@ export function ToolbarButtons({
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
           </div>
         )}
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onShareClick}
+          className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          title="Share Theme URL"
+        >
+          <Link2 size={16} className="text-neutral-800" />
+        </button>
       </div>
       <div className="relative h-full">
         <button
