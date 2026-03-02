@@ -13,7 +13,7 @@ import {
 } from "@/lib/colorUtils";
 import { Lock, Unlock, Check, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
-import { ExportModal } from "./ExportModal";
+import { ExportPanel } from "./ExportPanel";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
 import {
@@ -184,7 +184,7 @@ export function ThemeCustomizer() {
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>("complementary");
   const [isCompact, setIsCompact] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
+  const [showExportPanel, setShowExportPanel] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -445,7 +445,7 @@ export function ThemeCustomizer() {
 
   return (
     <>
-      <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
+      <ExportPanel isOpen={showExportPanel} onClose={() => setShowExportPanel(false)} />
 
       <div
         ref={containerRef}
@@ -501,7 +501,10 @@ export function ThemeCustomizer() {
             onRedo={redo}
             onSmartShuffle={smartShuffle}
             onToggleTheme={toggleTheme}
-            onExportClick={() => setShowExportModal(!showExportModal)}
+            onShareClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+            }}
+            onExportClick={() => setShowExportPanel(!showExportPanel)}
           />
         </div>
 
