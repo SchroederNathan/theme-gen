@@ -4,6 +4,14 @@ import { Theme, defaultTheme, themes } from "@/lib/themes";
 import { mixOklch, pickOnColor } from "@/lib/colorUtils";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
+export interface SavedTheme {
+  id: string;
+  name: string;
+  theme: Theme;
+  themeName: string;
+  savedAt: string;
+}
+
 type ThemeContextType = {
   theme: Theme;
   themeName: string;
@@ -14,6 +22,10 @@ type ThemeContextType = {
   canUndo: boolean;
   canRedo: boolean;
   pushHistory: () => void;
+  savedThemes: SavedTheme[];
+  saveCurrentTheme: (name: string) => void;
+  deleteSavedTheme: (id: string) => void;
+  loadSavedTheme: (saved: SavedTheme) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -87,6 +99,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isRestoringRef = useRef(false);
   const initializedRef = useRef(false);
 
+  const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
+
   useEffect(() => {
     const urlColors = parseColorsFromURL();
     if (urlColors) {
@@ -101,18 +115,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(hydrated);
       updateCSSVariables(hydrated);
       initializedRef.current = true;
-      return;
+    } else {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme && themes[savedTheme]) {
+        setThemeName(savedTheme);
+        setTheme(themes[savedTheme]);
+        updateCSSVariables(themes[savedTheme]);
+      } else {
+        updateCSSVariables(themes[defaultTheme]);
+      }
+      initializedRef.current = true;
     }
 
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme && themes[savedTheme]) {
-      setThemeName(savedTheme);
-      setTheme(themes[savedTheme]);
-      updateCSSVariables(themes[savedTheme]);
-    } else {
-      updateCSSVariables(themes[defaultTheme]);
+    // Load saved themes from localStorage
+    try {
+      const stored = localStorage.getItem("userSavedThemes");
+      if (stored) {
+        setSavedThemes(JSON.parse(stored));
+      }
+    } catch {
+      // ignore parse errors
     }
-    initializedRef.current = true;
   }, []);
 
   // Sync CSS variables + localStorage + URL whenever theme changes
@@ -139,6 +162,37 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
     setFuture([]);
   }, [theme]);
+
+  const saveCurrentTheme = useCallback((name: string) => {
+    const entry: SavedTheme = {
+      id: `saved-${Date.now()}`,
+      name: name.trim() || "Untitled Theme",
+      theme: { ...theme, colors: { ...theme.colors } },
+      themeName: themeNameRef.current,
+      savedAt: new Date().toISOString(),
+    };
+    setSavedThemes((prev) => {
+      const updated = [entry, ...prev];
+      localStorage.setItem("userSavedThemes", JSON.stringify(updated));
+      return updated;
+    });
+  }, [theme]);
+
+  const deleteSavedTheme = useCallback((id: string) => {
+    setSavedThemes((prev) => {
+      const updated = prev.filter((s) => s.id !== id);
+      localStorage.setItem("userSavedThemes", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const loadSavedTheme = useCallback((saved: SavedTheme) => {
+    pushHistory();
+    setThemeName(saved.themeName);
+    setTheme(saved.theme);
+    updateCSSVariables(saved.theme);
+    localStorage.setItem("theme", saved.themeName);
+  }, [pushHistory]);
 
   const undo = useCallback(() => {
     setHistory((prev) => {
@@ -225,6 +279,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         canUndo: history.length > 0,
         canRedo: future.length > 0,
         pushHistory,
+        savedThemes,
+        saveCurrentTheme,
+        deleteSavedTheme,
+        loadSavedTheme,
       }}
     >
       {children}

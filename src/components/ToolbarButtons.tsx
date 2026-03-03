@@ -1,4 +1,5 @@
 import {
+  Bookmark,
   Check,
   ChevronUp,
   Download,
@@ -31,11 +32,13 @@ interface ToolbarButtonsProps {
   requiredContrastAuditLength: number;
   harmonyMode: HarmonyMode;
   onHarmonyModeChange: (mode: HarmonyMode) => void;
+  savedThemesCount: number;
   onUndo: () => void;
   onRedo: () => void;
   onSmartShuffle: () => void;
   onToggleTheme: () => void;
   onExportClick: () => void;
+  onSavedThemesClick: () => void;
 }
 
 export function ToolbarButtons({
@@ -48,11 +51,13 @@ export function ToolbarButtons({
   requiredContrastAuditLength,
   harmonyMode,
   onHarmonyModeChange,
+  savedThemesCount,
   onUndo,
   onRedo,
   onSmartShuffle,
   onToggleTheme,
   onExportClick,
+  onSavedThemesClick,
 }: ToolbarButtonsProps) {
   const [tooltipState, dispatchTooltip] = useReducer(tooltipReducer, initialTooltipState);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -229,6 +234,20 @@ export function ToolbarButtons({
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
           </div>
         )}
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onSavedThemesClick}
+          className="relative p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          title="Saved Themes"
+        >
+          <Bookmark size={16} className="text-neutral-800" />
+          {savedThemesCount > 0 && (
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-neutral-800 text-white text-[8px] font-bold flex items-center justify-center leading-none">
+              {savedThemesCount > 9 ? "9+" : savedThemesCount}
+            </span>
+          )}
+        </button>
       </div>
       <div className="relative h-full">
         <button

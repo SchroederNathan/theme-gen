@@ -14,6 +14,7 @@ import {
 import { Lock, Unlock, Check, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
 import { ExportModal } from "./ExportModal";
+import { SavedThemesPanel } from "./SavedThemesPanel";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
 import {
@@ -177,7 +178,7 @@ function isPaletteAccessible(palette: Record<string, string>) {
 }
 
 export function ThemeCustomizer() {
-  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory } = useTheme();
+  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory, savedThemes } = useTheme();
 
   const [colorPickerState, dispatchColorPicker] = useReducer(colorPickerReducer, initialColorPickerState);
 
@@ -185,6 +186,7 @@ export function ThemeCustomizer() {
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>("complementary");
   const [isCompact, setIsCompact] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -446,6 +448,7 @@ export function ThemeCustomizer() {
   return (
     <>
       <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
+      <SavedThemesPanel isOpen={showSavedThemesPanel} onClose={() => setShowSavedThemesPanel(false)} />
 
       <div
         ref={containerRef}
@@ -497,11 +500,13 @@ export function ThemeCustomizer() {
             requiredContrastAuditLength={requiredContrastAudit.length}
             harmonyMode={harmonyMode}
             onHarmonyModeChange={setHarmonyMode}
+            savedThemesCount={savedThemes.length}
             onUndo={undo}
             onRedo={redo}
             onSmartShuffle={smartShuffle}
             onToggleTheme={toggleTheme}
             onExportClick={() => setShowExportModal(!showExportModal)}
+            onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
           />
         </div>
 
