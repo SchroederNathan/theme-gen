@@ -12,6 +12,7 @@ import { Lock, Unlock, Check, X } from "lucide-react";
 import chroma from "chroma-js";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
 import { ExportPanel } from "./ExportPanel";
+import { SavedThemesPanel } from "./SavedThemesPanel";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
 import {
@@ -173,13 +174,14 @@ function isPaletteAccessible(palette: Record<string, string>) {
 }
 
 export function ThemeCustomizer() {
-  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory } = useTheme();
+  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory, savedThemes } = useTheme();
 
   const [colorPickerState, dispatchColorPicker] = useReducer(colorPickerReducer, initialColorPickerState);
 
   const [lockedColors, setLockedColors] = useState<Set<string>>(new Set());
   const [isCompact, setIsCompact] = useState(false);
   const [showExportPanel, setShowExportPanel] = useState(false);
+  const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -432,6 +434,7 @@ export function ThemeCustomizer() {
   return (
     <>
       <ExportPanel isOpen={showExportPanel} onClose={() => setShowExportPanel(false)} />
+      <SavedThemesPanel isOpen={showSavedThemesPanel} onClose={() => setShowSavedThemesPanel(false)} />
 
       <div
         ref={containerRef}
@@ -480,6 +483,7 @@ export function ThemeCustomizer() {
             currentContrastAudit={currentContrastAudit}
             requiredContrastPassCount={requiredContrastPassCount}
             requiredContrastAuditLength={requiredContrastAudit.length}
+            savedThemesCount={savedThemes.length}
             onUndo={undo}
             onRedo={redo}
             onSmartShuffle={smartShuffle}
@@ -488,6 +492,7 @@ export function ThemeCustomizer() {
               navigator.clipboard.writeText(window.location.href);
             }}
             onExportClick={() => setShowExportPanel(!showExportPanel)}
+            onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
           />
         </div>
 
