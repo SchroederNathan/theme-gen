@@ -41,6 +41,8 @@ export interface TooltipState {
   showThemeTooltip: boolean;
   showDownloadTooltip: boolean;
   harmonyDropdownOpen: boolean;
+  sharePopoverOpen: boolean;
+  shareCopied: boolean;
 }
 
 export type TooltipAction =
@@ -48,7 +50,10 @@ export type TooltipAction =
   | { type: 'SHOW_THEME_TOOLTIP'; payload: boolean }
   | { type: 'SHOW_DOWNLOAD_TOOLTIP'; payload: boolean }
   | { type: 'TOGGLE_HARMONY_DROPDOWN' }
-  | { type: 'CLOSE_HARMONY_DROPDOWN' };
+  | { type: 'CLOSE_HARMONY_DROPDOWN' }
+  | { type: 'TOGGLE_SHARE_POPOVER' }
+  | { type: 'CLOSE_SHARE_POPOVER' }
+  | { type: 'SET_SHARE_COPIED'; payload: boolean };
 
 export interface ColorButtonData {
   color: string;

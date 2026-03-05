@@ -129,6 +129,8 @@ export const initialTooltipState: TooltipState = {
   showThemeTooltip: false,
   showDownloadTooltip: false,
   harmonyDropdownOpen: false,
+  sharePopoverOpen: false,
+  shareCopied: false,
 };
 
 export function tooltipReducer(
@@ -161,6 +163,24 @@ export function tooltipReducer(
       return {
         ...state,
         harmonyDropdownOpen: false,
+      };
+    case 'TOGGLE_SHARE_POPOVER':
+      return {
+        ...state,
+        sharePopoverOpen: !state.sharePopoverOpen,
+        harmonyDropdownOpen: false,
+        shareCopied: false,
+      };
+    case 'CLOSE_SHARE_POPOVER':
+      return {
+        ...state,
+        sharePopoverOpen: false,
+        shareCopied: false,
+      };
+    case 'SET_SHARE_COPIED':
+      return {
+        ...state,
+        shareCopied: action.payload,
       };
     default:
       return state;

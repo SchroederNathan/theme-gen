@@ -2,7 +2,9 @@ import {
   Bookmark,
   Check,
   ChevronUp,
+  Copy,
   Download,
+  Link2,
   Moon,
   Redo2,
   Shuffle,
@@ -10,7 +12,7 @@ import {
   Sun,
   Undo2,
 } from "lucide-react";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { tooltipReducer, initialTooltipState } from "./theme-customizer-reducers";
 import { HarmonyMode } from "@/lib/colorUtils";
 
@@ -249,6 +251,9 @@ export function ToolbarButtons({
           )}
         </button>
       </div>
+      {/* Share button */}
+      <ShareButton isCompact={isCompact} />
+
       <div className="relative h-full">
         <button
           onClick={onExportClick}
@@ -274,6 +279,105 @@ export function ToolbarButtons({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Self-contained Share button + popover
+function ShareButton({ isCompact }: { isCompact: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Populate URL when opening
+  const handleOpen = () => {
+    setShareUrl(window.location.href);
+    setCopied(false);
+    setOpen((prev) => !prev);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      // fallback: select + execCommand
+      inputRef.current?.select();
+      document.execCommand("copy");
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <div className={`relative h-full`} ref={popoverRef}>
+      <button
+        onClick={handleOpen}
+        className={`p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center ${open ? "bg-neutral-100" : ""}`}
+        title="Share theme"
+      >
+        <Link2 size={16} className="text-neutral-800" />
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 bg-white border border-neutral-200 rounded-xl shadow-lg p-4"
+          style={{
+            bottom: "calc(100% + 8px)",
+            right: 0,
+            width: "320px",
+          }}
+        >
+          <p className="text-sm font-semibold text-neutral-900 mb-1">Share this theme</p>
+          <p className="text-xs text-neutral-500 mb-3">
+            Anyone with this link will see your exact palette.
+          </p>
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              readOnly
+              value={shareUrl}
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+              className="flex-1 min-w-0 text-xs font-mono bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-300 truncate"
+            />
+            <button
+              onClick={handleCopy}
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                copied
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-neutral-900 text-white hover:bg-neutral-700"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check size={13} strokeWidth={2.5} />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy size={13} />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
+          {/* Arrow */}
+          <div className="absolute -bottom-1.5 right-4 rotate-45 w-3 h-3 bg-white border-r border-b border-neutral-200" />
+        </div>
+      )}
     </div>
   );
 }
