@@ -284,10 +284,24 @@ function nudgeForContrastOklch(
   return chroma.oklch(Math.max(0, Math.min(1, currentL)), c, h).hex();
 }
 
-export type HarmonyMode = "complementary" | "monochromatic";
+export type HarmonyMode =
+  | "complementary"
+  | "monochromatic"
+  | "analogous"
+  | "triadic"
+  | "split-complementary"
+  | "tetradic";
 
 function getAccentOffset(mode: HarmonyMode): number {
-  return mode === "complementary" ? 180 : 0;
+  switch (mode) {
+    case "complementary":       return 180;
+    case "monochromatic":       return 0;
+    case "analogous":           return 30;
+    case "triadic":             return 120;
+    case "split-complementary": return 150;
+    case "tetradic":            return 90;
+    default:                    return 180;
+  }
 }
 
 export function maxChromaInGamut(l: number, h: number): number {
