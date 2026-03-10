@@ -154,7 +154,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
         const hexInit = `\n// Color hex initializer\nextension Color {\n    init(hex: String) {\n        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)\n        var int: UInt64 = 0\n        Scanner(string: hex).scanHexInt64(&int)\n        let a, r, g, b: UInt64\n        switch hex.count {\n        case 6:\n            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)\n        default:\n            (a, r, g, b) = (255, 0, 0, 0)\n        }\n        self.init(\n            .sRGB,\n            red: Double(r) / 255,\n            green: Double(g) / 255,\n            blue: Double(b) / 255,\n            opacity: Double(a) / 255\n        )\n    }\n}`;
 
         const swiftColor = (hex: string): string => {
-          if (state.colorFormat === "rgb" || state.colorFormat === "hsl" || state.colorFormat === "oklch") {
+          if (state.colorFormat !== "hex") {
             const rgb = hexToRgb(hex);
             return `Color(red: ${(rgb.r / 255).toFixed(3)}, green: ${(rgb.g / 255).toFixed(3)}, blue: ${(rgb.b / 255).toFixed(3)})`;
           }
