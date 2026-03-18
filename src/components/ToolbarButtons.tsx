@@ -3,6 +3,7 @@ import {
   Check,
   ChevronUp,
   Download,
+  LayoutGrid,
   Moon,
   Redo2,
   Shuffle,
@@ -37,6 +38,7 @@ interface ToolbarButtonsProps {
   onRedo: () => void;
   onSmartShuffle: () => void;
   onToggleTheme: () => void;
+  onStarterGalleryClick: () => void;
   onExportClick: () => void;
   onSavedThemesClick: () => void;
 }
@@ -56,6 +58,7 @@ export function ToolbarButtons({
   onRedo,
   onSmartShuffle,
   onToggleTheme,
+  onStarterGalleryClick,
   onExportClick,
   onSavedThemesClick,
 }: ToolbarButtonsProps) {
@@ -234,6 +237,15 @@ export function ToolbarButtons({
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
           </div>
         )}
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onStarterGalleryClick}
+          className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          title="Starter Themes"
+        >
+          <LayoutGrid size={16} className="text-neutral-800" />
+        </button>
       </div>
       <div className="relative h-full">
         <button
