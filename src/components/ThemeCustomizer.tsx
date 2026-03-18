@@ -15,6 +15,7 @@ import { Lock, Unlock, Check, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
 import { ExportModal } from "./ExportModal";
 import { SavedThemesPanel } from "./SavedThemesPanel";
+import { StarterThemeGallery } from "./StarterThemeGallery";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
 import {
@@ -187,6 +188,7 @@ export function ThemeCustomizer() {
   const [isCompact, setIsCompact] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
+  const [showStarterGallery, setShowStarterGallery] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -449,6 +451,7 @@ export function ThemeCustomizer() {
     <>
       <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
       <SavedThemesPanel isOpen={showSavedThemesPanel} onClose={() => setShowSavedThemesPanel(false)} />
+      <StarterThemeGallery isOpen={showStarterGallery} onClose={() => setShowStarterGallery(false)} />
 
       <div
         ref={containerRef}
@@ -505,6 +508,7 @@ export function ThemeCustomizer() {
             onRedo={redo}
             onSmartShuffle={smartShuffle}
             onToggleTheme={toggleTheme}
+            onStarterGalleryClick={() => setShowStarterGallery(!showStarterGallery)}
             onExportClick={() => setShowExportModal(!showExportModal)}
             onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
           />
