@@ -2,6 +2,7 @@
 
 import Bento from "../components/Bento";
 import Hero from "../components/Hero";
+import { StarterThemeBanner } from "@/components/StarterThemeBanner";
 import PreviewHero from "@/components/studio/hero";
 import Pricing from "@/components/studio/pricing";
 import PreviewToggle, { PreviewModeProvider, usePreviewMode } from "@/components/studio/PreviewToggle";
@@ -19,6 +20,7 @@ function PageContent() {
       <div style={{ display: mode === "web" ? "contents" : "none" }}>
         <Hero />
         <Bento />
+        <StarterThemeBanner />
         <main className="relative">
           <PreviewHero />
           <Pricing />
