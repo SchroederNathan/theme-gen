@@ -284,6 +284,14 @@ function nudgeForContrastOklch(
   return chroma.oklch(Math.max(0, Math.min(1, currentL)), c, h).hex();
 }
 
+export function ensureContrast(
+  color: string,
+  against: string,
+  minimumRatio: number
+): string {
+  return nudgeForContrastOklch(color, against, minimumRatio);
+}
+
 export type HarmonyMode = "complementary" | "monochromatic";
 
 function getAccentOffset(mode: HarmonyMode): number {

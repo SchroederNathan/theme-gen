@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   Moon,
   Redo2,
+  ShieldCheck,
   Shuffle,
   Sparkles,
   Sun,
@@ -39,6 +40,7 @@ interface ToolbarButtonsProps {
   onSmartShuffle: () => void;
   onToggleTheme: () => void;
   onStarterGalleryClick: () => void;
+  onContrastAuditClick: () => void;
   onExportClick: () => void;
   onSavedThemesClick: () => void;
 }
@@ -59,6 +61,7 @@ export function ToolbarButtons({
   onSmartShuffle,
   onToggleTheme,
   onStarterGalleryClick,
+  onContrastAuditClick,
   onExportClick,
   onSavedThemesClick,
 }: ToolbarButtonsProps) {
@@ -259,6 +262,15 @@ export function ToolbarButtons({
               {savedThemesCount > 9 ? "9+" : savedThemesCount}
             </span>
           )}
+        </button>
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onContrastAuditClick}
+          className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          title="Contrast Audit"
+        >
+          <ShieldCheck size={16} className="text-neutral-800" />
         </button>
       </div>
       <div className="relative h-full">

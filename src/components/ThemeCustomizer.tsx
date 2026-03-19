@@ -18,6 +18,7 @@ import { SavedThemesPanel } from "./SavedThemesPanel";
 import { StarterThemeGallery } from "./StarterThemeGallery";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
+import { ContrastAuditPanel } from "./ContrastAuditPanel";
 import {
   colorPickerReducer,
   initialColorPickerState,
@@ -189,6 +190,7 @@ export function ThemeCustomizer() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
   const [showStarterGallery, setShowStarterGallery] = useState(false);
+  const [showContrastAudit, setShowContrastAudit] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -264,6 +266,41 @@ export function ThemeCustomizer() {
       }
       return newSet;
     });
+  };
+
+  const handleApplyContrastSuggestion = (
+    property: keyof typeof theme.colors,
+    value: string,
+  ) => {
+    pushHistory();
+    updateThemeProperty(["colors", property], value);
+
+    const backgroundColor =
+      property === "background" ? value : theme.colors.background;
+
+    const onColorMap: Partial<Record<keyof typeof theme.colors, keyof typeof theme.colors>> = {
+      primary: "onPrimary",
+      container: "onContainer",
+      accent: "onAccent",
+      success: "onSuccess",
+      error: "onError",
+      warning: "onWarning",
+    };
+
+    const textColor = property === "text" ? value : theme.colors.text;
+
+    if ((property === "text" || property === "background") && !lockedColors.has("border")) {
+      updateThemeProperty(["colors", "border"], mixOklch(textColor, backgroundColor, 0.82));
+    }
+
+    if ((property === "text" || property === "background") && !lockedColors.has("muted")) {
+      updateThemeProperty(["colors", "muted"], mixOklch(textColor, backgroundColor, 0.55));
+    }
+
+    const onColorProperty = onColorMap[property];
+    if (onColorProperty) {
+      updateThemeProperty(["colors", onColorProperty], pickOnColor(value));
+    }
   };
 
   const smartShuffle = () => {
@@ -452,6 +489,12 @@ export function ThemeCustomizer() {
       <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
       <SavedThemesPanel isOpen={showSavedThemesPanel} onClose={() => setShowSavedThemesPanel(false)} />
       <StarterThemeGallery isOpen={showStarterGallery} onClose={() => setShowStarterGallery(false)} />
+      <ContrastAuditPanel
+        colors={theme.colors}
+        isOpen={showContrastAudit}
+        onClose={() => setShowContrastAudit(false)}
+        onApplySuggestion={handleApplyContrastSuggestion}
+      />
 
       <div
         ref={containerRef}
@@ -509,6 +552,7 @@ export function ThemeCustomizer() {
             onSmartShuffle={smartShuffle}
             onToggleTheme={toggleTheme}
             onStarterGalleryClick={() => setShowStarterGallery(!showStarterGallery)}
+            onContrastAuditClick={() => setShowContrastAudit(!showContrastAudit)}
             onExportClick={() => setShowExportModal(!showExportModal)}
             onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
           />
