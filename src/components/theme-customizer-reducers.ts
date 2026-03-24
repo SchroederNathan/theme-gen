@@ -128,6 +128,7 @@ export const initialTooltipState: TooltipState = {
   showRandomizeTooltip: false,
   showThemeTooltip: false,
   showDownloadTooltip: false,
+  showShareTooltip: false,
   harmonyDropdownOpen: false,
 };
 
@@ -150,6 +151,11 @@ export function tooltipReducer(
       return {
         ...state,
         showDownloadTooltip: action.payload,
+      };
+    case 'SHOW_SHARE_TOOLTIP':
+      return {
+        ...state,
+        showShareTooltip: action.payload,
       };
     case 'TOGGLE_HARMONY_DROPDOWN':
       return {

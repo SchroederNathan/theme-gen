@@ -40,6 +40,7 @@ export interface TooltipState {
   showRandomizeTooltip: boolean;
   showThemeTooltip: boolean;
   showDownloadTooltip: boolean;
+  showShareTooltip: boolean;
   harmonyDropdownOpen: boolean;
 }
 
@@ -47,6 +48,7 @@ export type TooltipAction =
   | { type: 'SHOW_RANDOMIZE_TOOLTIP'; payload: boolean }
   | { type: 'SHOW_THEME_TOOLTIP'; payload: boolean }
   | { type: 'SHOW_DOWNLOAD_TOOLTIP'; payload: boolean }
+  | { type: 'SHOW_SHARE_TOOLTIP'; payload: boolean }
   | { type: 'TOGGLE_HARMONY_DROPDOWN' }
   | { type: 'CLOSE_HARMONY_DROPDOWN' };
 

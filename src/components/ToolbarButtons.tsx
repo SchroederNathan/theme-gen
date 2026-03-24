@@ -3,6 +3,7 @@ import {
   Check,
   ChevronUp,
   Download,
+  Link2,
   Moon,
   Redo2,
   Shuffle,
@@ -39,6 +40,8 @@ interface ToolbarButtonsProps {
   onToggleTheme: () => void;
   onExportClick: () => void;
   onSavedThemesClick: () => void;
+  onShareClick: () => void;
+  shareCopied: boolean;
 }
 
 export function ToolbarButtons({
@@ -58,6 +61,8 @@ export function ToolbarButtons({
   onToggleTheme,
   onExportClick,
   onSavedThemesClick,
+  onShareClick,
+  shareCopied,
 }: ToolbarButtonsProps) {
   const [tooltipState, dispatchTooltip] = useReducer(tooltipReducer, initialTooltipState);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -270,6 +275,35 @@ export function ToolbarButtons({
             }}
           >
             Export Theme
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
+          </div>
+        )}
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onShareClick}
+          className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          onMouseEnter={() => dispatchTooltip({ type: 'SHOW_SHARE_TOOLTIP', payload: true })}
+          onMouseLeave={() => dispatchTooltip({ type: 'SHOW_SHARE_TOOLTIP', payload: false })}
+        >
+          {shareCopied ? (
+            <Check size={16} className="text-emerald-600" />
+          ) : (
+            <Link2 size={16} className="text-neutral-800" />
+          )}
+        </button>
+        {tooltipState.showShareTooltip && (
+          <div
+            role="tooltip"
+            className="absolute z-10 inline-block px-3 py-2 text-sm font-medium text-neutral-800 transition-opacity duration-300 bg-neutral-50 shadow-sm rounded-lg border border-neutral-200 tooltip min-w-[120px] text-center"
+            style={{
+              bottom: "99%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              marginBottom: "8px",
+            }}
+          >
+            {shareCopied ? "Link Copied!" : "Copy Share Link"}
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
           </div>
         )}
