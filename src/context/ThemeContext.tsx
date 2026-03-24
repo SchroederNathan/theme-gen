@@ -26,6 +26,7 @@ type ThemeContextType = {
   saveCurrentTheme: (name: string) => void;
   deleteSavedTheme: (id: string) => void;
   loadSavedTheme: (saved: SavedTheme) => void;
+  generateShareURL: () => string;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -35,6 +36,7 @@ type NestedTheme = {
 };
 
 const URL_COLOR_KEYS = ["text", "background", "primary", "container", "accent"] as const;
+const SHARE_COLOR_KEYS = ["text", "background", "primary", "container", "accent", "success", "error", "warning"] as const;
 
 function parseColorsFromURL(): Partial<Theme["colors"]> | null {
   const params = new URLSearchParams(window.location.search);
@@ -42,13 +44,19 @@ function parseColorsFromURL(): Partial<Theme["colors"]> | null {
   if (!colorsParam) return null;
 
   const hexValues = colorsParam.split("-");
-  if (hexValues.length !== URL_COLOR_KEYS.length) return null;
-
   const isValidHex = (h: string) => /^[0-9a-fA-F]{6}$/.test(h);
   if (!hexValues.every(isValidHex)) return null;
 
+  // Support both 5-color (legacy) and 8-color (share) formats
+  const keys = hexValues.length === SHARE_COLOR_KEYS.length
+    ? SHARE_COLOR_KEYS
+    : hexValues.length === URL_COLOR_KEYS.length
+      ? URL_COLOR_KEYS
+      : null;
+  if (!keys) return null;
+
   const colors: Partial<Theme["colors"]> = {};
-  URL_COLOR_KEYS.forEach((key, i) => {
+  keys.forEach((key, i) => {
     (colors as Record<string, string>)[key] = `#${hexValues[i]}`;
   });
 
@@ -60,8 +68,22 @@ function parseColorsFromURL(): Partial<Theme["colors"]> | null {
   if (colors.primary) colors.onPrimary = pickOnColor(colors.primary);
   if (colors.container) colors.onContainer = pickOnColor(colors.container);
   if (colors.accent) colors.onAccent = pickOnColor(colors.accent);
+  if (colors.success) colors.onSuccess = pickOnColor(colors.success);
+  if (colors.error) colors.onError = pickOnColor(colors.error);
+  if (colors.warning) colors.onWarning = pickOnColor(colors.warning);
 
   return colors;
+}
+
+function buildShareURL(theme: Theme, themeName: string): string {
+  const compact = SHARE_COLOR_KEYS
+    .map((key) => theme.colors[key].replace("#", ""))
+    .join("-");
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("colors", compact);
+  url.searchParams.set("mode", themeName);
+  return url.toString();
 }
 
 function syncURLParams(theme: Theme, themeName: string) {
@@ -186,6 +208,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const generateShareURL = useCallback(() => {
+    return buildShareURL(theme, themeNameRef.current);
+  }, [theme]);
+
   const loadSavedTheme = useCallback((saved: SavedTheme) => {
     pushHistory();
     setThemeName(saved.themeName);
@@ -283,6 +309,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         saveCurrentTheme,
         deleteSavedTheme,
         loadSavedTheme,
+        generateShareURL,
       }}
     >
       {children}

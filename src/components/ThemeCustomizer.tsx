@@ -178,7 +178,7 @@ function isPaletteAccessible(palette: Record<string, string>) {
 }
 
 export function ThemeCustomizer() {
-  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory, savedThemes } = useTheme();
+  const { theme, updateThemeProperty, themeName, setTheme, undo, redo, canUndo, canRedo, pushHistory, savedThemes, generateShareURL } = useTheme();
 
   const [colorPickerState, dispatchColorPicker] = useReducer(colorPickerReducer, initialColorPickerState);
 
@@ -187,6 +187,7 @@ export function ThemeCustomizer() {
   const [isCompact, setIsCompact] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -315,6 +316,13 @@ export function ThemeCustomizer() {
       lockedColors
     );
     setTheme(targetMode, adapted as Partial<typeof theme.colors>);
+  };
+
+  const handleShare = async () => {
+    const url = generateShareURL();
+    await navigator.clipboard.writeText(url);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   };
 
   // Center the popover above the button
@@ -507,6 +515,8 @@ export function ThemeCustomizer() {
             onToggleTheme={toggleTheme}
             onExportClick={() => setShowExportModal(!showExportModal)}
             onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
+            onShareClick={handleShare}
+            shareCopied={shareCopied}
           />
         </div>
 
