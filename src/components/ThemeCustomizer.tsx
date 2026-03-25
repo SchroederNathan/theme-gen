@@ -15,6 +15,7 @@ import { Lock, Unlock, Check, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, useReducer } from "react";
 import { ExportModal } from "./ExportModal";
 import { SavedThemesPanel } from "./SavedThemesPanel";
+import { ThemeVariantsPanel } from "./ThemeVariantsPanel";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 import { ToolbarButtons } from "./ToolbarButtons";
 import {
@@ -187,6 +188,7 @@ export function ThemeCustomizer() {
   const [isCompact, setIsCompact] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSavedThemesPanel, setShowSavedThemesPanel] = useState(false);
+  const [showVariantsPanel, setShowVariantsPanel] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -449,6 +451,7 @@ export function ThemeCustomizer() {
     <>
       <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
       <SavedThemesPanel isOpen={showSavedThemesPanel} onClose={() => setShowSavedThemesPanel(false)} />
+      <ThemeVariantsPanel isOpen={showVariantsPanel} onClose={() => setShowVariantsPanel(false)} />
 
       <div
         ref={containerRef}
@@ -507,6 +510,7 @@ export function ThemeCustomizer() {
             onToggleTheme={toggleTheme}
             onExportClick={() => setShowExportModal(!showExportModal)}
             onSavedThemesClick={() => setShowSavedThemesPanel(!showSavedThemesPanel)}
+            onVariantsClick={() => setShowVariantsPanel(!showVariantsPanel)}
           />
         </div>
 

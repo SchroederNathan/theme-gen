@@ -3,6 +3,7 @@ import {
   Check,
   ChevronUp,
   Download,
+  Layers,
   Moon,
   Redo2,
   Shuffle,
@@ -39,6 +40,7 @@ interface ToolbarButtonsProps {
   onToggleTheme: () => void;
   onExportClick: () => void;
   onSavedThemesClick: () => void;
+  onVariantsClick: () => void;
 }
 
 export function ToolbarButtons({
@@ -58,6 +60,7 @@ export function ToolbarButtons({
   onToggleTheme,
   onExportClick,
   onSavedThemesClick,
+  onVariantsClick,
 }: ToolbarButtonsProps) {
   const [tooltipState, dispatchTooltip] = useReducer(tooltipReducer, initialTooltipState);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -234,6 +237,15 @@ export function ToolbarButtons({
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 w-2 h-2 bg-neutral-50"></div>
           </div>
         )}
+      </div>
+      <div className="relative h-full">
+        <button
+          onClick={onVariantsClick}
+          className="p-2 h-full rounded-md hover:bg-neutral-100 transition-colors aspect-square flex items-center justify-center"
+          title="Compare Variants"
+        >
+          <Layers size={16} className="text-neutral-800" />
+        </button>
       </div>
       <div className="relative h-full">
         <button
