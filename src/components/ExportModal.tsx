@@ -1,5 +1,5 @@
 import { useTheme } from "@/context/ThemeContext";
-import { hexToRgb, rgbToHsl } from "@/lib/colorUtils";
+import { getContrastRatio, hexToRgb, rgbToHsl } from "@/lib/colorUtils";
 import chroma from "chroma-js";
 import { themes } from "@/lib/themes";
 import { Check, Copy, X } from "lucide-react";
@@ -84,6 +84,62 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
       out[key] = formatColor(value, format);
     });
     return out;
+  };
+
+  const contrastDefinitions = [
+    { label: "Text on Background", foreground: "text", background: "background", min: 7 },
+    { label: "Primary on Background", foreground: "primary", background: "background", min: 3 },
+    { label: "Text on Container", foreground: "text", background: "container", min: 4.5 },
+    { label: "Accent on Container", foreground: "accent", background: "container", min: 3 },
+    { label: "Accent on Background", foreground: "accent", background: "background", min: 3 },
+  ] as const;
+
+  const auditRows = contrastDefinitions.map((item) => {
+    const ratio = getContrastRatio(theme.colors[item.foreground], theme.colors[item.background]);
+    return {
+      ...item,
+      ratio,
+      pass: ratio >= item.min,
+    };
+  });
+
+  const auditSummary = {
+    passCount: auditRows.filter((item) => item.pass).length,
+    failCount: auditRows.filter((item) => !item.pass).length,
+    tokenCount: Object.keys(theme.colors).length,
+  };
+
+  const auditRecommendations = auditRows
+    .filter((item) => !item.pass)
+    .map((item) => `Improve ${item.label.toLowerCase()} from ${item.ratio.toFixed(2)}:1 to at least ${item.min}:1.`);
+
+  const generateAuditReport = () => {
+    return [
+      `# Theme Audit Report — ${themeName} mode`,
+      "",
+      `Generated from Theme Gen for the \"${themeName}\" theme variant.`,
+      `Contrast checks passed: ${auditSummary.passCount}/${auditRows.length}`,
+      `Token coverage: ${auditSummary.tokenCount} semantic color tokens`,
+      "",
+      "## Contrast audit",
+      ...auditRows.map((item) => `- ${item.label}: ${item.ratio.toFixed(2)}:1 (${item.pass ? "pass" : `needs ${item.min}:1`})`),
+      "",
+      "## Recommended next fixes",
+      ...(auditRecommendations.length ? auditRecommendations.map((item) => `- ${item}`) : ["- No blocking contrast issues found. Ready to share with a client or team."]),
+      "",
+      "## Current token values",
+      ...Object.entries(theme.colors).map(([key, value]) => `- ${key}: ${value}`),
+    ].join("\n");
+  };
+
+  const downloadAuditReport = () => {
+    const blob = new Blob([generateAuditReport()], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `theme-audit-${themeName}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const generateExportCode = () => {
@@ -367,6 +423,40 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     </span>
                   </label>
                 ))}
+              </div>
+
+              <div className="mb-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-left">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-neutral-900">Audit report snapshot</p>
+                    <p className="text-sm text-neutral-600">{auditSummary.passCount}/{auditRows.length} checks passing · {auditSummary.tokenCount} semantic tokens</p>
+                  </div>
+                  <button
+                    onClick={downloadAuditReport}
+                    className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+                  >
+                    Download audit report
+                  </button>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {auditRows.map((item) => (
+                    <div key={item.label} className="rounded-md border border-neutral-200 bg-white px-3 py-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-neutral-800">{item.label}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${item.pass ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {item.ratio.toFixed(2)}:1
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {auditRecommendations.length > 0 && (
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-600">
+                    {auditRecommendations.slice(0, 3).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div className="relative">
