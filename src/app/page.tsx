@@ -6,6 +6,12 @@ import PreviewHero from "@/components/studio/hero";
 import Pricing from "@/components/studio/pricing";
 import PreviewToggle, { PreviewModeProvider, usePreviewMode } from "@/components/studio/PreviewToggle";
 import MobilePreview from "@/components/studio/MobilePreview";
+import {
+  ColorBlindnessProvider,
+  ColorBlindnessFilters,
+  CBToggle,
+  CBPreviewWrapper,
+} from "@/components/studio/ColorBlindnessFilter";
 import Script from "next/script";
 
 function PageContent() {
@@ -13,8 +19,11 @@ function PageContent() {
 
   return (
     <div className="min-h-screen bg-background text-text pb-24">
+      <ColorBlindnessFilters />
       <PreviewToggle />
+      <CBToggle />
 
+      <CBPreviewWrapper>
       {/* Both views stay mounted — hidden via CSS to preserve state */}
       <div style={{ display: mode === "web" ? "contents" : "none" }}>
         <Hero />
@@ -45,6 +54,7 @@ function PageContent() {
           </div>
         </div>
       </div>
+      </CBPreviewWrapper>
     </div>
   );
 }
@@ -52,6 +62,7 @@ function PageContent() {
 export default function Home() {
   return (
     <PreviewModeProvider>
+     <ColorBlindnessProvider>
       <Script
         id="jsonld-webapp"
         type="application/ld+json"
@@ -77,6 +88,7 @@ export default function Home() {
         })}
       </Script>
       <PageContent />
+     </ColorBlindnessProvider>
     </PreviewModeProvider>
   );
 }
